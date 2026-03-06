@@ -3,9 +3,12 @@ namespace NumericDataTypes;
 
 use Composer\Semver\Comparator;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Events as DoctrineEvents;
+use NumericDataTypes\Db\Event\Listener\CascadeDetach;
 use Omeka\Module\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 
 class Module extends AbstractModule
@@ -13,6 +16,17 @@ class Module extends AbstractModule
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $em->getEventManager()->addEventListener(
+            DoctrineEvents::preFlush,
+            new CascadeDetach
+        );
     }
 
     public function install(ServiceLocatorInterface $services)
