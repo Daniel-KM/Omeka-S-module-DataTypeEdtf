@@ -4,16 +4,16 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Rubén Alcaraz Martínez <rubenalcarazmartinez@gmail.com>, 2025
+# Rubén Alcaraz Martínez <rubenalcarazmartinez@gmail.com>, 2026
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-09 15:47-0500\n"
+"POT-Creation-Date: 2026-03-10 10:30-0400\n"
 "PO-Revision-Date: 2018-11-27 19:31+0000\n"
-"Last-Translator: Rubén Alcaraz Martínez <rubenalcarazmartinez@gmail.com>, 2025\n"
+"Last-Translator: Rubén Alcaraz Martínez <rubenalcarazmartinez@gmail.com>, 2026\n"
 "Language-Team: Catalan (Spain) (https://app.transifex.com/omeka/teams/14184/ca_ES/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -113,11 +113,11 @@ msgstr "Data en interval"
 
 #: view/common/numeric-data-types-advanced-search.phtml:180
 msgid "Number is greater than"
-msgstr ""
+msgstr "El número és superior a"
 
 #: view/common/numeric-data-types-advanced-search.phtml:196
 msgid "Number is less than"
-msgstr ""
+msgstr "El número és inferior a"
 
 #: view/common/numeric-duration.phtml:9 view/common/numeric-integer.phtml:9
 #: view/common/numeric-interval.phtml:11
@@ -142,10 +142,13 @@ msgid ""
 "-9007199254740991 or greater than 9007199254740991; the number of digits to "
 "either the left or right side of a decimal cannot exceed 16."
 msgstr ""
+"El valor ha de ser un nombre enter o decimal; el número no pot ser inferior "
+"a -9007199254740991 ni superior a 9007199254740991; el nombre de dígits a "
+"l'esquerra o a la dreta del separador decimal no pot superar els 16."
 
 #: view/common/numeric-interval.phtml:12
 msgid "Value must be a valid interval with a start and an end."
-msgstr ""
+msgstr "El valor ha de ser un interval vàlid amb un inici i un final."
 
 #: view/common/numeric-interval.phtml:16
 msgid "Start:"
@@ -161,7 +164,7 @@ msgstr "El valor ha de ser una data i hora"
 
 #: src/DataType/Integer.php:66 src/Form/Element/Integer.php:22
 msgid "Number"
-msgstr ""
+msgstr "Número"
 
 #: src/DataType/Interval.php:24
 msgid "Interval"
