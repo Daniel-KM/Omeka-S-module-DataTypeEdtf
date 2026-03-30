@@ -1,9 +1,9 @@
-FacetedBrowse.registerFacetAddEditHandler('date_in_interval', function() {
+FacetedBrowse.registerFacetAddEditHandler('edtf_date_in_interval', function() {
     $('#date-in-interval-property-id').chosen({
         allow_single_deselect: true,
     });
 });
-FacetedBrowse.registerFacetSetHandler('date_in_interval', function() {
+FacetedBrowse.registerFacetSetHandler('edtf_date_in_interval', function() {
     const propertyId = $('#date-in-interval-property-id');
     if (!propertyId.val()) {
         alert(Omeka.jsTranslate('A facet must have a property.'));

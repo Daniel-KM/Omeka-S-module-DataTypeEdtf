@@ -20,13 +20,13 @@ const edtfAddAll = function(textareaId) {
 // Handle add all button.
 $(document).on('click', '#add-all', function(e) {
     switch ($('#facet-type-input').val()) {
-        case 'date_after':
+        case 'edtf_date_after':
             edtfAddAll('#date-after-values');
             break;
-        case 'date_before':
+        case 'edtf_date_before':
             edtfAddAll('#date-before-values');
             break;
-        case 'date_in_interval':
+        case 'edtf_date_in_interval':
             edtfAddAll('#date-in-interval-values');
             break;
     }

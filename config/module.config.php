@@ -48,7 +48,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
-            'Controller\SiteAdmin\FacetedBrowse\Index' => Service\Controller\SiteAdmin\FacetedBrowse\IndexControllerFactory::class,
+            'EdtfDataType\Controller\SiteAdmin\FacetedBrowse\Index' => Service\Controller\SiteAdmin\FacetedBrowse\IndexControllerFactory::class,
         ],
     ],
     'router' => [
@@ -68,7 +68,7 @@ return [
                                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                             ],
                                             'defaults' => [
-                                                '__NAMESPACE__' => 'Controller\SiteAdmin\FacetedBrowse',
+                                                '__NAMESPACE__' => 'EdtfDataType\Controller\SiteAdmin\FacetedBrowse',
                                                 'controller' => 'index',
                                                 'action' => 'index',
                                             ],
@@ -190,22 +190,22 @@ return [
     ],
     'datavis_dataset_types' => [
         'invokables' => [
-            'count_items_time_series' => Datavis\DatasetType\CountItemsTimeSeries::class,
-            'count_items_property_values_time_series' => Datavis\DatasetType\CountItemsPropertyValuesTimeSeries::class,
+            'edtf_count_items_time_series' => Datavis\DatasetType\CountItemsTimeSeries::class,
+            'edtf_count_items_property_values_time_series' => Datavis\DatasetType\CountItemsPropertyValuesTimeSeries::class,
         ],
     ],
     'datavis_diagram_types' => [
         'invokables' => [
-            'line_chart_time_series' => Datavis\DiagramType\LineChartTimeSeries::class,
-            'histogram_time_series' => Datavis\DiagramType\HistogramTimeSeries::class,
-            'line_chart_time_series_grouped' => Datavis\DiagramType\LineChartTimeSeriesGrouped::class,
+            'edtf_line_chart_time_series' => Datavis\DiagramType\LineChartTimeSeries::class,
+            'edtf_histogram_time_series' => Datavis\DiagramType\HistogramTimeSeries::class,
+            'edtf_line_chart_time_series_grouped' => Datavis\DiagramType\LineChartTimeSeriesGrouped::class,
         ],
     ],
     'faceted_browse_facet_types' => [
         'factories' => [
-            'date_after' => Service\FacetedBrowse\FacetType\DateAfterFactory::class,
-            'date_before' => Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
-            'date_in_interval' => Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
+            'edtf_date_after' => Service\FacetedBrowse\FacetType\DateAfterFactory::class,
+            'edtf_date_before' => Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
+            'edtf_date_in_interval' => Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
         ],
     ],
 ];

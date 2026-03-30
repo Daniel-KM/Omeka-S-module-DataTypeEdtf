@@ -1,4 +1,4 @@
-FacetedBrowse.registerFacetApplyStateHandler('date_before', function(facet, facetState) {
+FacetedBrowse.registerFacetApplyStateHandler('edtf_date_before', function(facet, facetState) {
     const thisFacet = $(facet);
     thisFacet.find(`select.date-before-value`).val(facetState);
 });
