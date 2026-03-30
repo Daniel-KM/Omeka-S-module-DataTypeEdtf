@@ -2,7 +2,12 @@
 
 This module supports the Extended Date Time Format.
 
-It builds on the work done by the Numeric Data Types module and incorporates EDTF functions from [ProfessionalWiki's EDTF implementation in Php](https://github.com/ProfessionalWiki/EDTF) 
+It builds on the work done by the Numeric Data Types module and incorporates EDTF functions from [ProfessionalWiki's EDTF implementation in Php](https://github.com/ProfessionalWiki/EDTF)
+
+# TODO
+
+- [ ] Implement `ConversionTargetInterface` (Omeka S 4.2+) on `Edtf` data type to use the native batch conversion system instead of the custom `ConvertToEdtf` mechanism.
+- [ ] Adapt FacetedBrowse facet types for EDTF intervals and durations (value_greater_than, value_less_than, duration_greater_than, duration_less_than are currently disabled).
 
 # Copyright
 
