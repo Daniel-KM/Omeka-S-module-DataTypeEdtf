@@ -105,6 +105,8 @@ return [
         'Cancel', // @translate
         'Century (19XX)', // @translate
         'Close', // @translate
+        'Copy', // @translate
+        'Copy start to end', // @translate
         'Day', // @translate
         'December', // @translate
         'Decade (198X)', // @translate
@@ -119,8 +121,11 @@ return [
         'Invalid minute', // @translate
         'Invalid month', // @translate
         'Invalid second', // @translate
+        'Qualifiers (uncertain, approximate) cannot be used with reduced precision', // @translate
         'Qualifiers (uncertain, approximate) cannot be used with seasons', // @translate
         'Seasons and sub-year groupings cannot be used in intervals', // @translate
+        'Swap', // @translate
+        'Swap start and end', // @translate
         'Time is only allowed with day precision', // @translate
         'January', // @translate
         'July', // @translate
