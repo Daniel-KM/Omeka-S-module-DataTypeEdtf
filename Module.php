@@ -38,10 +38,98 @@ class Module extends AbstractModule
 
     public function install(ServiceLocatorInterface $services): void
     {
+        // The legacy EdtfDataType module may still be installed. Both modules
+        // can coexist because all collision points have been resolved.
+        // The admin can migrate legacy data to the new schema via the config
+        // form button exposed by this module.
+
         $conn = $services->get('Omeka\Connection');
-        $conn->executeStatement('CREATE TABLE data_type_edtf (id INT AUTO_INCREMENT NOT NULL, resource_id INT NOT NULL, property_id INT NOT NULL, value_min BIGINT NOT NULL, value_max BIGINT NOT NULL, INDEX idx_resource (resource_id), INDEX idx_property (property_id), INDEX idx_property_value_min (property_id, value_min), INDEX idx_property_value_max (property_id, value_max), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;');
+        $conn->executeStatement(<<<'SQL'
+            CREATE TABLE data_type_edtf (
+                id INT AUTO_INCREMENT NOT NULL,
+                resource_id INT NOT NULL,
+                property_id INT NOT NULL,
+                value_min BIGINT NOT NULL,
+                value_max BIGINT NOT NULL,
+                INDEX idx_resource (resource_id),
+                INDEX idx_property (property_id),
+                INDEX idx_property_value_min (property_id, value_min),
+                INDEX idx_property_value_max (property_id, value_max),
+                PRIMARY KEY(id)
+            ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
+            SQL);
         $conn->executeStatement('ALTER TABLE data_type_edtf ADD CONSTRAINT fk_edtf_resource FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;');
         $conn->executeStatement('ALTER TABLE data_type_edtf ADD CONSTRAINT fk_edtf_property FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
+    }
+
+    public function getConfigForm(\Laminas\View\Renderer\PhpRenderer $renderer)
+    {
+        $services = $this->getServiceLocator();
+        $moduleManager = $services->get('Omeka\ModuleManager');
+        $legacy = $moduleManager->getModule('EdtfDataType');
+        $legacyInstalled = $legacy
+            && $legacy->getState() !== \Omeka\Module\Manager::STATE_NOT_FOUND
+            && $legacy->getState() !== \Omeka\Module\Manager::STATE_NOT_INSTALLED;
+
+        // Only show the migration block when both the legacy module is
+        // installed AND its table actually exists. Otherwise the config form is
+        // rendered empty.
+        $legacyActive = false;
+        $legacyCount = 0;
+        if ($legacyInstalled) {
+            try {
+                $legacyCount = (int) $services->get('Omeka\Connection')
+                    ->fetchOne('SELECT COUNT(*) FROM edtf_data_type_edtf');
+                $legacyActive = true;
+            } catch (\Throwable $e) {
+                // Table does not exist: treat as no legacy present.
+            }
+        }
+
+        return $renderer->partial('data-type-edtf/config-form', [
+            'legacyActive' => $legacyActive,
+            'legacyCount' => $legacyCount,
+        ]);
+    }
+
+    public function handleConfigForm(\Laminas\Mvc\Controller\AbstractController $controller)
+    {
+        $services = $this->getServiceLocator();
+        $params = $controller->params()->fromPost();
+
+        if (empty($params['migrate_from_legacy'])) {
+            return true;
+        }
+
+        $moduleManager = $services->get('Omeka\ModuleManager');
+        $legacy = $moduleManager->getModule('EdtfDataType');
+        if (!$legacy
+            || $legacy->getState() === \Omeka\Module\Manager::STATE_NOT_FOUND
+            || $legacy->getState() === \Omeka\Module\Manager::STATE_NOT_INSTALLED
+        ) {
+            $controller->messenger()->addError('The legacy module "EdtfDataType" is not installed; nothing to migrate.'); // @translate
+            return false;
+        }
+
+        $dispatcher = $services->get('Omeka\Job\Dispatcher');
+        $job = $dispatcher->dispatch(\DataTypeEdtf\Job\MigrateFromLegacy::class);
+        if ($job) {
+            $urlPlugin = $controller->url();
+            $message = new \Common\Stdlib\PsrMessage(
+                'Migrating legacy "EdtfDataType" data in background (job {link_job}#{job_id}{link_end}, {link_log}logs{link_end}).', // @translate
+                [
+                    'link_job' => sprintf('<a href="%s">', htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))),
+                    'job_id' => $job->getId(),
+                    'link_end' => '</a>',
+                    'link_log' => class_exists('Log\Module', false)
+                        ? sprintf('<a href="%1$s">', $urlPlugin->fromRoute('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]))
+                        : sprintf('<a href="%1$s" target="_blank">', $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()])),
+                ]
+            );
+            $message->setEscapeHtml(false);
+            $controller->messenger()->addSuccess($message);
+        }
+        return true;
     }
 
     public function uninstall(ServiceLocatorInterface $services): void
