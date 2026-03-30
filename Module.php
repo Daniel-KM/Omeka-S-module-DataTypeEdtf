@@ -40,15 +40,15 @@ class Module extends AbstractModule
     public function install(ServiceLocatorInterface $services)
     {
         $conn = $services->get('Omeka\Connection');
-        $conn->exec('CREATE TABLE edtf_data_type_edtf (id INT AUTO_INCREMENT NOT NULL, resource_id INT NOT NULL, property_id INT NOT NULL, value VARCHAR(255) NOT NULL, INDEX IDX_C0EBD47889329D25 (resource_id), INDEX IDX_C0EBD478549213EC (property_id), INDEX property_value (property_id, value), INDEX value (value), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;');
-        $conn->exec('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD47889329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;');
-        $conn->exec('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD478549213EC FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
+        $conn->executeStatement('CREATE TABLE edtf_data_type_edtf (id INT AUTO_INCREMENT NOT NULL, resource_id INT NOT NULL, property_id INT NOT NULL, value VARCHAR(255) NOT NULL, INDEX IDX_C0EBD47889329D25 (resource_id), INDEX IDX_C0EBD478549213EC (property_id), INDEX property_value (property_id, value), INDEX value (value), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;');
+        $conn->executeStatement('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD47889329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;');
+        $conn->executeStatement('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD478549213EC FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
     }
 
     public function uninstall(ServiceLocatorInterface $services)
     {
         $conn = $services->get('Omeka\Connection');
-        $conn->exec('DROP TABLE IF EXISTS edtf_data_type_edtf;');
+        $conn->executeStatement('DROP TABLE IF EXISTS edtf_data_type_edtf;');
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
