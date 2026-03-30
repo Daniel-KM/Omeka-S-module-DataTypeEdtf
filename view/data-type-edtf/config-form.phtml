@@ -1,0 +1,41 @@
+<?php
+/** @var bool $legacyActive */
+/** @var int $legacyCount */
+$escape = $this->plugin('escapeHtml');
+$translate = $this->plugin('translate');
+?>
+<?php if ($legacyActive): ?>
+    <div class="messages">
+        <div class="warning">
+            <p>
+                <strong><?= $escape($translate('Legacy "EdtfDataType" module detected.')) ?></strong>
+            </p>
+            <p>
+                <?= $escape(sprintf(
+                    $translate('The legacy module "EdtfDataType" is still installed alongside "DataTypeEdtf" and contains %d indexed values. Both modules can coexist temporarily, but users will see two EDTF data types in resource templates and new items may be split between the old "edtf:date" and new "edtf" data type ids. It is strongly recommended to run the migration as soon as possible to consolidate the data and remove the legacy module.'),
+                    $legacyCount
+                )) ?>
+            </p>
+        </div>
+    </div>
+
+    <fieldset>
+        <legend><?= $escape($translate('Migration from legacy "EdtfDataType" module')) ?></legend>
+        <p>
+            <?= $escape($translate('The migration keeps all stored EDTF strings intact in the Omeka "value" column (no item is modified). Three things change that API or SPARQL consumers must be aware of:')) ?>
+        </p>
+        <ol>
+            <li><?= $escape($translate('the data type id stored in the database: "edtf:date" becomes "edtf";')) ?></li>
+            <li><?= $escape($translate('the JSON-LD @type returned by the data type: upgraded from "xsd:string" to precise XSD types (xsd:date, xsd:gYear, xsd:gYearMonth, xsd:dateTime) for pure dates, and to the Library of Congress EDTF URI for advanced forms;')) ?></li>
+            <li><?= $escape($translate('the advanced-search query format: flattened from "edtf[date][gte][<pid>]=…" to "edtf[gte][<pid>]=…".')) ?></li>
+        </ol>
+        <p>
+            <?= $escape($translate('Clicking the button below dispatches a background job that migrates the index table, uninstalls the legacy module and leaves DataTypeEdtf as the only EDTF data type provider. Progress can be monitored on the Jobs page.')) ?>
+        </p>
+        <p>
+            <button type="submit" name="migrate_from_legacy" value="1" class="button">
+                <?= $escape($translate('Migrate legacy data')) ?>
+            </button>
+        </p>
+    </fieldset>
+<?php endif; ?>
