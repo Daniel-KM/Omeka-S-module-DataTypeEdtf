@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Service\FacetedBrowse\FacetType;
+namespace DataTypeEdtf\Service\FacetedBrowse\FacetType;
 
-use EdtfDataType\FacetedBrowse\FacetType\DateBefore;
+use DataTypeEdtf\FacetedBrowse\FacetType\DateBefore;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerInterface;
 

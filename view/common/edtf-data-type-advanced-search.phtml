@@ -1,7 +1,7 @@
 <?php
-use EdtfDataType\Form\Element\Edtf as EdtfElement;
+use DataTypeEdtf\Form\Element\Edtf as EdtfElement;
 
-$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'EdtfDataType'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'DataTypeEdtf'));
 
 $edtfGteSelect = $this->edtfPropertySelect([
     'name' => 'edtf[date][gte][pid]',

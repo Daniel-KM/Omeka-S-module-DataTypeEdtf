@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataTypeTest;
+namespace DataTypeEdtfTest;
 
 use Omeka\Test\AbstractHttpControllerTestCase;
 
@@ -11,7 +11,7 @@ use Omeka\Test\AbstractHttpControllerTestCase;
  */
 class ModuleInstallTest extends AbstractHttpControllerTestCase
 {
-    use EdtfDataTypeTestTrait;
+    use DataTypeEdtfTestTrait;
 
     public function setUp(): void
     {
@@ -29,16 +29,16 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
     {
         $services = $this->getApplication()->getServiceManager();
         $moduleManager = $services->get('Omeka\ModuleManager');
-        $module = $moduleManager->getModule('EdtfDataType');
-        $this->assertNotNull($module, 'EdtfDataType module should be installed');
+        $module = $moduleManager->getModule('DataTypeEdtf');
+        $this->assertNotNull($module, 'DataTypeEdtf module should be installed');
         $this->assertSame(
             'active',
             $module->getState(),
-            'EdtfDataType module should be active'
+            'DataTypeEdtf module should be active'
         );
     }
 
-    public function testEdtfDataTypeIsRegistered(): void
+    public function testDataTypeEdtfIsRegistered(): void
     {
         $services = $this->getApplication()->getServiceManager();
         $dataTypeManager = $services->get('Omeka\DataTypeManager');

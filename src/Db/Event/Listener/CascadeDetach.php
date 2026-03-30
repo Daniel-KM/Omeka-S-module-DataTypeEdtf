@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Db\Event\Listener;
+namespace DataTypeEdtf\Db\Event\Listener;
 
 use Doctrine\ORM\Event\PreFlushEventArgs;
-use EdtfDataType\Entity\EdtfDataTypeEdtf;
+use DataTypeEdtf\Entity\Edtf;
 
 class CascadeDetach
 {
@@ -24,7 +24,7 @@ class CascadeDetach
         $insertions = $uow->getScheduledEntityInsertions();
 
         $entityClasses = [
-            EdtfDataTypeEdtf::class,
+            Edtf::class,
         ];
         foreach ($entityClasses as $entityClass) {
             if (isset($identityMap[$entityClass])) {

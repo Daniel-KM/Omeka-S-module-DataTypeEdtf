@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\DataType;
+namespace DataTypeEdtf\DataType;
 
 use Doctrine\ORM\QueryBuilder;
-use EdtfDataType\Entity\EdtfDataTypeEdtf;
+use DataTypeEdtf\Entity\Edtf;
 use Omeka\Api\Adapter\AdapterInterface;
 use Omeka\Entity\Value;
 
@@ -19,10 +19,10 @@ interface DataTypeInterface
     /**
      * Set the number value(s) to a number entity.
      *
-     * @param EdtfDataTypeEdtf $entity
+     * @param Edtf $entity
      * @param Value $value
      */
-    public function setEntityValues(EdtfDataTypeEdtf $entity, Value $value);
+    public function setEntityValues(Edtf $entity, Value $value);
 
     /**
      * Build an EDTF query.

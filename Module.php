@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType;
+namespace DataTypeEdtf;
 
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Events as DoctrineEvents;
-use EdtfDataType\Db\Event\Listener\CascadeDetach;
-use EdtfDataType\Form\Element\ConvertToEdtf;
+use DataTypeEdtf\Db\Event\Listener\CascadeDetach;
+use DataTypeEdtf\Form\Element\ConvertToEdtf;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ModuleManager\ModuleManager;
@@ -146,7 +146,7 @@ class Module extends AbstractModule
             'view.faceted_browse.category_form',
             function (Event $event): void {
                 $view = $event->getTarget();
-                $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/category-form.js', 'EdtfDataType'));
+                $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/category-form.js', 'DataTypeEdtf'));
             }
         );
 
@@ -254,7 +254,7 @@ class Module extends AbstractModule
                 $dataType->hydrate($valueObject, $value, $adapter);
             } else {
                 $message = sprintf(
-                    'EdtfDataType - invalid %s value for ID %s - %s', // @translate
+                    'DataTypeEdtf - invalid %s value for ID %s - %s', // @translate
                     $type, $entity->getId(), $value->getValue()
                 );
                 $logger->notice($message);
@@ -288,7 +288,7 @@ class Module extends AbstractModule
 
         $allValues = $entity->getValues();
 
-        foreach ($this->getEdtfDataTypes() as $dataTypeName => $dataType) {
+        foreach ($this->getDataTypeEdtfs() as $dataTypeName => $dataType) {
             $criteria = Criteria::create()
                 ->where(Criteria::expr()->eq('type', $dataTypeName));
 
@@ -351,7 +351,7 @@ class Module extends AbstractModule
         }
         $adapter = $event->getTarget();
         $qb = $event->getParam('queryBuilder');
-        foreach ($this->getEdtfDataTypes() as $dataType) {
+        foreach ($this->getDataTypeEdtfs() as $dataType) {
             $dataType->buildQuery($adapter, $qb, $query);
         }
     }
@@ -380,7 +380,7 @@ class Module extends AbstractModule
         if ('edtf' !== $namespace || !is_string($type) || !is_numeric($propertyId)) {
             return;
         }
-        foreach ($this->getEdtfDataTypes() as $dataType) {
+        foreach ($this->getDataTypeEdtfs() as $dataType) {
             $dataType->sortQuery($adapter, $qb, $query, $type, $propertyId);
         }
     }
@@ -397,7 +397,7 @@ class Module extends AbstractModule
         $entityManager = $services->get('Omeka\EntityManager');
         $translator = $services->get('MvcTranslator');
 
-        $edtfDataTypes = $this->getEdtfDataTypes();
+        $edtfDataTypes = $this->getDataTypeEdtfs();
         $sortings = [];
         foreach ($edtfDataTypes as $edtfDataType) {
             $dql = sprintf(<<<'SQL'
@@ -428,7 +428,7 @@ class Module extends AbstractModule
      *
      * @return array
      */
-    public function getEdtfDataTypes()
+    public function getDataTypeEdtfs()
     {
         $dataType = $this->getServiceLocator()->get('Omeka\DataTypeManager');
         return [
@@ -444,7 +444,7 @@ class Module extends AbstractModule
      */
     public function convertToEdtfDataIsValid(array $data)
     {
-        $validTypes = array_keys($this->getEdtfDataTypes());
+        $validTypes = array_keys($this->getDataTypeEdtfs());
         return (
             isset($data['edtf_convert']['property'])
             && is_numeric($data['edtf_convert']['property'])

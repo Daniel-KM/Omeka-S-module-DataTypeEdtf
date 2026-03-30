@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Service\Delegator;
+namespace DataTypeEdtf\Service\Delegator;
 
 use Laminas\ServiceManager\Factory\DelegatorFactoryInterface;
 use Psr\Container\ContainerInterface;
@@ -12,11 +12,11 @@ class FormElementDelegatorFactory implements DelegatorFactoryInterface
     ) {
         $formElement = $callback();
         $formElement->addClass(
-            \EdtfDataType\Form\Element\Edtf::class,
+            \DataTypeEdtf\Form\Element\Edtf::class,
             'formEdtf'
         );
         $formElement->addClass(
-            \EdtfDataType\Form\Element\ConvertToEdtf::class,
+            \DataTypeEdtf\Form\Element\ConvertToEdtf::class,
             'formConvertToEdtf'
         );
         return $formElement;

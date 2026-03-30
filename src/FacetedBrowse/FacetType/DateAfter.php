@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\FacetedBrowse\FacetType;
+namespace DataTypeEdtf\FacetedBrowse\FacetType;
 
 use EDTF\EdtfFactory;
-use EdtfDataType\Form\Element\EdtfPropertySelect;
+use DataTypeEdtf\Form\Element\EdtfPropertySelect;
 use FacetedBrowse\Api\Representation\FacetedBrowseFacetRepresentation;
 use FacetedBrowse\FacetType\FacetTypeInterface;
 use Laminas\Form\Element as LaminasElement;
@@ -36,7 +36,7 @@ class DateAfter implements FacetTypeInterface
 
     public function prepareDataForm(PhpRenderer $view): void
     {
-        $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/facet-data-form/date-after.js', 'EdtfDataType'));
+        $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/facet-data-form/date-after.js', 'DataTypeEdtf'));
     }
 
     public function renderDataForm(PhpRenderer $view, array $data): string
@@ -74,7 +74,7 @@ class DateAfter implements FacetTypeInterface
 
     public function prepareFacet(PhpRenderer $view): void
     {
-        $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/facet-render/date-after.js', 'EdtfDataType'));
+        $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/facet-render/date-after.js', 'DataTypeEdtf'));
     }
 
     public function renderFacet(PhpRenderer $view, FacetedBrowseFacetRepresentation $facet): string

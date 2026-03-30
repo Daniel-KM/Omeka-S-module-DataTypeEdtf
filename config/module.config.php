@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType;
+namespace DataTypeEdtf;
 
 return [
     'entity_manager' => [
@@ -42,13 +42,13 @@ return [
     ],
     'form_elements' => [
         'factories' => [
-            'Form\Element\EdtfPropertySelect' => Service\Form\Element\EdtfPropertySelectFactory::class,
-            'Form\Element\ConvertToEdtf' => Service\Form\Element\ConvertToEdtfFactory::class,
+            'DataTypeEdtf\Form\Element\EdtfPropertySelect' => Service\Form\Element\EdtfPropertySelectFactory::class,
+            'DataTypeEdtf\Form\Element\ConvertToEdtf' => Service\Form\Element\ConvertToEdtfFactory::class,
         ],
     ],
     'controllers' => [
         'factories' => [
-            'EdtfDataType\Controller\SiteAdmin\FacetedBrowse\Index' => Service\Controller\SiteAdmin\FacetedBrowse\IndexControllerFactory::class,
+            'DataTypeEdtf\Controller\SiteAdmin\FacetedBrowse\Index' => Service\Controller\SiteAdmin\FacetedBrowse\IndexControllerFactory::class,
         ],
     ],
     'router' => [
@@ -68,7 +68,7 @@ return [
                                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                             ],
                                             'defaults' => [
-                                                '__NAMESPACE__' => 'EdtfDataType\Controller\SiteAdmin\FacetedBrowse',
+                                                '__NAMESPACE__' => 'DataTypeEdtf\Controller\SiteAdmin\FacetedBrowse',
                                                 'controller' => 'index',
                                                 'action' => 'index',
                                             ],

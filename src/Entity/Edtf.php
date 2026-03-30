@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Entity;
+namespace DataTypeEdtf\Entity;
 
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\Property;
@@ -9,13 +9,14 @@ use Omeka\Entity\Resource;
 /**
  * @Entity
  * @Table(
+ *     name="edtf_data_type_edtf",
  *     indexes={
  *         @Index(name="property_value", columns={"property_id", "value"}),
  *         @Index(name="value", columns={"value"}),
  *     }
  * )
  */
-class EdtfDataTypeEdtf extends AbstractEntity
+class Edtf extends AbstractEntity
 {
     /**
      * @Id

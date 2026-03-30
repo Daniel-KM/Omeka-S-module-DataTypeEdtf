@@ -323,7 +323,7 @@ Copyright
 - Copyright 2026 Daniel Berthereau (see [Daniel-KM] on GitLab)
 
 
-[EDTF Data Type]: https://github.com/Warwick-Digital-Humanities/EdtfDataType
+[EDTF Data Type]: https://github.com/Warwick-Digital-Humanities/DataTypeEdtf
 [Omeka S]: https://omeka.org/s
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Extended Date/Time Format]: https://www.loc.gov/standards/datetime/
@@ -333,7 +333,7 @@ Copyright
 [CSV Import]: https://omeka.org/s/modules/CSVImport/
 [Datavis]: https://omeka.org/s/modules/Datavis/
 [Faceted Browse]: https://omeka.org/s/modules/FacetedBrowse/
-[module issues]: https://github.com/Warwick-Digital-Humanities/EdtfDataType/issues
+[module issues]: https://github.com/Warwick-Digital-Humanities/DataTypeEdtf/issues
 [EDTF.js]: https://github.com/inukshuk/edtf.js
 [University of Warwick]: https://warwick.ac.uk/digitalhumanities
 [Corporation for Digital Scholarship]: http://digitalscholar.org

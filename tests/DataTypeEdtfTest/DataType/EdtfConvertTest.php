@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataTypeTest\DataType;
+namespace DataTypeEdtfTest\DataType;
 
-use EdtfDataType\DataType\Edtf;
+use DataTypeEdtf\DataType\Edtf;
 use Omeka\Entity\Value;
 use PHPUnit\Framework\TestCase;
 
@@ -59,7 +59,7 @@ class EdtfConvertTest extends TestCase
         if (!interface_exists(\Omeka\DataType\ConversionTargetInterface::class)) {
             $this->markTestSkipped('ConversionTargetInterface not available (Omeka S < 4.2).');
         }
-        $convertible = new \EdtfDataType\DataType\EdtfConvertible();
+        $convertible = new \DataTypeEdtf\DataType\EdtfConvertible();
         $this->assertInstanceOf(Edtf::class, $convertible);
         $this->assertInstanceOf(
             \Omeka\DataType\ConversionTargetInterface::class,
@@ -69,11 +69,11 @@ class EdtfConvertTest extends TestCase
 
     public function testConfigSwapsClassWhenInterfaceExists(): void
     {
-        $module = new \EdtfDataType\Module();
+        $module = new \DataTypeEdtf\Module();
         $config = $module->getConfig();
         $class = $config['data_types']['invokables']['edtf:date'];
         if (interface_exists(\Omeka\DataType\ConversionTargetInterface::class)) {
-            $this->assertSame(\EdtfDataType\DataType\EdtfConvertible::class, $class);
+            $this->assertSame(\DataTypeEdtf\DataType\EdtfConvertible::class, $class);
         } else {
             $this->assertSame(Edtf::class, $class);
         }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Form\Element;
+namespace DataTypeEdtf\Form\Element;
 
 use Doctrine\ORM\EntityManager;
 use Laminas\Form\Element\Select;

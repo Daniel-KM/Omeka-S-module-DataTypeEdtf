@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\DataType;
+namespace DataTypeEdtf\DataType;
 
 use Doctrine\ORM\QueryBuilder;
 use EDTF\EdtfFactory;
-use EdtfDataType\Entity\EdtfDataTypeEdtf;
-use EdtfDataType\Form\Element\Edtf as EdtfElement;
+use DataTypeEdtf\Entity\Edtf as EdtfEntity;
+use DataTypeEdtf\Form\Element\Edtf as EdtfElement;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Adapter\AdapterInterface;
@@ -124,10 +124,10 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 
     public function getEntityClass()
     {
-        return 'EdtfDataType\Entity\EdtfDataTypeEdtf';
+        return 'DataTypeEdtf\Entity\Edtf';
     }
 
-    public function setEntityValues(EdtfDataTypeEdtf $entity, Value $value): void
+    public function setEntityValues(EdtfEntity $entity, Value $value): void
     {
 
         // Set the datetime as a string

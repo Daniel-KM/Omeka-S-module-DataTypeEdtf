@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Datavis\DatasetType;
+namespace DataTypeEdtf\Datavis\DatasetType;
 
 use Datavis\Api\Representation\DatavisVisRepresentation;
 use Datavis\DatasetType\AbstractDatasetType;
@@ -154,7 +154,7 @@ class CountItemsTimeSeries extends AbstractDatasetType
 
         $dql = '
         SELECT COUNT(DISTINCT t.resource)
-        FROM EdtfDataType\Entity\EdtfDataTypeEdtf t
+        FROM DataTypeEdtf\Entity\Edtf t
         WHERE t.resource IN (:item_ids)
         AND t.property = :property_id
         AND t.value >= :start
