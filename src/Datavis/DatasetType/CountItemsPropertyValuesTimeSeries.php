@@ -188,16 +188,23 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
         }
 
         // Count items whose EDTF range overlaps each time bucket and whose
-        // literal property value matches one of the given values.
-        // valueMin/valueMax are Unix timestamps (BIGINT).
+        // literal property value matches one of the given values. Range
+        // columns are packed (date, time) pairs compared
+        // lexicographically.
         $dql = '
         SELECT COUNT(DISTINCT t.resource)
         FROM DataTypeEdtf\Entity\Edtf t
         JOIN Omeka\Entity\Value v WITH v.resource = t.resource
         WHERE t.resource IN (:item_ids)
         AND t.property = :timestamp_property_id
-        AND t.valueMin < :end
-        AND t.valueMax >= :start
+        AND (
+            t.valueMinDate < :endDate
+            OR (t.valueMinDate = :endDate AND t.valueMinTime < :endTime)
+        )
+        AND (
+            t.valueMaxDate > :startDate
+            OR (t.valueMaxDate = :startDate AND t.valueMaxTime >= :startTime)
+        )
         AND v.property = :value_property_id
         AND v.value = :value
         AND v.type = \'literal\'';
@@ -206,6 +213,14 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
         $query->setParameter('timestamp_property_id', $datasetData['timestamp_property_id']);
         $query->setParameter('value_property_id', $datasetData['value_property_id']);
 
+        $edtfType = new \DataTypeEdtf\DataType\Edtf();
+        $pack = function (DateTime $dt) use ($edtfType) {
+            return [
+                $edtfType->packDate((int) $dt->format('Y'), (int) $dt->format('n'), (int) $dt->format('j')),
+                $edtfType->packTime((int) $dt->format('G'), (int) $dt->format('i'), (int) $dt->format('s')),
+            ];
+        };
+
         $dataset = [];
         $values = array_filter(array_map('trim', explode("\n", $datasetData['values'] ?? '')));
         foreach ($sampleRange as $index => $dateTime) {
@@ -213,8 +228,12 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
                 // End on the second to the last datetime.
                 continue;
             }
-            $query->setParameter('start', $dateTime->getTimestamp());
-            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
+            [$sDate, $sTime] = $pack($dateTime);
+            [$eDate, $eTime] = $pack($sampleRange[$index + 1]);
+            $query->setParameter('startDate', $sDate);
+            $query->setParameter('startTime', $sTime);
+            $query->setParameter('endDate', $eDate);
+            $query->setParameter('endTime', $eTime);
             foreach ($values as $value) {
                 $query->setParameter('value', $value);
                 $dataset[] = [

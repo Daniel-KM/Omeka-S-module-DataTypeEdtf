@@ -160,25 +160,45 @@ class CountItemsTimeSeries extends AbstractDatasetType
         }
 
         // Count items whose EDTF range overlaps each time bucket.
-        // valueMin/valueMax are Unix timestamps (BIGINT).
+        // Range columns are packed (date, time) pairs; overlap is
+        // expressed as valueMin < end AND valueMax >= start using
+        // lexicographic comparison on (date, time).
         $dql = '
         SELECT COUNT(DISTINCT t.resource)
         FROM DataTypeEdtf\Entity\Edtf t
         WHERE t.resource IN (:item_ids)
         AND t.property = :property_id
-        AND t.valueMin < :end
-        AND t.valueMax >= :start';
+        AND (
+            t.valueMinDate < :endDate
+            OR (t.valueMinDate = :endDate AND t.valueMinTime < :endTime)
+        )
+        AND (
+            t.valueMaxDate > :startDate
+            OR (t.valueMaxDate = :startDate AND t.valueMaxTime >= :startTime)
+        )';
         $query = $em->createQuery($dql);
         $query->setParameter('item_ids', $this->getItemIds($services, $vis));
         $query->setParameter('property_id', $datasetData['property_id']);
+
+        $edtfType = new \DataTypeEdtf\DataType\Edtf();
+        $pack = function (DateTime $dt) use ($edtfType) {
+            return [
+                $edtfType->packDate((int) $dt->format('Y'), (int) $dt->format('n'), (int) $dt->format('j')),
+                $edtfType->packTime((int) $dt->format('G'), (int) $dt->format('i'), (int) $dt->format('s')),
+            ];
+        };
 
         $dataset = [];
         foreach ($sampleRange as $index => $dateTime) {
             if (!isset($sampleRange[$index + 1])) {
                 continue; // End on the second to the last datetime.
             }
-            $query->setParameter('start', $dateTime->getTimestamp());
-            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
+            [$sDate, $sTime] = $pack($dateTime);
+            [$eDate, $eTime] = $pack($sampleRange[$index + 1]);
+            $query->setParameter('startDate', $sDate);
+            $query->setParameter('startTime', $sTime);
+            $query->setParameter('endDate', $eDate);
+            $query->setParameter('endTime', $eTime);
             $dataset[] = [
                 'label' => $dateTime->format('Y-m-d\TH:i:s'),
                 'value' => (int) $query->getSingleScalarResult(),

@@ -76,12 +76,14 @@ try {
             id INT AUTO_INCREMENT NOT NULL,
             resource_id INT NOT NULL,
             property_id INT NOT NULL,
-            value_min BIGINT NOT NULL,
-            value_max BIGINT NOT NULL,
+            value_min_date BIGINT NOT NULL,
+            value_min_time INT NOT NULL,
+            value_max_date BIGINT NOT NULL,
+            value_max_time INT NOT NULL,
             INDEX idx_resource (resource_id),
             INDEX idx_property (property_id),
-            INDEX idx_property_value_min (property_id, value_min),
-            INDEX idx_property_value_max (property_id, value_max),
+            INDEX idx_property_value_min (property_id, value_min_date, value_min_time),
+            INDEX idx_property_value_max (property_id, value_max_date, value_max_time),
             PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
         SQL);
@@ -107,7 +109,7 @@ while (true) {
     }
     foreach ($rows as $row) {
         try {
-            [$min, $max] = $dataType->getValueBounds($row['value']);
+            [$minDate, $minTime, $maxDate, $maxTime] = $dataType->getValueBounds($row['value']);
         } catch (\Throwable $e) {
             $failed++;
             fwrite(STDERR, sprintf(
@@ -119,8 +121,10 @@ while (true) {
         $conn->insert('data_type_edtf', [
             'resource_id' => $row['resource_id'],
             'property_id' => $row['property_id'],
-            'value_min' => $min,
-            'value_max' => $max,
+            'value_min_date' => $minDate,
+            'value_min_time' => $minTime,
+            'value_max_date' => $maxDate,
+            'value_max_time' => $maxTime,
         ]);
         $migrated++;
     }
