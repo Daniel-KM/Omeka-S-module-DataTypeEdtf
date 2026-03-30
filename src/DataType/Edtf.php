@@ -31,38 +31,87 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 
     public function getJsonLd(ValueRepresentation $value)
     {
-        if (!$this->isValid(['@value' => $value->value()])) {
-            return ['@value' => $value->value()];
+        $raw = $value->value();
+        if (!$this->isValid(['@value' => $raw])) {
+            return ['@value' => $raw];
         }
-        $date = $this->toEdtf($value);
-        $type = "xsd:string";
-        # @todo this could be made much more specific using
-        # all of the qualitifications of https://github.com/ProfessionalWiki/EDTF
-        # a bit of relevant discussion here: https://github.com/Islandora/documentation/issues/916
-        // if (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute']) && isset($date['second']) && isset($date['offset_value'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#dateTime';
-        // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute']) && isset($date['offset_value'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#dateTime';
-        // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['offset_value'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#dateTime';
-        // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute']) && isset($date['second'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#dateTime';
-        // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute'])) {
-        //     $type = null; // XSD has no datatype for truncated seconds
-        // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour'])) {
-        //     $type = null; // XSD has no datatype for truncated minutes/seconds
-        // } elseif (isset($date['month']) && isset($date['day'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#date';
-        // } elseif (isset($date['month'])) {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#gYearMonth';
-        // } else {
-        //     $type = 'http://www.w3.org/2001/XMLSchema#gYear';
-        // }
-        $jsonLd = ['@value' => $value->value()];
-        if ($type) {
-            $jsonLd['@type'] = $type;
+        return [
+            '@value' => $raw,
+            '@type' => $this->getXsdOrEdtfType($raw),
+        ];
+    }
+
+    /**
+     * Return the most precise JSON-LD @type URI for an EDTF string.
+     *
+     * When the string is a "pure" form expressible in XML Schema
+     * (no qualifier, no unspecified digit, no season, no interval,
+     * no set, no long year), returns an xsd:* URI. Otherwise returns
+     * the Library of Congress EDTF generic datatype URI.
+     *
+     * Official URIs and documentation:
+     * @link https://id.loc.gov/datatypes/EDTFScheme.html
+     * @link https://id.loc.gov/datatypes/edtf/EDTF.html
+     * @link https://id.loc.gov/datatypes/edtf/EDTF-level0.html
+     * @link https://id.loc.gov/datatypes/edtf/EDTF-level1.html
+     * @link https://id.loc.gov/datatypes/edtf/EDTF-level2.html
+     *
+     * Related discussions:
+     * @link https://github.com/ProfessionalWiki/WikibaseEdtf/issues/13
+     * @link https://github.com/Islandora/documentation/issues/916
+     *
+     * @todo Differentiate EDTF Level 0 / 1 / 2 URIs instead of always
+     *       returning the generic EDTF URI.
+     */
+    protected function getXsdOrEdtfType(string $edtfString): string
+    {
+        $edtfDatatypeUri = 'http://id.loc.gov/datatypes/edtf/EDTF';
+        try {
+            $edtf = EdtfFactory::newParser()->parse($edtfString)->getEdtfValue();
+        } catch (\Throwable $e) {
+            return $edtfDatatypeUri;
         }
-        return $jsonLd;
+
+        // Intervals, Seasons and Sets always use the EDTF type.
+        if ($edtf instanceof \EDTF\Model\Interval
+            || $edtf instanceof \EDTF\Model\Season
+            || $edtf instanceof \EDTF\Model\Set
+        ) {
+            return $edtfDatatypeUri;
+        }
+
+        // ExtDate / ExtDateTime: check for EDTF-only features.
+        if ($edtf instanceof \EDTF\Model\ExtDateTime) {
+            // Qualifiers/unspecified on the underlying date → EDTF.
+            $inner = $edtf->getDate();
+            if ($inner->uncertain() || $inner->approximate() || $inner->unspecified()) {
+                return $edtfDatatypeUri;
+            }
+            if (strpos($edtfString, 'Y') === 0 || strpos($edtfString, 'E') !== false) {
+                return $edtfDatatypeUri;
+            }
+            return 'http://www.w3.org/2001/XMLSchema#dateTime';
+        }
+
+        if ($edtf instanceof \EDTF\Model\ExtDate) {
+            if ($edtf->uncertain() || $edtf->approximate() || $edtf->unspecified()) {
+                return $edtfDatatypeUri;
+            }
+            if (strpos($edtfString, 'Y') === 0 || strpos($edtfString, 'E') !== false) {
+                return $edtfDatatypeUri;
+            }
+            if ($edtf->getDay() !== null) {
+                return 'http://www.w3.org/2001/XMLSchema#date';
+            }
+            if ($edtf->getMonth() !== null) {
+                return 'http://www.w3.org/2001/XMLSchema#gYearMonth';
+            }
+            if ($edtf->getYear() !== null) {
+                return 'http://www.w3.org/2001/XMLSchema#gYear';
+            }
+        }
+
+        return $edtfDatatypeUri;
     }
 
     public function form(PhpRenderer $view)
