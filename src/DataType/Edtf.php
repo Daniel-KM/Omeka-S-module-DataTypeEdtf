@@ -129,48 +129,71 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 
     public function setEntityValues(EdtfEntity $entity, Value $value): void
     {
+        [$min, $max] = $this->getValueBounds($value->getValue());
+        $entity->setValueMin($min);
+        $entity->setValueMax($max);
+    }
 
-        // Set the datetime as a string
-        $edtfDate = $value->getValue();
-        $entity->setValue($edtfDate);
+    /**
+     * Compute the (min, max) Unix timestamp bounds of an EDTF string.
+     *
+     * For open intervals, PHP_INT_MIN / PHP_INT_MAX are used as
+     * sentinels so range queries work without handling NULL.
+     */
+    public function getValueBounds(?string $edtfString): array
+    {
+        if ($edtfString === null || $edtfString === '') {
+            return [PHP_INT_MIN, PHP_INT_MAX];
+        }
+        $result = EdtfFactory::newParser()->parse($edtfString);
+        if (!$result->isValid()) {
+            return [PHP_INT_MIN, PHP_INT_MAX];
+        }
+        $edtf = $result->getEdtfValue();
+        if ($edtf instanceof \EDTF\Model\Interval) {
+            $min = $edtf->hasStartDate() ? $edtf->getStartDate()->getMin() : PHP_INT_MIN;
+            $max = $edtf->hasEndDate() ? $edtf->getEndDate()->getMax() : PHP_INT_MAX;
+            return [$min, $max];
+        }
+        return [$edtf->getMin(), $edtf->getMax()];
     }
 
     /**
      * edtf => [
      *   date => [
-     *     lt/lte => [val => <date>, pid => <propertyID>],
-     *     gt/gte => [val => <date>, pid => <propertyID>],
+     *     lt/lte => [val => <edtf string>, pid => <propertyId>],
+     *     gt/gte => [val => <edtf string>, pid => <propertyId>],
      *   ],
      * ]
+     *
+     * Range queries use value_min and value_max on the specialized
+     * entity table for efficient indexing.
      */
     public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query): void
     {
-        if (isset($query['edtf']['date']['lt']['val'])) {
-            $value = $query['edtf']['date']['lt']['val'];
-            $propertyId = $query['edtf']['date']['lt']['pid'] ?? null;
-            if ($this->isValid(['@value' => $value])) {
-                $this->addLessThanQuery($adapter, $qb, $propertyId, $value);
+        $ops = ['lt', 'lte', 'gt', 'gte'];
+        foreach ($ops as $op) {
+            if (!isset($query['edtf']['date'][$op]['val'])) {
+                continue;
             }
-        }
-        if (isset($query['edtf']['date']['gt']['val'])) {
-            $value = $query['edtf']['date']['gt']['val'];
-            $propertyId = $query['edtf']['date']['gt']['pid'] ?? null;
-            if ($this->isValid(['@value' => $value])) {
-                $this->addGreaterThanQuery($adapter, $qb, $propertyId, $value);
+            $value = $query['edtf']['date'][$op]['val'];
+            $propertyId = $query['edtf']['date'][$op]['pid'] ?? null;
+            if (!$this->isValid(['@value' => $value])) {
+                continue;
             }
-        }
-        if (isset($query['edtf']['date']['lte']['val'])) {
-            $value = $query['edtf']['date']['lte']['val'];
-            $propertyId = $query['edtf']['date']['lte']['pid'] ?? null;
-            if ($this->isValid(['@value' => $value])) {
-                $this->addLessThanOrEqualToQuery($adapter, $qb, $propertyId, $value);
-            }
-        }
-        if (isset($query['edtf']['date']['gte']['val'])) {
-            $value = $query['edtf']['date']['gte']['val'];
-            $propertyId = $query['edtf']['date']['gte']['pid'] ?? null;
-            if ($this->isValid(['@value' => $value])) {
-                $this->addGreaterThanOrEqualToQuery($adapter, $qb, $propertyId, $value);
+            [$min, $max] = $this->getValueBounds($value);
+            // For "less than" queries, filter on value_max of the
+            // stored item: item ends before the query date.
+            // For "greater than", filter on value_min: item starts
+            // after the query date.
+            if ($op === 'lt') {
+                $this->addLessThanQuery($adapter, $qb, $propertyId, $min, 'valueMax');
+            } elseif ($op === 'lte') {
+                $this->addLessThanOrEqualToQuery($adapter, $qb, $propertyId, $max, 'valueMax');
+            } elseif ($op === 'gt') {
+                $this->addGreaterThanQuery($adapter, $qb, $propertyId, $max, 'valueMin');
+            } elseif ($op === 'gte') {
+                $this->addGreaterThanOrEqualToQuery($adapter, $qb, $propertyId, $min, 'valueMin');
             }
         }
     }
@@ -179,7 +202,7 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     {
         if ('date' === $type) {
             $alias = $adapter->createAlias();
-            $qb->addSelect("MIN($alias.value) as HIDDEN edtf_value");
+            $qb->addSelect("MIN($alias.valueMin) as HIDDEN edtf_sort");
             $qb->leftJoin(
                 $this->getEntityClass(), $alias, 'WITH',
                 $qb->expr()->andX(
@@ -187,7 +210,7 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
                     $qb->expr()->eq("$alias.property", $propertyId)
                 )
             );
-            $qb->addOrderBy('edtf_value', $query['sort_order']);
+            $qb->addOrderBy('edtf_sort', $query['sort_order']);
         }
     }
 

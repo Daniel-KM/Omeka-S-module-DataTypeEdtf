@@ -53,8 +53,8 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
         $conn = $this->getConnection();
         $sm = $conn->getSchemaManager();
         $this->assertTrue(
-            $sm->tablesExist(['edtf_data_type_edtf']),
-            'Table edtf_data_type_edtf should exist'
+            $sm->tablesExist(['data_type_edtf']),
+            'Table data_type_edtf should exist'
         );
     }
 
@@ -62,13 +62,15 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
     {
         $conn = $this->getConnection();
         $sm = $conn->getSchemaManager();
-        $columns = $sm->listTableColumns('edtf_data_type_edtf');
+        $columns = $sm->listTableColumns('data_type_edtf');
         $columnNames = array_keys($columns);
         $this->assertContains('id', $columnNames);
         $this->assertContains('resource_id', $columnNames);
         $this->assertContains('property_id', $columnNames);
-        $this->assertContains('value', $columnNames);
-        $this->assertSame('string', $columns['value']->getType()->getName());
+        $this->assertContains('value_min', $columnNames);
+        $this->assertContains('value_max', $columnNames);
+        $this->assertSame('bigint', $columns['value_min']->getType()->getName());
+        $this->assertSame('bigint', $columns['value_max']->getType()->getName());
     }
 
     public function testViewHelpersRegistered(): void
