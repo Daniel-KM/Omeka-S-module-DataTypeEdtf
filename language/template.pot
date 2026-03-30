@@ -1,0 +1,543 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-30 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: vendor/nesbot/carbon/src/Carbon/CarbonInterval.php:1787
+msgid "_mode"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1528
+msgid "period_recurrences"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1531
+msgid "period_interval"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1535
+msgid "period_start_date"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1538
+msgid "period_end_date"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2103
+msgid "ordinal"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2135
+msgid "meridiem"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:281
+msgid "alt_numbers.99"
+msgstr ""
+
+#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:301
+msgid "alt_numbers.9"
+msgstr ""
+
+#: vendor/nesbot/carbon/tests/CarbonImmutable/LocalizationTest.php:866
+msgid "from_now"
+msgstr ""
+
+#: view/common/edtf-data-type-advanced-search.phtml:36
+msgid "Date comes on or after"
+msgstr ""
+
+#: view/common/edtf-data-type-advanced-search.phtml:52
+msgid "Date comes on or before"
+msgstr ""
+
+#: view/common/edtf.phtml:22
+#, php-format
+msgid "Invalid value: %s"
+msgstr ""
+
+#: view/common/edtf.phtml:23
+msgid "Value must be an EDTF datetime"
+msgstr ""
+
+#: view/common/faceted-browse/facet-data-form/date-after.phtml:4
+#: view/common/faceted-browse/facet-data-form/date-before.phtml:4
+#: view/common/faceted-browse/facet-data-form/date-in-interval.phtml:4
+#: view/common/faceted-browse/facet-data-form/duration-greater-than.phtml:4
+#: view/common/faceted-browse/facet-data-form/duration-less-than.phtml:4
+#: view/common/faceted-browse/facet-data-form/value-greater-than.phtml:6
+#: view/common/faceted-browse/facet-data-form/value-less-than.phtml:6
+msgid "Show all available values."
+msgstr ""
+
+#: Module.php:226
+#, php-format
+msgid "EdtfDataType - invalid %s value for ID %s - %s"
+msgstr ""
+
+#: src/Form/Element/ConvertToEdtf.php:22 src/Form/Element/ConvertToEdtf.php:33
+msgid "Convert to EDTF"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:32 src/Form/Element/DateTime.php:33
+msgid "Year"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:37 src/Form/Element/DateTime.php:38
+msgid "Month"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:42 src/Form/Element/DateTime.php:43
+msgid "Day"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:47 src/Form/Element/DateTime.php:48
+msgid "Hour"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:52 src/Form/Element/DateTime.php:53
+msgid "Minute"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:57 src/Form/Element/DateTime.php:58
+msgid "Second"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:62 src/Form/Element/DateTime.php:63
+msgid "Offset"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:70
+msgid "01 — January"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:71
+msgid "02 — February"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:72
+msgid "03 — March"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:73
+msgid "04 — April"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:74
+msgid "05 — May"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:75
+msgid "06 — June"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:76
+msgid "07 — July"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:77
+msgid "08 — August"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:78
+msgid "09 — September"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:79
+msgid "10 — October"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:80
+msgid "11 — November"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:81
+msgid "12 — December"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:96
+msgid "00 — 12 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:97
+msgid "01 — 1 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:98
+msgid "02 — 2 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:99
+msgid "03 — 3 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:100
+msgid "04 — 4 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:101
+msgid "05 — 5 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:102
+msgid "06 — 6 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:103
+msgid "07 — 7 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:104
+msgid "08 — 8 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:105
+msgid "09 — 9 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:106
+msgid "10 — 10 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:107
+msgid "11 — 11 am"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:108
+msgid "12 — 12 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:109
+msgid "13 — 1 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:110
+msgid "14 — 2 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:111
+msgid "15 — 3 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:112
+msgid "16 — 4 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:113
+msgid "17 — 5 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:114
+msgid "18 — 6 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:115
+msgid "19 — 7 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:116
+msgid "20 — 8 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:117
+msgid "21 — 9 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:118
+msgid "22 — 10 pm"
+msgstr ""
+
+#: src/Form/Element/DateTime.php:119
+msgid "23 — 11 pm"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:20
+msgid "Count of items in a time series"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:25
+msgid "Visualize the count of items over a selected period of time."
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:46
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:45
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:73
+#: src/FacetedBrowse/FacetType/DateInInterval.php:54
+#: src/FacetedBrowse/FacetType/DateAfter.php:54
+#: src/FacetedBrowse/FacetType/DurationLessThan.php:54
+#: src/FacetedBrowse/FacetType/ValueGreaterThan.php:53
+#: src/FacetedBrowse/FacetType/DateBefore.php:54
+#: src/FacetedBrowse/FacetType/ValueLessThan.php:53
+#: src/FacetedBrowse/FacetType/DurationGreaterThan.php:54
+msgid "Select one…"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:55
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:82
+msgid ""
+"Enter the start of the time series in ISO 8601 format: YYYY-MM-DDTHH:MM:SS"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:69
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:96
+msgid ""
+"Enter the end of the time series in ISO 8601 format: YYYY-MM-DDTHH:MM:SS"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:82
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:109
+msgid "Sample rate"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:84
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:111
+msgid "1 second"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:85
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:112
+msgid "1 minute"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:86
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:113
+msgid "1 hour"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:87
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:114
+msgid "1 day"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:88
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:115
+msgid "7 days"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:89
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:116
+msgid "1 month"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:90
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:117
+msgid "6 months"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:91
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:118
+msgid "1 year"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:92
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:119
+msgid "5 years"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsTimeSeries.php:93
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:120
+msgid "10 years"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:19
+msgid "Count of items with property values in a time series"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:24
+msgid ""
+"Visualize the count of items that have selected values of a selected "
+"property over a selected period of time."
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:38
+msgid "Value property"
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:54
+msgid "Enter values, separated by new lines."
+msgstr ""
+
+#: src/Datavis/DatasetType/CountItemsPropertyValuesTimeSeries.php:66
+msgid "Timestamp property"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:14
+msgid "Histogram (time series)"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:32
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:69
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:69
+msgid "Width"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:45
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:82
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:82
+msgid "Height"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:58
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:95
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:95
+msgid "Margin top"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:71
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:108
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:108
+msgid "Margin right"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:84
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:121
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:121
+msgid "Margin bottom"
+msgstr ""
+
+#: src/Datavis/DiagramType/HistogramTimeSeries.php:97
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:134
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:134
+msgid "Margin left"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:14
+msgid "Line chart (time series)"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:36
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:36
+msgid "Line (no points)"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:37
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:37
+msgid "Points (no line)"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:38
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:38
+msgid "Line and points"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:50
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:50
+msgid "Line type"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:52
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:52
+msgid "Linear"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:53
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:53
+msgid "MonotoneX"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:54
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:54
+msgid "Natural"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:55
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:55
+msgid "Step"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:56
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:56
+msgid "StepAfter"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeries.php:57
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:57
+msgid "StepBefore"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:14
+msgid "Grouped line chart (time series)"
+msgstr ""
+
+#: src/Datavis/DiagramType/LineChartTimeSeriesGrouped.php:34
+msgid "Plot type"
+msgstr ""
+
+#: src/DataType/Edtf.php:24
+msgid "EDTF Date/Time"
+msgstr ""
+
+#: src/DataType/AbstractDataType.php:14
+msgid "Edtf"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DateInInterval.php:23
+msgid "Date in interval"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DateInInterval.php:61
+#: src/FacetedBrowse/FacetType/DateAfter.php:61
+#: src/FacetedBrowse/FacetType/DateBefore.php:61
+msgid ""
+"Enter the date/time values, separated by a new line. For each line, enter "
+"the date/time in ISO 8601 format, followed by a space, followed by the human-"
+"readable date/time."
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DateInInterval.php:108
+#: src/FacetedBrowse/FacetType/DateAfter.php:108
+#: src/FacetedBrowse/FacetType/DurationLessThan.php:108
+#: src/FacetedBrowse/FacetType/DateBefore.php:108
+#: src/FacetedBrowse/FacetType/DurationGreaterThan.php:108
+msgid "Select a date…"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DateAfter.php:23
+msgid "Date after"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DurationLessThan.php:23
+msgid "Duration less than"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DurationLessThan.php:61
+#: src/FacetedBrowse/FacetType/DurationGreaterThan.php:61
+msgid ""
+"Enter the duration values, separated by a new line. For each line, enter the "
+"duration in ISO 8601 format, followed by a space, followed by the human-"
+"readable duration."
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/ValueGreaterThan.php:22
+msgid "Value greater than"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DateBefore.php:23
+msgid "Date before"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/ValueLessThan.php:22
+msgid "Value less than"
+msgstr ""
+
+#: src/FacetedBrowse/FacetType/DurationGreaterThan.php:23
+msgid "Duration greater than"
+msgstr ""
+
+#: config/module.config.php:57
+msgid "Extended Date Time Format"
+msgstr ""
