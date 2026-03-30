@@ -6,53 +6,96 @@
  * Requires edtf.js (window.edtf.parse) and jQuery.
  */
 var EdtfDataType = (function($) {
+    var escapeHtml = function(s) {
+        return String(s).replace(/[&<>"']/g, function(c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    };
+    var escapeAttr = escapeHtml;
+
+    /**
+     * Parse a raw EDTF string into a parts object (best effort, same
+     * subset as the dialog prefill).
+     */
+    var parseEdtfToParts = function(value) {
+        if (!value || value === '..') return null;
+        var qualifier = '';
+        var last = value.slice(-1);
+        if (last === '?' || last === '~' || last === '%') {
+            qualifier = last;
+            value = value.slice(0, -1);
+        }
+        var parts = {
+            year: '', month: '', day: '', precision: '',
+            uncertain: qualifier === '?' || qualifier === '%',
+            approximate: qualifier === '~' || qualifier === '%',
+            withTime: false, hour: '', minute: '', second: '', offset: '',
+        };
+        var m;
+        if ((m = value.match(/^(-?\d+)(X{1,3})$/))) {
+            parts.year = m[1] + '0'.repeat(m[2].length);
+            parts.precision = m[2].length === 1 ? 'decade' : (m[2].length === 2 ? 'century' : 'millennium');
+        } else if ((m = value.match(/^(-?\d{4,})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-]\d{2}:\d{2})?$/))) {
+            parts.year = m[1]; parts.month = m[2]; parts.day = parseInt(m[3], 10);
+            parts.withTime = true;
+            parts.hour = parseInt(m[4], 10); parts.minute = parseInt(m[5], 10); parts.second = parseInt(m[6], 10);
+            if (m[7]) parts.offset = m[7];
+        } else if ((m = value.match(/^(-?\d{4,})-(\d{2})-(\d{2})$/))) {
+            parts.year = m[1]; parts.month = m[2]; parts.day = parseInt(m[3], 10);
+        } else if ((m = value.match(/^(-?\d{4,})-(\d{2})$/))) {
+            parts.year = m[1]; parts.month = m[2];
+        } else if ((m = value.match(/^(-?\d{1,})$/))) {
+            parts.year = m[1];
+        } else {
+            return null;
+        }
+        return parts;
+    };
+
+    var humanizeRawEdtf = function(value) {
+        if (!value) return '';
+        var slash = value.split('/');
+        if (slash.length === 2) {
+            var first = parseEdtfToParts(slash[0]);
+            var second = parseEdtfToParts(slash[1]);
+            return humanizeEdtf({
+                firstParts: first || { year: '' },
+                secondParts: second || { year: '' },
+                isInterval: true,
+            });
+        }
+        var p = parseEdtfToParts(value);
+        if (!p) return '';
+        return humanizePart(p);
+    };
+
 
     var parser = function(container) {
         var outputString = '';
         var shortExplanation = '';
         var caretLocation, caretOffset = 0;
 
+        var rawValue = container.value;
+        var isValid = true;
         try {
-            edtf.parse(container.value);
-            $(container).closest('.edtf').find('.invalid-value').empty();
-            var validString =
-                '<div class="valid-string-container">' +
-                    '<span class="fa fa-check icon edtf-valid-icon" title="Correct value" aria-label="accepted value"></span>' +
-                    '<span class="edtf-display-value">' + container.value + '</span>' +
-                '</div>';
-            var validStringContainer = $(container).closest('.edtf').find('.valid-string-container');
-            if (validStringContainer.length > 0) {
-                $(validStringContainer).replaceWith(validString);
-            } else {
-                $(container).closest('.edtf').prepend(validString);
-            }
+            edtf.parse(rawValue);
         } catch (e) {
-            var message = String(e.message);
-            var lines = message.split('\n');
-            lines.forEach(function(line, i) {
-                if (/Unexpected/.test(line)) {
-                    shortExplanation = line.substring(0, line.indexOf('.'));
-                } else if (/Syntax/.test(line)) {
-                    outputString = lines[i + 2].split(' ')[1];
-                    caretOffset = lines[i + 2].split(' ')[0].length + 1;
-                } else if (/\^/.test(line)) {
-                    caretLocation = line.indexOf('^') - caretOffset;
-                }
-            });
-
-            if (outputString.length > 0) {
-                outputString =
-                    '<span class="fa fa-times icon edtf-invalid-icon" title="Invalid value" aria-label="invalid value"></span>' +
-                    '<p class="outputstring">' +
-                    outputString.substring(0, caretLocation) +
-                    '<span class="caret">' + outputString.substring(caretLocation, caretLocation + 1) + '</span>' +
-                    outputString.substring(caretLocation + 1) +
-                    ' [' + shortExplanation + ']' +
-                    '</p>';
-            }
-
-            $(container).closest('.edtf').find('.invalid-value').html(outputString);
-            $(container).closest('.edtf').find('.valid-string-container').remove();
+            isValid = false;
+        }
+        $(container).closest('.edtf').find('.invalid-value').empty();
+        var humanValue = isValid ? humanizeRawEdtf(rawValue) : '';
+        var iconClass = isValid ? 'fa-check edtf-valid-icon' : 'fa-times edtf-invalid-icon';
+        var btnAttrs = isValid ? '' : ' disabled="disabled"';
+        var html =
+            '<div class="valid-string-container" data-raw="' + escapeAttr(rawValue) + '" data-human="' + escapeAttr(humanValue) + '" data-view="raw">' +
+                '<button type="button" class="edtf-toggle-view fa ' + iconClass + ' icon"' + btnAttrs + ' title="Toggle humanized view" aria-label="toggle humanized view"></button>' +
+                '<span class="edtf-display-value">' + escapeHtml(rawValue) + '</span>' +
+            '</div>';
+        var existing = $(container).closest('.edtf').find('.valid-string-container');
+        if (existing.length > 0) {
+            existing.replaceWith(html);
+        } else {
+            $(container).closest('.edtf').prepend(html);
         }
     };
 
@@ -134,6 +177,99 @@ var EdtfDataType = (function($) {
     /**
      * Read an EDTF date form (fieldset) and build the EDTF part string.
      */
+    var MONTH_NAMES = [
+        '', 'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+
+    var SEASON_NAMES = {
+        21: 'Spring', 22: 'Summer', 23: 'Autumn', 24: 'Winter',
+        25: 'Spring - Northern', 26: 'Summer - Northern', 27: 'Autumn - Northern', 28: 'Winter - Northern',
+        29: 'Spring - Southern', 30: 'Summer - Southern', 31: 'Autumn - Southern', 32: 'Winter - Southern',
+        33: 'Q1', 34: 'Q2', 35: 'Q3', 36: 'Q4',
+        37: 'Quadrimester 1', 38: 'Quadrimester 2', 39: 'Quadrimester 3',
+        40: 'Semester 1', 41: 'Semester 2',
+    };
+
+    var ordinal = function(n) {
+        var abs = Math.abs(n);
+        var v = abs % 100;
+        var suffix;
+        if (v >= 11 && v <= 13) suffix = 'th';
+        else if (abs % 10 === 1) suffix = 'st';
+        else if (abs % 10 === 2) suffix = 'nd';
+        else if (abs % 10 === 3) suffix = 'rd';
+        else suffix = 'th';
+        return n + suffix;
+    };
+
+    /**
+     * Humanize a structured EDTF part.
+     */
+    var humanizePart = function(parts) {
+        if (!parts.year) return '';
+        var yearInt = parseInt(parts.year, 10);
+        var isBc = yearInt < 0;
+        var absYear = Math.abs(yearInt);
+        var year = String(parts.year);
+        var monthNum = parts.month ? parseInt(parts.month, 10) : 0;
+        var reduced = parts.precision;
+        var s;
+
+        if (reduced === 'millennium') {
+            // 1XXX covers 1000-1999: 2nd millennium.
+            var millNum = Math.floor(absYear / 1000) + 1;
+            s = translate('%s millennium').replace('%s', ordinal(millNum));
+            if (isBc) s += ' ' + translate('BCE');
+        } else if (reduced === 'century') {
+            // 19XX covers 1900-1999: 20th century.
+            var centuryNum = Math.floor(absYear / 100) + 1;
+            s = translate('%s century').replace('%s', ordinal(centuryNum));
+            if (isBc) s += ' ' + translate('BCE');
+        } else if (reduced === 'decade') {
+            // 198X covers 1980-1989: the 1980s.
+            var decadeBase = Math.floor(absYear / 10) * 10;
+            s = translate('%ss').replace('%s', (isBc ? '-' : '') + decadeBase);
+            if (isBc) s += ' ' + translate('BCE');
+        } else if (monthNum >= 21 && monthNum <= 41) {
+            s = translate(SEASON_NAMES[monthNum] || '') + ' ' + year;
+        } else if (monthNum >= 1 && monthNum <= 12 && parts.day) {
+            s = translate(MONTH_NAMES[monthNum]) + ' ' + parseInt(parts.day, 10) + ', ' + year;
+        } else if (monthNum >= 1 && monthNum <= 12) {
+            s = translate(MONTH_NAMES[monthNum]) + ' ' + year;
+        } else {
+            s = year;
+        }
+
+        if (parts.withTime && parts.hour !== '' && parts.hour != null) {
+            var h = pad(parts.hour, 2);
+            var mn = pad(parts.minute || 0, 2);
+            var sc = pad(parts.second || 0, 2);
+            s += ' ' + translate('at') + ' ' + h + ':' + mn + ':' + sc;
+            if (parts.offset === 'Z') s += ' UTC';
+            else if (parts.offset) s += ' ' + parts.offset;
+        }
+
+        if (parts.uncertain && parts.approximate) {
+            s += ' (' + translate('uncertain and approximate') + ')';
+        } else if (parts.uncertain) {
+            s += ' (' + translate('uncertain') + ')';
+        } else if (parts.approximate) {
+            s += ' (' + translate('approximate') + ')';
+        }
+        return s;
+    };
+
+    var humanizeEdtf = function(ctx) {
+        var first = humanizePart(ctx.firstParts);
+        if (!ctx.isInterval) return first;
+        var second = humanizePart(ctx.secondParts);
+        if (!first && !second) return '';
+        if (!first) return translate('Unknown to %s').replace('%s', second);
+        if (!second) return translate('%s to present or unknown').replace('%s', first);
+        return translate('%s to %s').replace('%s', first).replace('%s', second);
+    };
+
     var snapshotFieldset = function($fs) {
         return {
             year: $fs.find('.edtf-assistant-year').val(),
@@ -452,7 +588,7 @@ var EdtfDataType = (function($) {
             +         '</button>'
             +       '</div>'
             +       '<div class="dialog-contents">'
-            +         '<div class="dialog-heading"><h4>' + translate('EDTF Assistant') + '</h4></div>'
+            +         '<div class="dialog-heading"><h4>' + translate('Assistant for Extended Date/Time Format') + '</h4></div>'
             +         '<div class="dialog-body">'
             +           '<label class="edtf-assistant-interval-toggle">'
             +             '<input type="checkbox" class="edtf-assistant-interval"> '
@@ -469,8 +605,11 @@ var EdtfDataType = (function($) {
             +             '</fieldset>'
             +           '</div>'
             +           '<div class="edtf-assistant-preview">'
-            +             '<code class="edtf-assistant-result"></code>'
-            +             '<span class="edtf-assistant-error"></span>'
+            +             '<div class="edtf-assistant-preview-main">'
+            +               '<code class="edtf-assistant-result"></code>'
+            +               '<span class="edtf-assistant-error"></span>'
+            +             '</div>'
+            +             '<div class="edtf-assistant-humanized"></div>'
             +           '</div>'
             +         '</div>'
             +       '</div>'
@@ -535,10 +674,12 @@ var EdtfDataType = (function($) {
             $popup.find('.edtf-assistant-field-error').removeClass('edtf-assistant-field-error');
             var errorMsg = '';
             var isValid = false;
+            var firstRaw = readPartsRaw($parts.eq(0));
+            var secondRaw = isInterval ? readPartsRaw($parts.eq(1)) : null;
             if (result && result !== '—' && result !== '..') {
                 var err = validateEdtf(result, {
-                    firstParts: readPartsRaw($parts.eq(0)),
-                    secondParts: isInterval ? readPartsRaw($parts.eq(1)) : null,
+                    firstParts: firstRaw,
+                    secondParts: secondRaw,
                     isInterval: isInterval,
                 });
                 if (err) {
@@ -551,6 +692,13 @@ var EdtfDataType = (function($) {
             $result.toggleClass('edtf-assistant-invalid', !!result && !isValid);
             $apply.prop('disabled', !!result && !isValid);
             $popup.find('.edtf-assistant-error').text(errorMsg);
+            // Humanized display: shown only when the value is valid.
+            var humanized = isValid ? humanizeEdtf({
+                firstParts: firstRaw,
+                secondParts: secondRaw,
+                isInterval: isInterval,
+            }) : '';
+            $popup.find('.edtf-assistant-humanized').text(humanized);
         };
 
         // Toggle interval end fieldset + tools.
@@ -788,7 +936,7 @@ var EdtfDataType = (function($) {
         var translate = function(s) {
             return (typeof Omeka !== 'undefined' && Omeka.jsTranslate) ? Omeka.jsTranslate(s) : s;
         };
-        var label = translate('EDTF Assistant');
+        var label = translate('Assistant for Extended Date/Time Format');
         var $btn = $('<button type="button" class="edtf-assistant-button" aria-label="' + label + '" title="' + label + '">'
             + '<span class="o-icon-edit"></span></button>');
         $input.before($btn);
@@ -802,6 +950,15 @@ var EdtfDataType = (function($) {
             if (input) {
                 openAssistant(input, this);
             }
+        });
+
+        // Toggle raw ↔ humanized display on the valid container.
+        $(document).off('click.edtfToggleView').on('click.edtfToggleView', '.edtf-toggle-view', function(e) {
+            e.preventDefault();
+            var $container = $(this).closest('.valid-string-container');
+            var view = $container.attr('data-view') === 'human' ? 'raw' : 'human';
+            $container.attr('data-view', view);
+            $container.find('.edtf-display-value').text($container.attr(view === 'human' ? 'data-human' : 'data-raw'));
         });
 
         $(document).on('o:prepare-value o:prepare-value-annotation', function(e, type, container) {
