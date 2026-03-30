@@ -18,7 +18,7 @@ class EdtfDataTypeEdtf extends EdtfDataTypeSuper
 
     public function setValue($value)
     {
-        $this->value = (int) $value;
+        $this->value = $value;
     }
 
     public function getValue()

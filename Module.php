@@ -3,10 +3,13 @@ namespace EdtfDataType;
 
 use Composer\Semver\Comparator;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Events as DoctrineEvents;
+use EdtfDataType\Db\Event\Listener\CascadeDetach;
 use EdtfDataType\Form\Element\ConvertToEdtf;
 use Omeka\Module\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\ModuleManager\ModuleManager;
 
@@ -23,72 +26,128 @@ class Module extends AbstractModule
         return include __DIR__ . '/config/module.config.php';
     }
 
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $em->getEventManager()->addEventListener(
+            DoctrineEvents::preFlush,
+            new CascadeDetach
+        );
+    }
+
     public function install(ServiceLocatorInterface $services)
     {
         $conn = $services->get('Omeka\Connection');
         $conn->exec('CREATE TABLE edtf_data_type_edtf (id INT AUTO_INCREMENT NOT NULL, resource_id INT NOT NULL, property_id INT NOT NULL, value VARCHAR(255) NOT NULL, INDEX IDX_C0EBD47889329D25 (resource_id), INDEX IDX_C0EBD478549213EC (property_id), INDEX property_value (property_id, value), INDEX value (value), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;');
         $conn->exec('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD47889329D25 FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;');
         $conn->exec('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD478549213EC FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
-    
     }
 
     public function uninstall(ServiceLocatorInterface $services)
     {
         $conn = $services->get('Omeka\Connection');
-        $conn->exec('DROP TABLE IF EXISTS edtf_data_type;');
+        $conn->exec('DROP TABLE IF EXISTS edtf_data_type_edtf;');
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
-        $sharedEventManager->attach(
+        $adapterIds = [
             'Omeka\Api\Adapter\ItemAdapter',
-            'api.search.query',
-            [$this, 'buildQueries']
-        );
-        $sharedEventManager->attach(
-            'Omeka\Api\Adapter\ItemAdapter',
-            'api.search.query',
-            [$this, 'sortQueries']
-        );
-        $sharedEventManager->attach(
-            'Omeka\Api\Adapter\ItemAdapter',
-            'api.hydrate.post',
-            [$this, 'convertToEdtf'],
-            100 // Set a high priority so this runs before saveEdtfData().
-        );
-        $sharedEventManager->attach(
-            'Omeka\Api\Adapter\ItemAdapter',
-            'api.hydrate.post',
-            [$this, 'saveEdtfData']
-        );
-        $sharedEventManager->attach(
+            'Omeka\Api\Adapter\ItemSetAdapter',
+            'Omeka\Api\Adapter\MediaAdapter',
+        ];
+        foreach ($adapterIds as $adapterId) {
+            $sharedEventManager->attach(
+                $adapterId,
+                'api.search.query',
+                [$this, 'buildQueries']
+            );
+            $sharedEventManager->attach(
+                $adapterId,
+                'api.search.query',
+                [$this, 'sortQueries']
+            );
+            $sharedEventManager->attach(
+                $adapterId,
+                'api.hydrate.post',
+                [$this, 'convertToEdtf'],
+                // Set a high priority so this runs before saveEdtfData().
+                100
+            );
+            $sharedEventManager->attach(
+                $adapterId,
+                'api.hydrate.post',
+                [$this, 'saveEdtfData']
+            );
+        }
+
+        $controllerIds = [
             'Omeka\Controller\Admin\Item',
-            'view.sort-selector',
-            [$this, 'addSortings']
-        );
-        $sharedEventManager->attach(
             'Omeka\Controller\Site\Item',
-            'view.sort-selector',
-            [$this, 'addSortings']
-        );
+        ];
+        foreach ($controllerIds as $controllerId) {
+            $sharedEventManager->attach(
+                $controllerId,
+                'view.sort-selector',
+                function (Event $event) {
+                    $sortings = $this->getSortings('Omeka\Entity\Item');
+                    $sortConfig = $event->getParam('sortConfig') ?: [];
+                    $sortConfig = array_merge($sortConfig, $sortings);
+                    $event->setParam('sortConfig', $sortConfig);
+                }
+            );
+        }
         $sharedEventManager->attach(
-            'Omeka\Controller\Admin\Item',
-            'view.advanced_search',
+            'Omeka\Controller\Admin\ItemSet',
+            'view.sort-selector',
             function (Event $event) {
-                $partials = $event->getParam('partials');
-                $partials[] = 'common/edtf-data-type-advanced-search';
-                $event->setParam('partials', $partials);
+                $sortings = $this->getSortings('Omeka\Entity\ItemSet');
+                $sortConfig = $event->getParam('sortConfig') ?: [];
+                $sortConfig = array_merge($sortConfig, $sortings);
+                $event->setParam('sortConfig', $sortConfig);
             }
         );
         $sharedEventManager->attach(
-            'Omeka\Controller\Site\Item',
-            'view.advanced_search',
+            'Omeka\Controller\Admin\Media',
+            'view.sort-selector',
             function (Event $event) {
-                $partials = $event->getParam('partials');
-                $partials[] = 'common/edtf-data-type-advanced-search';
-                $event->setParam('partials', $partials);
+                $sortings = $this->getSortings('Omeka\Entity\Media');
+                $sortConfig = $event->getParam('sortConfig') ?: [];
+                $sortConfig = array_merge($sortConfig, $sortings);
+                $event->setParam('sortConfig', $sortConfig);
             }
         );
+
+        $searchControllerIds = [
+            'Omeka\Controller\Admin\Item',
+            'Omeka\Controller\Admin\ItemSet',
+            'Omeka\Controller\Admin\Media',
+            'Omeka\Controller\Site\Item',
+        ];
+        foreach ($searchControllerIds as $controllerId) {
+            $sharedEventManager->attach(
+                $controllerId,
+                'view.advanced_search',
+                function (Event $event) {
+                    $partials = $event->getParam('partials');
+                    $partials[] = 'common/edtf-data-type-advanced-search';
+                    $event->setParam('partials', $partials);
+                }
+            );
+        }
+
+        // Add JS to FacetedBrowse category form.
+        $sharedEventManager->attach(
+            'FacetedBrowse\Controller\SiteAdmin\Category',
+            'view.faceted_browse.category_form',
+            function (Event $event) {
+                $view = $event->getTarget();
+                $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/category-form.js', 'EdtfDataType'));
+            }
+        );
+
         $sharedEventManager->attach(
             'Omeka\Form\ResourceBatchUpdateForm',
             'form.add_elements',
@@ -115,7 +174,7 @@ class Module extends AbstractModule
     }
 
     /**
-     * Convert property values to the specified edtf data type.
+     * Convert property values to the specified EDTF data type.
      *
      * This will work for Item, ItemSet, and Media resources.
      *
@@ -131,12 +190,14 @@ class Module extends AbstractModule
         } elseif ($entity instanceof \Omeka\Entity\Media) {
             $resource = 'media';
         } else {
-            return; // This is not a resource entity.
+            // This is not a resource entity.
+            return;
         }
 
         $data = $event->getParam('request')->getContent();
         if (!$this->convertToEdtfDataIsValid($data)) {
-            return; // This is not a convert-to-edtf request.
+            // This is not a convert-to-edtf request.
+            return;
         }
 
         $propertyId = (int) $data['edtf_convert']['property'];
@@ -148,16 +209,15 @@ class Module extends AbstractModule
         $adapter = $services->get('Omeka\ApiAdapterManager')->get($resource);
         $logger = $services->get('Omeka\Logger');
 
-        // Get the property entity.
         $dql = 'SELECT p FROM Omeka\Entity\Property p WHERE p.id = :id';
         $property = $entityManager->createQuery($dql)
             ->setParameter('id', $propertyId)
             ->getOneOrNullResult();
         if (null === $property) {
-            return; // The property doesn't exist. Do nothing.
+            // The property doesn't exist. Do nothing.
+            return;
         }
 
-        // Only convert literal values of the specified property.
         $criteria = Criteria::create()
             ->where(Criteria::expr()->eq('property', $property))
             ->andWhere(Criteria::expr()->eq('type', 'literal'));
@@ -178,34 +238,30 @@ class Module extends AbstractModule
     }
 
     /**
-     * Save edtf data to the corresponding number tables.
+     * Save EDTF data to the corresponding entity tables.
      *
-     * This clears all existing numbers and (re)saves them during create and
-     * update operations for a resource (item, item set, media). We do this as
-     * an easy way to ensure that the numbers in the number tables are in sync
-     * with the numbers in the value table.
-     *
-     * This will work for Item, ItemSet, and Media resources.
+     * This clears all existing entries and (re)saves them during create and
+     * update operations for a resource (item, item set, media). We do this
+     * as an easy way to ensure that the entries in the entity tables are in
+     * sync with the values in the value table.
      *
      * @param Event $event
      */
     public function saveEdtfData(Event $event)
     {
- 
         $entity = $event->getParam('entity');
-        
+
         if (!$entity instanceof \Omeka\Entity\Resource) {
-            return; // This is not a resource entity.
+            // This is not a resource entity.
+            return;
         }
 
         $allValues = $entity->getValues();
 
-
-        foreach ($this->getEdtfDataType() as $dataTypeName => $dataType) {
+        foreach ($this->getEdtfDataTypes() as $dataTypeName => $dataType) {
             $criteria = Criteria::create()
-                ->where(Criteria::expr()
-                ->eq('type', $dataTypeName));
-            
+                ->where(Criteria::expr()->eq('type', $dataTypeName));
+
             $matchingValues = $allValues->matching($criteria);
 
             if (!$matchingValues) {
@@ -221,7 +277,6 @@ class Module extends AbstractModule
                     'SELECT n FROM %s n WHERE n.resource = :resource',
                     $dataType->getEntityClass()
                 );
-                #echo($dql);
                 $query = $em->createQuery($dql);
                 $query->setParameter('resource', $entity);
                 $existingNumbers = $query->getResult();
@@ -254,7 +309,7 @@ class Module extends AbstractModule
     }
 
     /**
-     * Build edtf queries.
+     * Build EDTF queries.
      *
      * @param Event $event
      */
@@ -266,13 +321,13 @@ class Module extends AbstractModule
         }
         $adapter = $event->getTarget();
         $qb = $event->getParam('queryBuilder');
-        foreach ($this->getEdtfDataType() as $dataType) {
+        foreach ($this->getEdtfDataTypes() as $dataType) {
             $dataType->buildQuery($adapter, $qb, $query);
         }
     }
 
     /**
-     * Sort edtfal queries.
+     * Sort EDTF queries.
      *
      * sort_by=edtf:<type>:<propertyId>
      *
@@ -292,81 +347,79 @@ class Module extends AbstractModule
             return;
         }
         [$namespace, $type, $propertyId] = $sortBy;
-        if ('edtf' !== $namespace || !is_string($type) || !is_edtf($propertyId)) {
+        if ('edtf' !== $namespace || !is_string($type) || !is_numeric($propertyId)) {
             return;
         }
-        foreach ($this->getEdtfDataType() as $dataType) {
+        foreach ($this->getEdtfDataTypes() as $dataType) {
             $dataType->sortQuery($adapter, $qb, $query, $type, $propertyId);
         }
     }
 
     /**
-     * Add edtf sort options to sort by form.
+     * Get EDTF sort options for sort by form.
      *
-     * @param Event $event
+     * @param string $instanceOf
+     * @return array
      */
-    public function addSortings(Event $event)
+    public function getSortings($instanceOf)
     {
         $services = $this->getServiceLocator();
-        $translator = $services->get('MvcTranslator');
         $entityManager = $services->get('Omeka\EntityManager');
+        $translator = $services->get('MvcTranslator');
 
-        $qb = $entityManager->createQueryBuilder();
-        $qb->select(['p.id', 'p.label', 'rtp.dataType'])
-            ->from('Omeka\Entity\ResourceTemplateProperty', 'rtp')
-            ->innerJoin('rtp.property', 'p');
-        $qb->andWhere($qb->expr()->isNotNull('rtp.dataType'));
-        $query = $qb->getQuery();
-
-        $edtfDataType = $this->getEdtfDataType();
-        $edtfSortBy = [];
-        foreach ($query->getResult() as $templatePropertyData) {
-            $dataType = $templatePropertyData['dataType'] ?? [];
-            foreach ($dataType as $dataType) {
-                if (isset($edtfDataType[$dataType])) {
-                    $value = sprintf('%s:%s', $dataType, $templatePropertyData['id']);
-                    if (!isset($edtfSortBy[$value])) {
-                        $edtfSortBy[$value] = sprintf('%s (%s)', $translator->translate($templatePropertyData['label']), $dataType);
-                    }
-                }
+        $edtfDataTypes = $this->getEdtfDataTypes();
+        $sortings = [];
+        foreach ($edtfDataTypes as $edtfDataType) {
+            $dql = sprintf(<<<'SQL'
+                SELECT DISTINCT property.id, property.label
+                FROM %s ndt
+                JOIN ndt.property property
+                JOIN ndt.resource resource
+                WHERE resource INSTANCE OF %s
+                SQL,
+                $edtfDataType->getEntityClass(),
+                $instanceOf
+            );
+            $query = $entityManager->createQuery($dql);
+            $properties = $query->getResult();
+            foreach ($properties as $property) {
+                $sortingKey = sprintf('%s:%s', $edtfDataType->getName(), $property['id']);
+                $sortingValue = sprintf('%s (%s)', $translator->translate($property['label']), $edtfDataType->getName());
+                $sortings[$sortingKey] = $sortingValue;
             }
         }
         // Sort options alphabetically.
-        asort($edtfSortBy);
-        $sortConfig = $event->getParam('sortConfig') ?: [];
-        $sortConfig = array_merge($sortConfig, $edtfSortBy);
-        $event->setParam('sortConfig', $sortConfig);
+        asort($sortings);
+        return $sortings;
     }
 
     /**
-     * Get all data type added by this module.
+     * Get all data types added by this module.
      *
      * @return array
      */
-    public function getEdtfDataType()
+    public function getEdtfDataTypes()
     {
-
         $dataType = $this->getServiceLocator()->get('Omeka\DataTypeManager');
-        $edtfDataType = [];
-        $edtfDataType["edtf:date"] = $dataType->get("edtf:date");
-        
-        return $edtfDataType;
+        return [
+            'edtf:date' => $dataType->get('edtf:date'),
+        ];
     }
 
     /**
      * Does the passed data contain valid convert-to-edtf data?
      *
      * @param array $data
-     * return bool
+     * @return bool
      */
     public function convertToEdtfDataIsValid(array $data)
     {
-        $validType = array_keys($this->getEdtfDataType());
+        $validTypes = array_keys($this->getEdtfDataTypes());
         return (
             isset($data['edtf_convert']['property'])
-            && is_edtf($data['edtf_convert']['property'])
+            && is_numeric($data['edtf_convert']['property'])
             && isset($data['edtf_convert']['type'])
-            && in_array($data['edtf_convert']['type'], $validType)
+            && in_array($data['edtf_convert']['type'], $validTypes)
         );
     }
 }

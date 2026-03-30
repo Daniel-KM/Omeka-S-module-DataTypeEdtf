@@ -28,7 +28,7 @@ return [
             'edtf:date' => EdtfDataType\DataType\Edtf::class,
         ],
         'value_annotating' => [
-            'edtf:date'
+            'edtf:date',
         ],
     ],
     'view_helpers' => [
