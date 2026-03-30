@@ -1,5 +1,5 @@
 {
-    "name": "digihum/omeka-s-module-edtfdatatype",
+    "name": "digihum/omeka-s-module-edtf-data-type",
     "description": "EDTF Data Type (module for Omeka S)",
     "type": "omeka-s-module",
     "license": "CECILL-2.1",
@@ -28,11 +28,6 @@
         "php": "^7.4 || ^8.0",
         "professional-wiki/edtf": "^3.0"
     },
-    "config": {
-        "platform": {
-            "php": "7.4.0"
-        }
-    },
     "autoload": {
         "psr-4": {
             "EdtfDataType\\": "src/"
@@ -45,6 +40,11 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6.33"
+    },
+   "config": {
+        "platform": {
+            "php": "7.4"
+        }
     },
     "extra": {
         "installer-name": "EdtfDataType"
