@@ -45,7 +45,7 @@ class ValueLessThan implements FacetTypeInterface
         $propertyId->setOptions([
             'label' => 'Property', // @translate
             'empty_option' => '',
-            'numeric_data_type' => 'integer',
+            'edtf_data_type' => 'date',
         ]);
         $propertyId->setAttributes([
             'id' => 'value-less-than-property-id',

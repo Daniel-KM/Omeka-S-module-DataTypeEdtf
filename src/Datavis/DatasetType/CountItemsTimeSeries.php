@@ -167,8 +167,8 @@ class CountItemsTimeSeries extends AbstractDatasetType
             if (!isset($sampleRange[$index + 1])) {
                 continue; // End on the second to the last datetime.
             }
-            $query->setParameter('start', $dateTime->getTimestamp());
-            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
+            $query->setParameter('start', $dateTime->format('Y-m-d\TH:i:s'));
+            $query->setParameter('end', $sampleRange[$index + 1]->format('Y-m-d\TH:i:s'));
             $dataset[] = [
                 'label' => $dateTime->format('Y-m-d\TH:i:s'),
                 'value' => (int) $query->getSingleScalarResult(),

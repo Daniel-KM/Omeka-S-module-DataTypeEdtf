@@ -1,5 +1,5 @@
 <?php
-namespace EdtfTypes\View\Helper;
+namespace EdtfDataType\View\Helper;
 
 use EdtfDataType\Form\Element\EdtfPropertySelect as Select;
 use Laminas\Form\Factory;

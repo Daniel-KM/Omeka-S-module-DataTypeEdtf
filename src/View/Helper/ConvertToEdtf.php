@@ -13,7 +13,6 @@ class ConvertToEdtf extends AbstractHelper
 
     public function render(ElementInterface $element)
     {
-        echo("ConvertToEdtf.php: render() called\n");
         $view = $this->getView();
         return sprintf(
             '%s%s',

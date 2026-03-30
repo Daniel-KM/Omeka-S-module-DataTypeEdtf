@@ -1,13 +1,13 @@
 <?php
 namespace EdtfDataType\FacetedBrowse\FacetType;
 
+use EDTF\EdtfFactory;
+use EdtfDataType\Form\Element\EdtfPropertySelect;
 use FacetedBrowse\Api\Representation\FacetedBrowseFacetRepresentation;
 use FacetedBrowse\FacetType\FacetTypeInterface;
 use Laminas\Form\Element as LaminasElement;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
-use EdtfDataType\DataType\Timestamp;
-use EdtfDataType\Form\Element\EdtfPropertySelect;
 
 class DateInInterval implements FacetTypeInterface
 {
@@ -46,7 +46,7 @@ class DateInInterval implements FacetTypeInterface
         $propertyId->setOptions([
             'label' => 'Property', // @translate
             'empty_option' => '',
-            'numeric_data_type' => 'interval',
+            'edtf_data_type' => 'date',
         ]);
         $propertyId->setAttributes([
             'id' => 'date-in-interval-property-id',
@@ -91,10 +91,7 @@ class DateInInterval implements FacetTypeInterface
                 $iso8601 = $value;
                 $value = $value;
             }
-            try {
-                Timestamp::getDateTimeFromValue($iso8601);
-            } catch (\InvalidArgumentException $e) {
-                // This is invalid ISO 8601.
+            if (!EdtfFactory::newParser()->parse($iso8601)->isValid()) {
                 continue;
             }
             $iso8601KeyValues[$iso8601] = $value;
