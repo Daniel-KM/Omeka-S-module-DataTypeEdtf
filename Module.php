@@ -56,6 +56,9 @@ class Module extends AbstractModule
             'Omeka\Api\Adapter\ItemAdapter',
             'Omeka\Api\Adapter\ItemSetAdapter',
             'Omeka\Api\Adapter\MediaAdapter',
+            'Omeka\Api\Adapter\ValueAnnotationAdapter',
+            // Optional: Annotate module.
+            'Annotate\Api\Adapter\AnnotationAdapter',
         ];
         foreach ($adapterIds as $adapterId) {
             $sharedEventManager->attach(
