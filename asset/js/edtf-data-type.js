@@ -922,8 +922,23 @@ var EdtfDataType = (function($) {
         }
     };
 
+    /**
+     * Auto-uppercase EDTF lettered tokens (X, T, Y, Z, E, S) so the
+     * user can type them in lowercase without worrying about case.
+     */
+    var autoUppercase = function(input) {
+        var val = input.value;
+        var upper = val.replace(/[xtyzes]/g, function(c) { return c.toUpperCase(); });
+        if (upper !== val) {
+            var pos = input.selectionStart;
+            input.value = upper;
+            try { input.setSelectionRange(pos, pos); } catch (e) {}
+        }
+    };
+
     var addParserEventListener = function(container) {
         $(container)[0].addEventListener('input', function(e) {
+            autoUppercase(e.target);
             parser(e.target);
         });
     };
