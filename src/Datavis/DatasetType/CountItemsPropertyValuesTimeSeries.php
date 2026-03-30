@@ -135,8 +135,15 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
         $em = $services->get('Omeka\EntityManager');
         $datasetData = $vis->datasetData();
 
-        $start = DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['start']);
-        $end = DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['end']);
+        $start = isset($datasetData['start'])
+            ? DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['start'])
+            : false;
+        $end = isset($datasetData['end'])
+            ? DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['end'])
+            : false;
+        if (!$start instanceof DateTime || !$end instanceof DateTime) {
+            return [];
+        }
 
         // Get the sample range according to the sample rate.
         switch ($datasetData['sample_rate']) {
@@ -180,14 +187,17 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
             $sampleRange[] = $dateTime;
         }
 
+        // Count items whose EDTF range overlaps each time bucket and whose
+        // literal property value matches one of the given values.
+        // valueMin/valueMax are Unix timestamps (BIGINT).
         $dql = '
         SELECT COUNT(DISTINCT t.resource)
         FROM DataTypeEdtf\Entity\Edtf t
         JOIN Omeka\Entity\Value v WITH v.resource = t.resource
         WHERE t.resource IN (:item_ids)
         AND t.property = :timestamp_property_id
-        AND t.value >= :start
-        AND t.value < :end
+        AND t.valueMin < :end
+        AND t.valueMax >= :start
         AND v.property = :value_property_id
         AND v.value = :value
         AND v.type = \'literal\'';
@@ -200,10 +210,11 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
         $values = array_filter(array_map('trim', explode("\n", $datasetData['values'] ?? '')));
         foreach ($sampleRange as $index => $dateTime) {
             if (!isset($sampleRange[$index + 1])) {
-                continue; // End on the second to the last datetime.
+                // End on the second to the last datetime.
+                continue;
             }
-            $query->setParameter('start', $dateTime->format('Y-m-d\TH:i:s'));
-            $query->setParameter('end', $sampleRange[$index + 1]->format('Y-m-d\TH:i:s'));
+            $query->setParameter('start', $dateTime->getTimestamp());
+            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
             foreach ($values as $value) {
                 $query->setParameter('value', $value);
                 $dataset[] = [

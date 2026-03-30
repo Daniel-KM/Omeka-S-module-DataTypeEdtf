@@ -12,7 +12,7 @@ container.on('change', '.date-before-value', function(e) {
     const facet = thisSelect.closest('.facet');
     const facetData = facet.data('facetData');
     const query = thisSelect.val()
-        ? `numeric[ts][lt][pid]=${facetData.property_id}&numeric[ts][lt][val]=${encodeURIComponent(thisSelect.val())}`
+        ? `edtf[lte][pid]=${facetData.property_id}&edtf[lte][val]=${encodeURIComponent(thisSelect.val())}`
         : '';
     FacetedBrowse.setFacetState(facet.data('facetId'), thisSelect.val(), query);
     FacetedBrowse.triggerStateChange();

@@ -4,7 +4,7 @@ use DataTypeEdtf\Form\Element\Edtf as EdtfElement;
 $this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'DataTypeEdtf'));
 
 $edtfGteSelect = $this->edtfPropertySelect([
-    'name' => 'edtf[date][gte][pid]',
+    'name' => 'edtf[gte][pid]',
     'attributes' => [
         'aria-label' => $this->translate('Property'),
         'id' => 'edtf-on-after-pid',
@@ -17,7 +17,7 @@ $edtfGteSelect = $this->edtfPropertySelect([
 ]);
 
 $edtfLteSelect = $this->edtfPropertySelect([
-    'name' => 'edtf[date][lte][pid]',
+    'name' => 'edtf[lte][pid]',
     'attributes' => [
         'aria-label' => $this->translate('Property'),
         'id' => 'edtf-on-before-pid',
@@ -38,7 +38,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
     <div class="inputs">
         <?php
         echo $edtfGteSelect;
-        $element = new EdtfElement('edtf[date][gte][val]');
+        $element = new EdtfElement('edtf[gte][val]');
         $element->setValue($query['edtf']['gte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
@@ -54,7 +54,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
     <div class="inputs">
         <?php
         echo $edtfLteSelect;
-        $element = new EdtfElement('edtf[date][lte][val]');
+        $element = new EdtfElement('edtf[lte][val]');
         $element->setValue($query['edtf']['lte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
