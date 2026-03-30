@@ -69,6 +69,30 @@ echo "Starting migration of {$total} row(s) from edtf_data_type_edtf.\n";
 $updated = $conn->executeStatement("UPDATE value SET type = 'edtf' WHERE type = 'edtf:date'");
 echo "Updated {$updated} value(s): data type id 'edtf:date' -> 'edtf'.\n";
 
+// Step 1b: update the data type id referenced by resource templates.
+// The data_type column of resource_template_property stores a JSON
+// array of data type ids. The module AdvancedResourceTemplate (ART)
+// also stores a JSON copy of the data_type array inside its own
+// resource_template_property_data.data and resource_template_data.data
+// longtext columns. A literal REPLACE on the quoted token is safe and
+// exact for all of them because the quotes anchor the match.
+$tplTables = [
+    'resource_template_property' => 'data_type',
+    'resource_template_property_data' => 'data',
+    'resource_template_data' => 'data',
+];
+foreach ($tplTables as $table => $col) {
+    try {
+        $n = $conn->executeStatement(
+            "UPDATE {$table} SET {$col} = REPLACE({$col}, '\"edtf:date\"', '\"edtf\"') "
+            . "WHERE {$col} LIKE '%\"edtf:date\"%'"
+        );
+        echo "Updated {$n} row(s) in {$table}.{$col}.\n";
+    } catch (\Throwable $e) {
+        // Table absent (ART not installed) — ignore silently.
+    }
+}
+
 // Step 2: create the new index table if it does not exist.
 try {
     $conn->executeStatement(<<<'SQL'

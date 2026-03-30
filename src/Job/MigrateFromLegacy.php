@@ -37,6 +37,32 @@ class MigrateFromLegacy extends AbstractJob
         $updated = $conn->executeStatement("UPDATE value SET type = 'edtf' WHERE type = 'edtf:date'");
         $logger->info(sprintf('DataTypeEdtf migration: %d value(s) updated from "edtf:date" to "edtf".', $updated)); // @translate
 
+        // Update the data type id referenced by resource templates.
+        // resource_template_property.data_type stores a JSON array of
+        // data type ids. The module AdvancedResourceTemplate (ART)
+        // also keeps a JSON copy of the data_type array inside its
+        // own resource_template_property_data.data and
+        // resource_template_data.data longtext columns. A literal
+        // REPLACE on the quoted token is safe and exact for all of
+        // them because the quotes anchor the match. The ART tables
+        // may not exist; swallow the error in that case.
+        $tplTables = [
+            'resource_template_property' => 'data_type',
+            'resource_template_property_data' => 'data',
+            'resource_template_data' => 'data',
+        ];
+        foreach ($tplTables as $table => $col) {
+            try {
+                $n = $conn->executeStatement(
+                    "UPDATE {$table} SET {$col} = REPLACE({$col}, '\"edtf:date\"', '\"edtf\"') "
+                    . "WHERE {$col} LIKE '%\"edtf:date\"%'"
+                );
+                $logger->info(sprintf('DataTypeEdtf migration: %d row(s) updated in %s.%s.', $n, $table, $col)); // @translate
+            } catch (\Throwable $e) {
+                // Table absent (ART not installed) — ignore silently.
+            }
+        }
+
         // Start from an empty target table so the migration is idempotent
         // after an interrupted previous run.
         $conn->executeStatement('DELETE FROM data_type_edtf');
