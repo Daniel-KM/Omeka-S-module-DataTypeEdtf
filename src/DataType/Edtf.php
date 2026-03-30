@@ -101,22 +101,19 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 
     public function render(PhpRenderer $view, ValueRepresentation $value, $options = [])
     {
-        if (!$this->isValid(['@value' => $value->value()])) {
-            return $value->value();
+        $raw = $value->value();
+        if (!is_string($raw) || $raw === '') {
+            return (string) $raw;
         }
-
-        $humanizer = EdtfFactory::newHumanizerForLanguage(
-            $view->lang() ?? 'en',
-        );
-        $response = $humanizer->humanize(
-            $this->toEdtf($value)->getEdtfValue()
-        );
-
-        // Handles valid dates that do not return a humanized value.
-        return $response !== ''
-            ? $response
-            : $value->value();
-
+        // Parse only once: reuse the result for validity check and
+        // humanization.
+        $parsingResult = EdtfFactory::newParser()->parse($raw);
+        if (!$parsingResult->isValid()) {
+            return $raw;
+        }
+        $humanizer = EdtfFactory::newHumanizerForLanguage($view->lang() ?? 'en');
+        $response = $humanizer->humanize($parsingResult->getEdtfValue());
+        return $response !== '' ? $response : $raw;
     }
 
     public function getFulltextText(PhpRenderer $view, ValueRepresentation $value)
