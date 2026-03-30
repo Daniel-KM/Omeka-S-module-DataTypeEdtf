@@ -26,7 +26,9 @@ return [
     ],
     'data_types' => [
         'invokables' => [
-            'edtf:date' => EdtfDataType\DataType\Edtf::class,
+            'edtf:date' => interface_exists(\Omeka\DataType\ConversionTargetInterface::class)
+                ? EdtfDataType\DataType\EdtfConvertible::class
+                : EdtfDataType\DataType\Edtf::class,
         ],
         'value_annotating' => [
             'edtf:date',
