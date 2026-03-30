@@ -3,8 +3,8 @@
 namespace EdtfDataType\Service\Controller\SiteAdmin\FacetedBrowse;
 
 use EdtfDataType\Controller\SiteAdmin\FacetedBrowse\IndexController;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class IndexControllerFactory implements FactoryInterface
 {

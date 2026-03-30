@@ -3,8 +3,8 @@
 namespace EdtfDataType\Service\FacetedBrowse\FacetType;
 
 use EdtfDataType\FacetedBrowse\FacetType\DurationLessThan;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class DurationLessThanFactory implements FactoryInterface
 {
