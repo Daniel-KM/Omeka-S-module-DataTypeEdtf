@@ -96,32 +96,35 @@ return [
         ],
     ],
     'js_translate_strings' => [
+        '%1$s to %2$s', // @translate
+        '%s century', // @translate
+        '%s millennium', // @translate
+        '%ss', // @translate
         'About calendar and year numbering', // @translate
         'Add time', // @translate
-        'The extended format uses the proleptic Gregorian calendar with astronomical year numbering (year 0 = 1 BCE). Historical dates before the Gregorian reform of 1582 (or later in some countries) are usually recorded in the Julian calendar in sources and must be converted before entry. For instance:', // @translate
-        'the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;', // @translate
-        'the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07.', // @translate
-        'Help', // @translate
-        'At least one side of the interval must be specified', // @translate
-        'April', // @translate
+        'After %1$s', // @translate
         'Apply', // @translate
         'Approximate (~)', // @translate
+        'April', // @translate
+        'Assistant for Extended Date/Time Format', // @translate
+        'At least one side of the interval must be specified', // @translate
         'August', // @translate
         'Autumn', // @translate
         'Autumn - Northern', // @translate
         'Autumn - Southern', // @translate
+        'BCE', // @translate
+        'Before %1$s', // @translate
         'Cancel', // @translate
         'Century (19XX)', // @translate
+        'Checked: the empty side means unknown. Unchecked: it means open, extending indefinitely (..)', // @translate
         'Close', // @translate
         'Copy', // @translate
         'Copy start to end', // @translate
-        'Unknown side', // @translate
-        'Checked: the empty side means unknown. Unchecked: it means open, extending indefinitely (..)', // @translate
         'Day', // @translate
-        'December', // @translate
         'Decade (198X)', // @translate
-        'Assistant for Extended Date/Time Format', // @translate
+        'December', // @translate
         'February', // @translate
+        'Help', // @translate
         'Hour', // @translate
         'Interval (two dates)', // @translate
         'Interval end must be on or after its start', // @translate
@@ -131,12 +134,6 @@ return [
         'Invalid minute', // @translate
         'Invalid month', // @translate
         'Invalid second', // @translate
-        'Qualifiers (uncertain, approximate) cannot be used with reduced precision', // @translate
-        'Qualifiers (uncertain, approximate) cannot be used with seasons', // @translate
-        'Seasons and sub-year groupings cannot be used in intervals', // @translate
-        'Swap', // @translate
-        'Swap start and end', // @translate
-        'Time is only allowed with day precision', // @translate
         'January', // @translate
         'July', // @translate
         'June', // @translate
@@ -158,39 +155,42 @@ return [
         'Quadrimester 2', // @translate
         'Quadrimester 3', // @translate
         'Quadrimesters', // @translate
+        'Qualifiers (uncertain, approximate) cannot be used with reduced precision', // @translate
+        'Qualifiers (uncertain, approximate) cannot be used with seasons', // @translate
         'Quarters', // @translate
         'Seasons', // @translate
         'Seasons (Northern Hemisphere)', // @translate
         'Seasons (Southern Hemisphere)', // @translate
+        'Seasons and sub-year groupings cannot be used in intervals', // @translate
         'Second', // @translate
         'Semester 1', // @translate
         'Semester 2', // @translate
         'Semesters', // @translate
         'September', // @translate
+        'Since %1$s', // @translate
         'Spring', // @translate
         'Spring - Northern', // @translate
         'Spring - Southern', // @translate
         'Summer', // @translate
         'Summer - Northern', // @translate
         'Summer - Southern', // @translate
+        'Swap', // @translate
+        'Swap start and end', // @translate
+        'The extended format uses the proleptic Gregorian calendar with astronomical year numbering (year 0 = 1 BCE). Historical dates before the Gregorian reform of 1582 (or later in some countries) are usually recorded in the Julian calendar in sources and must be converted before entry. For instance:', // @translate
+        'Time is only allowed with day precision', // @translate
         'Uncertain (?)', // @translate
+        'Unknown side', // @translate
+        'Until %1$s', // @translate
         'Winter', // @translate
         'Winter - Northern', // @translate
         'Winter - Southern', // @translate
         'Year', // @translate
         'approximate', // @translate
         'at', // @translate
-        'BCE', // @translate
-        '%s century', // @translate
-        '%s millennium', // @translate
-        '%ss', // @translate
+        'the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;', // @translate
+        'the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07.', // @translate
         'uncertain', // @translate
         'uncertain and approximate', // @translate
-        'Before %1$s', // @translate
-        'Until %1$s', // @translate
-        'After %1$s', // @translate
-        'Since %1$s', // @translate
-        '%1$s to %2$s', // @translate
     ],
     'csv_import' => [
         'data_types' => [
