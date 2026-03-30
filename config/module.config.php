@@ -13,15 +13,15 @@ return [
     ],
     'view_manager' => [
         'template_path_stack' => [
-            OMEKA_PATH . '/modules/EdtfDataType/view',
+            dirname(__DIR__) . '/view',
         ],
     ],
     'entity_manager' => [
         'mapping_classes_paths' => [
-            OMEKA_PATH . '/modules/EdtfDataType/src/Entity',
+            dirname(__DIR__) . '/src/Entity',
         ],
         'proxy_paths' => [
-            OMEKA_PATH . '/modules/EdtfDataType/data/doctrine-proxies',
+            dirname(__DIR__) . '/data/doctrine-proxies',
         ],
     ],
     'data_types' => [
