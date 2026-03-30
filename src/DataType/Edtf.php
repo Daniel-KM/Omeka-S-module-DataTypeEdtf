@@ -202,4 +202,17 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     {
         return $this->form($view);
     }
+
+    /**
+     * Check whether a value can be converted to this data type.
+     *
+     * Implements ConversionTargetInterface::convert() when available
+     * (Omeka S 4.2+). The method is always defined so the subclass
+     * EdtfConvertible can rely on it.
+     */
+    public function convert(Value $value, string $dataTypeTarget): bool
+    {
+        $v = $value->getValue();
+        return is_string($v) && $this->isValid(['@value' => $v]);
+    }
 }

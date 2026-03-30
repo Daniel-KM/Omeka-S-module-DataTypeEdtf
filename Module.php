@@ -158,18 +158,25 @@ class Module extends AbstractModule
                 ]);
             }
         );
-        $sharedEventManager->attach(
+        $batchAdapterIds = [
             'Omeka\Api\Adapter\ItemAdapter',
-            'api.preprocess_batch_update',
-            function (Event $event): void {
-                $data = $event->getParam('data');
-                $rawData = $event->getParam('request')->getContent();
-                if ($this->convertToEdtfDataIsValid($rawData)) {
-                    $data['edtf_convert'] = $rawData['edtf_convert'];
+            'Omeka\Api\Adapter\ItemSetAdapter',
+            'Omeka\Api\Adapter\MediaAdapter',
+        ];
+        foreach ($batchAdapterIds as $batchAdapterId) {
+            $sharedEventManager->attach(
+                $batchAdapterId,
+                'api.preprocess_batch_update',
+                function (Event $event): void {
+                    $data = $event->getParam('data');
+                    $rawData = $event->getParam('request')->getContent();
+                    if ($this->convertToEdtfDataIsValid($rawData)) {
+                        $data['edtf_convert'] = $rawData['edtf_convert'];
+                    }
+                    $event->setParam('data', $data);
                 }
-                $event->setParam('data', $data);
-            }
-        );
+            );
+        }
     }
 
     /**
@@ -217,6 +224,22 @@ class Module extends AbstractModule
             return;
         }
 
+        $this->convertValuesToEdtf($entity, $property, $type, $dataType, $adapter, $logger);
+    }
+
+    /**
+     * Convert literal values of the given property on a resource to EDTF.
+     *
+     * Also traverses value annotations nested inside each value.
+     */
+    protected function convertValuesToEdtf(
+        \Omeka\Entity\Resource $entity,
+        \Omeka\Entity\Property $property,
+        string $type,
+        $dataType,
+        $adapter,
+        $logger
+    ): void {
         $criteria = Criteria::create()
             ->where(Criteria::expr()->eq('property', $property))
             ->andWhere(Criteria::expr()->eq('type', 'literal'));
@@ -232,6 +255,11 @@ class Module extends AbstractModule
                     $type, $entity->getId(), $value->getValue()
                 );
                 $logger->notice($message);
+            }
+            // Recurse into the value annotation, if any.
+            $valueAnnotation = $value->getValueAnnotation();
+            if ($valueAnnotation) {
+                $this->convertValuesToEdtf($valueAnnotation, $property, $type, $dataType, $adapter, $logger);
             }
         }
     }
