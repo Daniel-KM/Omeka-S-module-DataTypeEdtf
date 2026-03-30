@@ -176,47 +176,172 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
         return 'DataTypeEdtf\Entity\Edtf';
     }
 
+    /**
+     * Year offset used so the packed date column is always positive
+     * when year >= -OFFSET. Must be large enough to cover the age of
+     * the universe (≈1.4·10^10) and leave room for sentinels.
+     */
+    public const YEAR_OFFSET = 100000000000000; // 10^14
+
+    public const DATE_MIN = PHP_INT_MIN;
+    public const DATE_MAX = PHP_INT_MAX;
+    public const TIME_MIN = 0;
+    public const TIME_MAX = 235959;
+
     public function setEntityValues(EdtfEntity $entity, Value $value): void
     {
-        [$min, $max] = $this->getValueBounds($value->getValue());
-        $entity->setValueMin($min);
-        $entity->setValueMax($max);
+        [$minDate, $minTime, $maxDate, $maxTime] = $this->getValueBounds($value->getValue());
+        $entity->setValueMinDate($minDate);
+        $entity->setValueMinTime($minTime);
+        $entity->setValueMaxDate($maxDate);
+        $entity->setValueMaxTime($maxTime);
     }
 
     /**
-     * Compute the (min, max) Unix timestamp bounds of an EDTF string.
+     * Compute the packed (minDate, minTime, maxDate, maxTime) bounds
+     * of an EDTF string.
      *
-     * For open intervals, PHP_INT_MIN / PHP_INT_MAX are used as
-     * sentinels so range queries work without handling NULL.
+     * Date part is encoded as (year + YEAR_OFFSET) * 10000 + month *
+     * 100 + day, giving a natively sortable signed BIGINT. Time part
+     * is encoded as hour * 10000 + minute * 100 + second.
+     *
+     * For open intervals and invalid strings, DATE_MIN / DATE_MAX are
+     * used as sentinels so range queries work without handling NULL.
      */
     public function getValueBounds(?string $edtfString): array
     {
         if ($edtfString === null || $edtfString === '') {
-            return [PHP_INT_MIN, PHP_INT_MAX];
+            return [self::DATE_MIN, self::TIME_MIN, self::DATE_MAX, self::TIME_MAX];
         }
         $result = EdtfFactory::newParser()->parse($edtfString);
         if (!$result->isValid()) {
-            return [PHP_INT_MIN, PHP_INT_MAX];
+            return [self::DATE_MIN, self::TIME_MIN, self::DATE_MAX, self::TIME_MAX];
         }
         $edtf = $result->getEdtfValue();
+
         if ($edtf instanceof \EDTF\Model\Interval) {
-            $min = $edtf->hasStartDate() ? $edtf->getStartDate()->getMin() : PHP_INT_MIN;
-            $max = $edtf->hasEndDate() ? $edtf->getEndDate()->getMax() : PHP_INT_MAX;
-            return [$min, $max];
+            if ($edtf->hasStartDate()) {
+                [$minDate, $minTime, ,] = $this->boundsOf($edtf->getStartDate());
+            } else {
+                $minDate = self::DATE_MIN;
+                $minTime = self::TIME_MIN;
+            }
+            if ($edtf->hasEndDate()) {
+                [, , $maxDate, $maxTime] = $this->boundsOf($edtf->getEndDate());
+            } else {
+                $maxDate = self::DATE_MAX;
+                $maxTime = self::TIME_MAX;
+            }
+            return [$minDate, $minTime, $maxDate, $maxTime];
         }
-        return [$edtf->getMin(), $edtf->getMax()];
+
+        return $this->boundsOf($edtf);
+    }
+
+    /**
+     * Compute packed bounds for a non-Interval EDTF node (ExtDate,
+     * ExtDateTime, Season, Set).
+     */
+    protected function boundsOf($node): array
+    {
+        if ($node instanceof \EDTF\Model\ExtDateTime) {
+            $year = $node->getYear();
+            $month = $node->getMonth();
+            $day = $node->getDay();
+            $h = $node->getHour();
+            $mi = $node->getMinute();
+            $s = $node->getSecond();
+            $packedDate = $this->packDate($year, $month, $day);
+            $packedTime = $h * 10000 + $mi * 100 + $s;
+            return [$packedDate, $packedTime, $packedDate, $packedTime];
+        }
+        if ($node instanceof \EDTF\Model\ExtDate) {
+            $year = $node->getYear();
+            if ($year === null) {
+                return [self::DATE_MIN, self::TIME_MIN, self::DATE_MAX, self::TIME_MAX];
+            }
+            $month = $node->getMonth();
+            $day = $node->getDay();
+            $minDate = $this->packDate($year, $month ?? 1, $day ?? 1);
+            $maxMonth = $month ?? 12;
+            $maxDate = $this->packDate($year, $maxMonth, $day ?? $this->lastDayOfMonth($year, $maxMonth));
+            return [$minDate, self::TIME_MIN, $maxDate, self::TIME_MAX];
+        }
+        if ($node instanceof \EDTF\Model\Season) {
+            $year = $node->getYear();
+            $startMonth = $node->getStartMonth();
+            $endMonth = $node->getEndMonth();
+            // Winter (Dec-Feb) and similar wrap across years.
+            if ($endMonth < $startMonth) {
+                $minDate = $this->packDate($year, $startMonth, 1);
+                $maxDate = $this->packDate($year + 1, $endMonth, $this->lastDayOfMonth($year + 1, $endMonth));
+            } else {
+                $minDate = $this->packDate($year, $startMonth, 1);
+                $maxDate = $this->packDate($year, $endMonth, $this->lastDayOfMonth($year, $endMonth));
+            }
+            return [$minDate, self::TIME_MIN, $maxDate, self::TIME_MAX];
+        }
+        if ($node instanceof \EDTF\Model\Set) {
+            $minDate = self::DATE_MAX;
+            $minTime = self::TIME_MAX;
+            $maxDate = self::DATE_MIN;
+            $maxTime = self::TIME_MIN;
+            foreach ($node->getElements() as $element) {
+                $inner = method_exists($element, 'getDate') ? $element->getDate() : $element;
+                [$lo, $loT, $hi, $hiT] = $this->boundsOf($inner);
+                if ($lo < $minDate || ($lo === $minDate && $loT < $minTime)) {
+                    $minDate = $lo;
+                    $minTime = $loT;
+                }
+                if ($hi > $maxDate || ($hi === $maxDate && $hiT > $maxTime)) {
+                    $maxDate = $hi;
+                    $maxTime = $hiT;
+                }
+            }
+            if ($minDate === self::DATE_MAX) {
+                return [self::DATE_MIN, self::TIME_MIN, self::DATE_MAX, self::TIME_MAX];
+            }
+            return [$minDate, $minTime, $maxDate, $maxTime];
+        }
+        return [self::DATE_MIN, self::TIME_MIN, self::DATE_MAX, self::TIME_MAX];
+    }
+
+    /**
+     * Pack (year, month, day) into a signed BIGINT:
+     * (year + YEAR_OFFSET) * 10000 + month * 100 + day.
+     */
+    public function packDate(int $year, int $month, int $day): int
+    {
+        return ($year + self::YEAR_OFFSET) * 10000 + $month * 100 + $day;
+    }
+
+    public function packTime(int $hour, int $minute, int $second): int
+    {
+        return $hour * 10000 + $minute * 100 + $second;
+    }
+
+    protected function lastDayOfMonth(int $year, int $month): int
+    {
+        static $days = [1 => 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        if ($month === 2 && $this->isLeapYear($year)) {
+            return 29;
+        }
+        return $days[$month] ?? 31;
+    }
+
+    protected function isLeapYear(int $year): bool
+    {
+        return ($year % 4 === 0 && $year % 100 !== 0) || $year % 400 === 0;
     }
 
     /**
      * edtf => [
-     *   date => [
-     *     lt/lte => [val => <edtf string>, pid => <propertyId>],
-     *     gt/gte => [val => <edtf string>, pid => <propertyId>],
-     *   ],
+     *   lt/lte/gt/gte => [val => <edtf string>, pid => <propertyId>],
      * ]
      *
-     * Range queries use value_min and value_max on the specialized
-     * entity table for efficient indexing.
+     * Range queries compare lexicographically on the (date, time)
+     * pair using the composite indexes on value_min_date/time and
+     * value_max_date/time.
      */
     public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query): void
     {
@@ -230,28 +355,74 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
             if (!$this->isValid(['@value' => $value])) {
                 continue;
             }
-            [$min, $max] = $this->getValueBounds($value);
-            // For "less than" queries, filter on value_max of the
-            // stored item: item ends before the query date.
-            // For "greater than", filter on value_min: item starts
-            // after the query date.
+            [$minDate, $minTime, $maxDate, $maxTime] = $this->getValueBounds($value);
+            // "less than"  → the item ends before the query value:
+            //                compare on value_max_* with lower bound.
+            // "greater than" → the item starts after the query value:
+            //                  compare on value_min_* with upper bound.
             if ($op === 'lt') {
-                $this->addLessThanQuery($adapter, $qb, $propertyId, $min, 'valueMax');
+                $this->addCompositeCompare($adapter, $qb, $propertyId, 'valueMax', '<', $minDate, $minTime);
             } elseif ($op === 'lte') {
-                $this->addLessThanOrEqualToQuery($adapter, $qb, $propertyId, $max, 'valueMax');
+                $this->addCompositeCompare($adapter, $qb, $propertyId, 'valueMax', '<=', $maxDate, $maxTime);
             } elseif ($op === 'gt') {
-                $this->addGreaterThanQuery($adapter, $qb, $propertyId, $max, 'valueMin');
+                $this->addCompositeCompare($adapter, $qb, $propertyId, 'valueMin', '>', $maxDate, $maxTime);
             } elseif ($op === 'gte') {
-                $this->addGreaterThanOrEqualToQuery($adapter, $qb, $propertyId, $min, 'valueMin');
+                $this->addCompositeCompare($adapter, $qb, $propertyId, 'valueMin', '>=', $minDate, $minTime);
             }
         }
+    }
+
+    /**
+     * Add a lexicographic (date, time) comparison against the given
+     * column pair, joined on property.
+     *
+     * @param string $columnPrefix 'valueMin' or 'valueMax'.
+     * @param string $op '<', '<=', '>', '>='.
+     */
+    protected function addCompositeCompare(
+        AdapterInterface $adapter,
+        QueryBuilder $qb,
+        $propertyId,
+        string $columnPrefix,
+        string $op,
+        int $date,
+        int $time
+    ): void {
+        $alias = $adapter->createAlias();
+        $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
+        if (is_numeric($propertyId)) {
+            $with = $qb->expr()->andX(
+                $with,
+                $qb->expr()->eq("$alias.property", (int) $propertyId)
+            );
+        }
+        $qb->leftJoin($this->getEntityClass(), $alias, 'WITH', $with);
+
+        $dateField = "$alias.{$columnPrefix}Date";
+        $timeField = "$alias.{$columnPrefix}Time";
+        $pDate = $adapter->createNamedParameter($qb, $date);
+        $pTime = $adapter->createNamedParameter($qb, $time);
+
+        // (date, time) OP (:d, :t) expanded for DQL:
+        // strict:  date OP :d OR (date = :d AND time OP :t)
+        // inclusive: date strictOP :d OR (date = :d AND time OP :t)
+        $strict = rtrim($op, '=');
+        $expr = $qb->expr()->orX(
+            "$dateField $strict $pDate",
+            $qb->expr()->andX(
+                "$dateField = $pDate",
+                "$timeField $op $pTime"
+            )
+        );
+        $qb->andWhere($expr);
     }
 
     public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId): void
     {
         if ('edtf' === $type) {
             $alias = $adapter->createAlias();
-            $qb->addSelect("MIN($alias.valueMin) as HIDDEN edtf_sort");
+            $qb->addSelect("MIN($alias.valueMinDate) as HIDDEN edtf_sort_date");
+            $qb->addSelect("MIN($alias.valueMinTime) as HIDDEN edtf_sort_time");
             $qb->leftJoin(
                 $this->getEntityClass(), $alias, 'WITH',
                 $qb->expr()->andX(
@@ -259,7 +430,8 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
                     $qb->expr()->eq("$alias.property", $propertyId)
                 )
             );
-            $qb->addOrderBy('edtf_sort', $query['sort_order']);
+            $qb->addOrderBy('edtf_sort_date', $query['sort_order']);
+            $qb->addOrderBy('edtf_sort_time', $query['sort_order']);
         }
     }
 

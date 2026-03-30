@@ -13,7 +13,7 @@ container.on('change', '.date-in-interval-value', function(e) {
     const facetData = facet.data('facetData');
     // "Date in interval X" means the item's EDTF range is contained within the
     // period X (e.g., contained within the year 1984).
-    // Expressed as: value_min >= X_start AND value_max <= X_end.
+    // Expressed as: value_min_date >= X_start AND value_max_date <= X_end.
     const val = thisSelect.val();
     const encoded = encodeURIComponent(val);
     const pid = facetData.property_id;

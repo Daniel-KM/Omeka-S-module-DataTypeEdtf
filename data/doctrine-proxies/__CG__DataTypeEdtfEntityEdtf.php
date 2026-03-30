@@ -67,10 +67,10 @@ class Edtf extends \DataTypeEdtf\Entity\Edtf implements \Doctrine\ORM\Proxy\Prox
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'resource', 'property', 'value'];
+            return ['__isInitialized__', 'id', 'resource', 'property', 'valueMinDate', 'valueMinTime', 'valueMaxDate', 'valueMaxTime'];
         }
 
-        return ['__isInitialized__', 'id', 'resource', 'property', 'value'];
+        return ['__isInitialized__', 'id', 'resource', 'property', 'valueMinDate', 'valueMinTime', 'valueMaxDate', 'valueMaxTime'];
     }
 
     /**
@@ -239,23 +239,89 @@ class Edtf extends \DataTypeEdtf\Entity\Edtf implements \Doctrine\ORM\Proxy\Prox
     /**
      * {@inheritDoc}
      */
-    public function setValue($value): void
+    public function setValueMinDate(int $valueMinDate): void
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValue', [$value]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValueMinDate', [$valueMinDate]);
 
-        parent::setValue($value);
+        parent::setValueMinDate($valueMinDate);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getValue()
+    public function getValueMinDate(): ?int
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValue', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValueMinDate', []);
 
-        return parent::getValue();
+        return parent::getValueMinDate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValueMinTime(int $valueMinTime): void
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValueMinTime', [$valueMinTime]);
+
+        parent::setValueMinTime($valueMinTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValueMinTime(): ?int
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValueMinTime', []);
+
+        return parent::getValueMinTime();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValueMaxDate(int $valueMaxDate): void
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValueMaxDate', [$valueMaxDate]);
+
+        parent::setValueMaxDate($valueMaxDate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValueMaxDate(): ?int
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValueMaxDate', []);
+
+        return parent::getValueMaxDate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValueMaxTime(int $valueMaxTime): void
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValueMaxTime', [$valueMaxTime]);
+
+        parent::setValueMaxTime($valueMaxTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValueMaxTime(): ?int
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValueMaxTime', []);
+
+        return parent::getValueMaxTime();
     }
 
     /**

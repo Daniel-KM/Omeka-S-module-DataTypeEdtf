@@ -60,7 +60,7 @@ class MigrateFromLegacy extends AbstractJob
             $insertRows = [];
             foreach ($rows as $row) {
                 try {
-                    [$min, $max] = $dataType->getValueBounds($row['value']);
+                    [$minDate, $minTime, $maxDate, $maxTime] = $dataType->getValueBounds($row['value']);
                 } catch (\Throwable $e) {
                     $failed++;
                     $logger->notice(sprintf(
@@ -72,17 +72,19 @@ class MigrateFromLegacy extends AbstractJob
                 $insertRows[] = [
                     (int) $row['resource_id'],
                     (int) $row['property_id'],
-                    $min,
-                    $max,
+                    $minDate,
+                    $minTime,
+                    $maxDate,
+                    $maxTime,
                 ];
             }
             if ($insertRows) {
-                $placeholders = implode(', ', array_fill(0, count($insertRows), '(?, ?, ?, ?)'));
+                $placeholders = implode(', ', array_fill(0, count($insertRows), '(?, ?, ?, ?, ?, ?)'));
                 $params = array_merge(...$insertRows);
                 $conn->beginTransaction();
                 try {
                     $conn->executeStatement(
-                        'INSERT INTO data_type_edtf (resource_id, property_id, value_min, value_max) VALUES ' . $placeholders,
+                        'INSERT INTO data_type_edtf (resource_id, property_id, value_min_date, value_min_time, value_max_date, value_max_time) VALUES ' . $placeholders,
                         $params
                     );
                     $conn->commit();

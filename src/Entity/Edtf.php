@@ -11,8 +11,8 @@ use Omeka\Entity\Resource;
  * @Table(
  *     name="data_type_edtf",
  *     indexes={
- *         @Index(name="idx_property_value_min", columns={"property_id", "value_min"}),
- *         @Index(name="idx_property_value_max", columns={"property_id", "value_max"}),
+ *         @Index(name="idx_property_value_min", columns={"property_id", "value_min_date", "value_min_time"}),
+ *         @Index(name="idx_property_value_max", columns={"property_id", "value_max_date", "value_max_time"}),
  *     }
  * )
  */
@@ -38,20 +38,38 @@ class Edtf extends AbstractEntity
     protected $property;
 
     /**
-     * Earliest possible Unix timestamp for the EDTF value. PHP_INT_MIN
-     * for unknown/open start.
+     * Earliest date component of the EDTF value, packed as
+     * (year + 10^14) * 10000 + month * 100 + day. PHP_INT_MIN is used
+     * as sentinel for an open/unknown start.
      *
      * @Column(type="bigint")
      */
-    protected $valueMin;
+    protected $valueMinDate;
 
     /**
-     * Latest possible Unix timestamp for the EDTF value. PHP_INT_MAX
-     * for unknown/open end.
+     * Earliest time-of-day component, packed as
+     * hour * 10000 + minute * 100 + second (0..235959). 0 when no
+     * time is provided.
+     *
+     * @Column(type="integer")
+     */
+    protected $valueMinTime;
+
+    /**
+     * Latest date component of the EDTF value, same encoding as
+     * valueMinDate. PHP_INT_MAX is used as sentinel for an open end.
      *
      * @Column(type="bigint")
      */
-    protected $valueMax;
+    protected $valueMaxDate;
+
+    /**
+     * Latest time-of-day component, same encoding as valueMinTime.
+     * 235959 when no time is provided.
+     *
+     * @Column(type="integer")
+     */
+    protected $valueMaxTime;
 
     public function getId()
     {
@@ -78,23 +96,43 @@ class Edtf extends AbstractEntity
         return $this->property;
     }
 
-    public function setValueMin(int $valueMin): void
+    public function setValueMinDate(int $valueMinDate): void
     {
-        $this->valueMin = $valueMin;
+        $this->valueMinDate = $valueMinDate;
     }
 
-    public function getValueMin(): ?int
+    public function getValueMinDate(): ?int
     {
-        return $this->valueMin === null ? null : (int) $this->valueMin;
+        return $this->valueMinDate === null ? null : (int) $this->valueMinDate;
     }
 
-    public function setValueMax(int $valueMax): void
+    public function setValueMinTime(int $valueMinTime): void
     {
-        $this->valueMax = $valueMax;
+        $this->valueMinTime = $valueMinTime;
     }
 
-    public function getValueMax(): ?int
+    public function getValueMinTime(): ?int
     {
-        return $this->valueMax === null ? null : (int) $this->valueMax;
+        return $this->valueMinTime === null ? null : (int) $this->valueMinTime;
+    }
+
+    public function setValueMaxDate(int $valueMaxDate): void
+    {
+        $this->valueMaxDate = $valueMaxDate;
+    }
+
+    public function getValueMaxDate(): ?int
+    {
+        return $this->valueMaxDate === null ? null : (int) $this->valueMaxDate;
+    }
+
+    public function setValueMaxTime(int $valueMaxTime): void
+    {
+        $this->valueMaxTime = $valueMaxTime;
+    }
+
+    public function getValueMaxTime(): ?int
+    {
+        return $this->valueMaxTime === null ? null : (int) $this->valueMaxTime;
     }
 }
