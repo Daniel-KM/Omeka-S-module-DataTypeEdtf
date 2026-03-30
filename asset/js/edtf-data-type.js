@@ -134,6 +134,41 @@ var EdtfDataType = (function($) {
     /**
      * Read an EDTF date form (fieldset) and build the EDTF part string.
      */
+    var snapshotFieldset = function($fs) {
+        return {
+            year: $fs.find('.edtf-assistant-year').val(),
+            month: $fs.find('.edtf-assistant-month').val(),
+            day: $fs.find('.edtf-assistant-day').val(),
+            precision: $fs.find('.edtf-assistant-precision').val(),
+            uncertain: $fs.find('.edtf-assistant-uncertain').prop('checked'),
+            approximate: $fs.find('.edtf-assistant-approximate').prop('checked'),
+            withTime: $fs.find('.edtf-assistant-with-time').prop('checked'),
+            hour: $fs.find('.edtf-assistant-hour').val(),
+            minute: $fs.find('.edtf-assistant-minute').val(),
+            second: $fs.find('.edtf-assistant-second').val(),
+            offset: $fs.find('.edtf-assistant-offset').val(),
+        };
+    };
+
+    var restoreFieldset = function($fs, snap) {
+        $fs.find('.edtf-assistant-year').val(snap.year);
+        $fs.find('.edtf-assistant-month').val(snap.month);
+        $fs.find('.edtf-assistant-day').val(snap.day);
+        $fs.find('.edtf-assistant-precision').val(snap.precision);
+        $fs.find('.edtf-assistant-uncertain').prop('checked', !!snap.uncertain);
+        $fs.find('.edtf-assistant-approximate').prop('checked', !!snap.approximate);
+        $fs.find('.edtf-assistant-with-time').prop('checked', !!snap.withTime);
+        $fs.find('.edtf-assistant-row-time').toggle(!!snap.withTime);
+        $fs.find('.edtf-assistant-hour').val(snap.hour);
+        $fs.find('.edtf-assistant-minute').val(snap.minute);
+        $fs.find('.edtf-assistant-second').val(snap.second);
+        $fs.find('.edtf-assistant-offset').val(snap.offset);
+    };
+
+    var copyFieldset = function($from, $to) {
+        restoreFieldset($to, snapshotFieldset($from));
+    };
+
     /**
      * Read raw form fields as an object (no EDTF formatting).
      */
@@ -178,27 +213,31 @@ var EdtfDataType = (function($) {
             var firstEmpty = !first.year;
             var secondEmpty = !second.year;
             if (firstEmpty && secondEmpty) {
-                return translate('At least one side of the interval must be specified');
+                return { message: translate('At least one side of the interval must be specified'), index: 0, field: 'year' };
             }
-            if (isSeason(first) || isSeason(second)) {
-                return translate('Seasons and sub-year groupings cannot be used in intervals');
+            if (isSeason(first)) {
+                return { message: translate('Seasons and sub-year groupings cannot be used in intervals'), index: 0, field: 'month' };
+            }
+            if (isSeason(second)) {
+                return { message: translate('Seasons and sub-year groupings cannot be used in intervals'), index: 1, field: 'month' };
             }
             var e1 = validateSinglePart(first);
-            if (e1) return e1;
+            if (e1) { e1.index = 0; return e1; }
             var e2 = validateSinglePart(second);
-            if (e2) return e2;
-            // Check reversed interval.
+            if (e2) { e2.index = 1; return e2; }
             if (!firstEmpty && !secondEmpty) {
                 var start = comparableDate(first);
                 var end = comparableDate(second);
                 if (start !== null && end !== null && start > end) {
-                    return translate('Interval end must be on or after its start');
+                    return { message: translate('Interval end must be on or after its start'), index: 1, field: 'year' };
                 }
             }
-            return '';
+            return null;
         }
 
-        return validateSinglePart(first);
+        var e = validateSinglePart(first);
+        if (e) { e.index = 0; return e; }
+        return null;
     };
 
     var isSeason = function(parts) {
@@ -210,44 +249,47 @@ var EdtfDataType = (function($) {
      * Validate a single date (non-interval) per EDTF norm.
      */
     var validateSinglePart = function(parts) {
-        if (!parts.year) return '';
+        if (!parts.year) return null;
 
-        // Qualifiers on seasons are not allowed (norm Level 1/2).
         if (isSeason(parts) && (parts.uncertain || parts.approximate)) {
-            return translate('Qualifiers (uncertain, approximate) cannot be used with seasons');
+            return { message: translate('Qualifiers (uncertain, approximate) cannot be used with seasons'), field: 'uncertain' };
         }
 
-        // Time is only valid with day precision (not with season or
-        // reduced precision).
+        // Qualifiers on reduced precision (decade/century/millennium)
+        // combine a Level 2 feature with a Level 1 qualifier and are not
+        // explicitly allowed by the ISO 8601-2:2019 grammar.
+        var reduced = ['decade', 'century', 'millennium'].indexOf(parts.precision) !== -1;
+        if (reduced && (parts.uncertain || parts.approximate)) {
+            return { message: translate('Qualifiers (uncertain, approximate) cannot be used with reduced precision'), field: 'uncertain' };
+        }
+
         if (parts.withTime && (isSeason(parts) || ['decade', 'century', 'millennium'].indexOf(parts.precision) !== -1)) {
-            return translate('Time is only allowed with day precision');
+            return { message: translate('Time is only allowed with day precision'), field: 'with-time' };
         }
 
-        // Calendar validity: check month/day.
         if (!isSeason(parts) && parts.month) {
             var m = parseInt(parts.month, 10);
             if (m < 1 || m > 12) {
-                return translate('Invalid month');
+                return { message: translate('Invalid month'), field: 'month' };
             }
             if (parts.day) {
                 var d = parseInt(parts.day, 10);
                 if (d < 1 || d > daysInMonth(parts.year, m)) {
-                    return translate('Invalid day for this month');
+                    return { message: translate('Invalid day for this month'), field: 'day' };
                 }
             }
         }
 
-        // Time components.
         if (parts.withTime && parts.hour !== '' && parts.hour != null) {
             var h = parseInt(parts.hour, 10);
             var mn = parts.minute !== '' && parts.minute != null ? parseInt(parts.minute, 10) : 0;
             var sc = parts.second !== '' && parts.second != null ? parseInt(parts.second, 10) : 0;
-            if (h < 0 || h > 23) return translate('Invalid hour');
-            if (mn < 0 || mn > 59) return translate('Invalid minute');
-            if (sc < 0 || sc > 59) return translate('Invalid second');
+            if (h < 0 || h > 23) return { message: translate('Invalid hour'), field: 'hour' };
+            if (mn < 0 || mn > 59) return { message: translate('Invalid minute'), field: 'minute' };
+            if (sc < 0 || sc > 59) return { message: translate('Invalid second'), field: 'second' };
         }
 
-        return '';
+        return null;
     };
 
     /**
@@ -306,7 +348,7 @@ var EdtfDataType = (function($) {
         return ''
             + '<fieldset class="edtf-assistant-part">'
             +   '<div class="edtf-assistant-row edtf-assistant-row-date">'
-            +     '<input type="number" class="edtf-assistant-year" step="1"'
+            +     '<input type="number" inputmode="numeric" class="edtf-assistant-year" step="1"'
             +       ' placeholder="' + translate('Year') + '" aria-label="' + translate('Year') + '">'
             +     '<select class="edtf-assistant-month" aria-label="' + translate('Month') + '">'
             +       '<option value="">' + translate('Month') + '</option>'
@@ -358,7 +400,7 @@ var EdtfDataType = (function($) {
             +         '<option value="41">41 — ' + translate('Semester 2') + '</option>'
             +       '</optgroup>'
             +     '</select>'
-            +     '<input type="number" class="edtf-assistant-day" min="1" max="31" step="1"'
+            +     '<input type="number" inputmode="numeric" class="edtf-assistant-day" min="1" max="31" step="1"'
             +       ' placeholder="' + translate('Day') + '" aria-label="' + translate('Day') + '">'
             +     '<label class="edtf-assistant-with-time-toggle" title="' + translate('Add time') + '">'
             +       '<span class="edtf-assistant-clock-icon" aria-hidden="true"></span>'
@@ -366,11 +408,11 @@ var EdtfDataType = (function($) {
             +     '</label>'
             +   '</div>'
             +   '<div class="edtf-assistant-row edtf-assistant-row-time" style="display:none;">'
-            +     '<input type="number" class="edtf-assistant-hour" min="0" max="23" step="1"'
+            +     '<input type="number" inputmode="numeric" class="edtf-assistant-hour" min="0" max="23" step="1"'
             +       ' placeholder="' + translate('Hour') + '" aria-label="' + translate('Hour') + '">'
-            +     '<input type="number" class="edtf-assistant-minute" min="0" max="59" step="1"'
+            +     '<input type="number" inputmode="numeric" class="edtf-assistant-minute" min="0" max="59" step="1"'
             +       ' placeholder="' + translate('Minute') + '" aria-label="' + translate('Minute') + '">'
-            +     '<input type="number" class="edtf-assistant-second" min="0" max="59" step="1"'
+            +     '<input type="number" inputmode="numeric" class="edtf-assistant-second" min="0" max="59" step="1"'
             +       ' placeholder="' + translate('Second') + '" aria-label="' + translate('Second') + '">'
             +     '<select class="edtf-assistant-offset" aria-label="' + translate('Offset') + '">'
             +       '<option value="">' + translate('Offset') + '</option>'
@@ -418,6 +460,10 @@ var EdtfDataType = (function($) {
             +           '</label>'
             +           '<div class="edtf-assistant-parts">'
             +             datePartHtml(translate)
+            +             '<div class="edtf-assistant-interval-tools" style="display:none;">'
+            +               '<button type="button" class="edtf-assistant-copy-to-end edtf-assistant-link" title="' + translate('Copy start to end') + '">' + translate('Copy') + '</button>'
+            +               '<button type="button" class="edtf-assistant-swap edtf-assistant-link" title="' + translate('Swap start and end') + '">' + translate('Swap') + '</button>'
+            +             '</div>'
             +             '<fieldset class="edtf-assistant-part edtf-assistant-end" style="display:none;">'
             +               datePartHtml(translate).replace('<fieldset class="edtf-assistant-part">', '').replace(/<\/fieldset>$/, '')
             +             '</fieldset>'
@@ -444,7 +490,7 @@ var EdtfDataType = (function($) {
         return (typeof Omeka !== 'undefined' && Omeka.jsTranslate) ? Omeka.jsTranslate(s) : s;
     };
 
-    var openAssistant = function(input) {
+    var openAssistant = function(input, triggerBtn) {
         var $input = $(input);
 
         // Only one dialog at a time across the page.
@@ -461,6 +507,11 @@ var EdtfDataType = (function($) {
         } else {
             $popup.attr('open', 'open');
         }
+
+        // Focus the first year field on open.
+        setTimeout(function() {
+            $popup.find('.edtf-assistant-year').eq(0).trigger('focus').select();
+        }, 0);
 
         var updatePreview = function() {
             var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part');
@@ -480,24 +531,57 @@ var EdtfDataType = (function($) {
             var $result = $popup.find('.edtf-assistant-result');
             var $apply = $popup.find('.edtf-assistant-apply');
             $result.text(result || '—');
+            // Clear previous field-level error state.
+            $popup.find('.edtf-assistant-field-error').removeClass('edtf-assistant-field-error');
             var errorMsg = '';
             var isValid = false;
             if (result && result !== '—' && result !== '..') {
-                errorMsg = validateEdtf(result, {
+                var err = validateEdtf(result, {
                     firstParts: readPartsRaw($parts.eq(0)),
                     secondParts: isInterval ? readPartsRaw($parts.eq(1)) : null,
                     isInterval: isInterval,
                 });
-                isValid = !errorMsg;
+                if (err) {
+                    errorMsg = err.message;
+                    var $target = $parts.eq(err.index || 0).find('.edtf-assistant-' + err.field);
+                    $target.addClass('edtf-assistant-field-error');
+                }
+                isValid = !err;
             }
             $result.toggleClass('edtf-assistant-invalid', !!result && !isValid);
             $apply.prop('disabled', !!result && !isValid);
             $popup.find('.edtf-assistant-error').text(errorMsg);
         };
 
-        // Toggle interval end fieldset.
+        // Toggle interval end fieldset + tools.
         $popup.on('change', '.edtf-assistant-interval', function() {
-            $popup.find('.edtf-assistant-end').toggle(this.checked);
+            $popup.find('.edtf-assistant-end, .edtf-assistant-interval-tools').toggle(this.checked);
+            updatePreview();
+        });
+
+        // Copy start fieldset to end fieldset.
+        $popup.on('click', '.edtf-assistant-copy-to-end', function(e) {
+            e.preventDefault();
+            var $start = $popup.find('.edtf-assistant-part').eq(0);
+            var $end = $popup.find('.edtf-assistant-part').eq(1);
+            copyFieldset($start, $end);
+            updateSeasonState($end);
+            updateDayMax($end);
+            updatePreview();
+        });
+
+        // Swap start and end fieldsets.
+        $popup.on('click', '.edtf-assistant-swap', function(e) {
+            e.preventDefault();
+            var $start = $popup.find('.edtf-assistant-part').eq(0);
+            var $end = $popup.find('.edtf-assistant-part').eq(1);
+            var tmp = snapshotFieldset($start);
+            copyFieldset($end, $start);
+            restoreFieldset($end, tmp);
+            updateSeasonState($start);
+            updateSeasonState($end);
+            updateDayMax($start);
+            updateDayMax($end);
             updatePreview();
         });
 
@@ -535,15 +619,54 @@ var EdtfDataType = (function($) {
         };
         $popup.on('change', '.edtf-assistant-month', function() {
             updateSeasonState($(this).closest('.edtf-assistant-part'));
+            updateDayMax($(this).closest('.edtf-assistant-part'));
+        });
+        $popup.on('input', '.edtf-assistant-year', function() {
+            updateDayMax($(this).closest('.edtf-assistant-part'));
         });
 
-        // Update preview on any change.
-        $popup.on('input change', 'input, select', updatePreview);
+        var updateDayMax = function($fieldset) {
+            var year = $fieldset.find('.edtf-assistant-year').val();
+            var month = parseInt($fieldset.find('.edtf-assistant-month').val(), 10);
+            var $day = $fieldset.find('.edtf-assistant-day');
+            if (year && month >= 1 && month <= 12) {
+                var max = daysInMonth(year, month);
+                $day.attr('max', max);
+                if (parseInt($day.val(), 10) > max) {
+                    $day.val(max);
+                }
+            } else {
+                $day.attr('max', 31);
+            }
+        };
+
+        // Update preview on any change (debounced on keystroke).
+        var previewTimer = null;
+        var debouncedPreview = function() {
+            if (previewTimer) clearTimeout(previewTimer);
+            previewTimer = setTimeout(updatePreview, 80);
+        };
+        $popup.on('input', 'input', debouncedPreview);
+        $popup.on('change', 'input, select', updatePreview);
 
         var closeDialog = function() {
             if (typeof dialog.close === 'function') dialog.close();
             $popup.remove();
+            // Restore focus on the trigger button.
+            if (triggerBtn) {
+                try { triggerBtn.focus(); } catch (e) {}
+            }
         };
+
+        // Enter key applies when valid (except in textarea/select).
+        $popup.on('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                if (!$popup.find('.edtf-assistant-apply').prop('disabled')) {
+                    $popup.find('.edtf-assistant-apply').trigger('click');
+                }
+            }
+        });
 
         // Apply: set input value and trigger validation.
         $popup.on('click', '.edtf-assistant-apply', function(e) {
@@ -677,7 +800,7 @@ var EdtfDataType = (function($) {
             e.preventDefault();
             var input = $(this).siblings('input.edtf-value')[0];
             if (input) {
-                openAssistant(input);
+                openAssistant(input, this);
             }
         });
 
