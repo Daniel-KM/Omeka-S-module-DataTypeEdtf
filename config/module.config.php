@@ -110,7 +110,7 @@ return [
         'Day', // @translate
         'December', // @translate
         'Decade (198X)', // @translate
-        'EDTF Assistant', // @translate
+        'Assistant for Extended Date/Time Format', // @translate
         'February', // @translate
         'Hour', // @translate
         'Interval (two dates)', // @translate
@@ -168,6 +168,17 @@ return [
         'Winter - Northern', // @translate
         'Winter - Southern', // @translate
         'Year', // @translate
+        'approximate', // @translate
+        'at', // @translate
+        'BCE', // @translate
+        '%s century', // @translate
+        '%s millennium', // @translate
+        '%ss', // @translate
+        'uncertain', // @translate
+        'uncertain and approximate', // @translate
+        'Unknown to %s', // @translate
+        '%s to present or unknown', // @translate
+        '%s to %s', // @translate
     ],
     'csv_import' => [
         'data_types' => [
