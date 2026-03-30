@@ -378,8 +378,9 @@ class Module extends AbstractModule
 
             $matchingValues = $allValues->matching($criteria);
 
-            if (!$matchingValues) {
-                // This resource has no number values of this type.
+            if ($matchingValues->isEmpty()) {
+                // This resource has no EDTF values of this type, skip
+                // the DB query that would reload existing rows.
                 continue;
             }
 
