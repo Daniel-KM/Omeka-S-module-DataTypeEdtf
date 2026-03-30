@@ -37,7 +37,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         $type = "xsd:string";
         # @todo this could be made much more specific using
         # all of the qualitifications of https://github.com/ProfessionalWiki/EDTF
-        # a bit of relevant discussion here: https://github.com/Islandora/documentation/issues/916 
+        # a bit of relevant discussion here: https://github.com/Islandora/documentation/issues/916
         // if (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute']) && isset($date['second']) && isset($date['offset_value'])) {
         //     $type = 'http://www.w3.org/2001/XMLSchema#dateTime';
         // } elseif (isset($date['month']) && isset($date['day']) && isset($date['hour']) && isset($date['minute']) && isset($date['offset_value'])) {
@@ -81,14 +81,12 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
 
     public function isValid(array $valueObject)
     {
-        # @todo for some reason even if this is invalid, it saves.
+        if (!isset($valueObject['@value']) || !is_string($valueObject['@value']) || $valueObject['@value'] === '') {
+            return false;
+        }
         $parser = EdtfFactory::newParser();
         $parsingResult = $parser->parse($valueObject['@value']);
-
-        if(!$parsingResult->isValid()) {
-            return (bool) false;
-        }
-        return (bool) true;
+        return $parsingResult->isValid();
     }
 
     public function hydrate(array $valueObject, Value $value, AbstractEntityAdapter $adapter)
@@ -134,7 +132,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
 
     public function setEntityValues(EdtfDataTypeEdtf $entity, Value $value)
     {
-      
+
         // Set the datetime as a string
         $edtfDate = $value->getValue();
         $entity->setValue($edtfDate);
