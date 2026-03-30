@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Form\Element;
 
 use Laminas\Form\Element;
@@ -20,6 +21,5 @@ class Edtf extends Element
         $this->valueElement->setValue($this->getValue());
         return $this->valueElement;
     }
-
 
 }

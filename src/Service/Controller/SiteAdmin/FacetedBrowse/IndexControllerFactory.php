@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Service\Controller\SiteAdmin\FacetedBrowse;
 
 use EdtfDataType\Controller\SiteAdmin\FacetedBrowse\IndexController;
-use Laminas\ServiceManager\Factory\FactoryInterface;
 use Interop\Container\ContainerInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class IndexControllerFactory implements FactoryInterface
 {

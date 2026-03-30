@@ -1,12 +1,13 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\FacetedBrowse\FacetType;
 
+use EdtfDataType\Form\Element\EdtfPropertySelect;
 use FacetedBrowse\Api\Representation\FacetedBrowseFacetRepresentation;
 use FacetedBrowse\FacetType\FacetTypeInterface;
 use Laminas\Form\Element as LaminasElement;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
-use EdtfDataType\Form\Element\EdtfPropertySelect;
 
 class ValueGreaterThan implements FacetTypeInterface
 {

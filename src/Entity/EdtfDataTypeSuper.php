@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Entity;
 
 use Omeka\Entity\AbstractEntity;
@@ -50,7 +51,7 @@ class EdtfDataTypeSuper extends AbstractEntity
         return $this->id;
     }
 
-    public function setResource(Resource $resource)
+    public function setResource(Resource $resource): void
     {
         $this->resource = $resource;
     }
@@ -60,7 +61,7 @@ class EdtfDataTypeSuper extends AbstractEntity
         return $this->resource;
     }
 
-    public function setProperty(Property $property)
+    public function setProperty(Property $property): void
     {
         $this->property = $property;
     }

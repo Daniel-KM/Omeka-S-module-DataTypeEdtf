@@ -1,22 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace EdtfDataType\Entity;
-
-use EdtfDataType\Entity\EdtfDataTypeSuper;
 
 /**
  * @Entity
  */
-
 class EdtfDataTypeEdtf extends EdtfDataTypeSuper
 {
     /**
      * @Column(type="string", length=255)
      */
-
     protected $value;
 
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $value;
     }

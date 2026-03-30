@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Service\Form\Element;
 
-use Interop\Container\ContainerInterface;
 use EdtfDataType\Form\Element\EdtfPropertySelect;
+use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class EdtfPropertySelectFactory implements FactoryInterface
