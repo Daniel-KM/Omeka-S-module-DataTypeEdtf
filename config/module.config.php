@@ -95,7 +95,12 @@ return [
         ],
     ],
     'js_translate_strings' => [
+        'About calendar and year numbering', // @translate
         'Add time', // @translate
+        'The extended format uses the proleptic Gregorian calendar with astronomical year numbering (year 0 = 1 BCE). Historical dates before the Gregorian reform of 1582 (or later in some countries) are usually recorded in the Julian calendar in sources and must be converted before entry. For instance:', // @translate
+        'the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;', // @translate
+        'the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07.', // @translate
+        'Help', // @translate
         'At least one side of the interval must be specified', // @translate
         'April', // @translate
         'Apply', // @translate
@@ -109,6 +114,8 @@ return [
         'Close', // @translate
         'Copy', // @translate
         'Copy start to end', // @translate
+        'Unknown side', // @translate
+        'Checked: the empty side means unknown. Unchecked: it means open, extending indefinitely (..)', // @translate
         'Day', // @translate
         'December', // @translate
         'Decade (198X)', // @translate
@@ -178,9 +185,11 @@ return [
         '%ss', // @translate
         'uncertain', // @translate
         'uncertain and approximate', // @translate
-        'Unknown to %s', // @translate
-        '%s to present or unknown', // @translate
-        '%s to %s', // @translate
+        'Before %1$s', // @translate
+        'Until %1$s', // @translate
+        'After %1$s', // @translate
+        'Since %1$s', // @translate
+        '%1$s to %2$s', // @translate
     ],
     'csv_import' => [
         'data_types' => [

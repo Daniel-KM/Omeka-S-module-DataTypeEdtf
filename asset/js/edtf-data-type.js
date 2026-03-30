@@ -14,8 +14,8 @@ var DataTypeEdtf = (function($) {
     var escapeAttr = escapeHtml;
 
     /**
-     * Parse a raw EDTF string into a parts object (best effort, same
-     * subset as the dialog prefill).
+     * Parse a raw EDTF string into a parts object (best effort, same subset as
+     * the dialog prefill).
      */
     var parseEdtfToParts = function(value) {
         if (!value || value === '..') return null;
@@ -129,9 +129,9 @@ var DataTypeEdtf = (function($) {
         }
         var s = year;
 
-        // Month may be a regular month (1-12) or a season/sub-year
-        // grouping (21-41). Seasons force month-level precision and
-        // do not accept time or qualifiers per the EDTF parser.
+        // Month may be a regular month (1-12) or a season/sub-year grouping
+        // (21-41). Seasons force month-level precision and do not accept time
+        // or qualifiers per the EDTF parser.
         var monthNum = parts.month ? parseInt(parts.month, 10) : 0;
         var isSeason = monthNum >= 21 && monthNum <= 41;
         if (isSeason) {
@@ -265,9 +265,11 @@ var DataTypeEdtf = (function($) {
         if (!ctx.isInterval) return first;
         var second = humanizePart(ctx.secondParts);
         if (!first && !second) return '';
-        if (!first) return translate('Unknown to %s').replace('%s', second);
-        if (!second) return translate('%s to present or unknown').replace('%s', first);
-        return translate('%s to %s').replace('%s', first).replace('%s', second);
+        if (!first && ctx.unknownSide) return translate('Before %1$s').replace('%1$s', second);
+        if (!first) return translate('Until %1$s').replace('%1$s', second);
+        if (!second && ctx.unknownSide) return translate('After %1$s').replace('%1$s', first);
+        if (!second) return translate('Since %1$s').replace('%1$s', first);
+        return translate('%1$s to %2$s').replace('%1$s', first).replace('%2$s', second);
     };
 
     var snapshotFieldset = function($fs) {
@@ -339,6 +341,7 @@ var DataTypeEdtf = (function($) {
 
     /**
      * Validate a structured EDTF input per the ISO 8601-2:2019 norm.
+     *
      * Returns an empty string if valid, or a human-readable error.
      */
     var validateEdtf = function(result, ctx) {
@@ -430,6 +433,7 @@ var DataTypeEdtf = (function($) {
 
     /**
      * Convert parts to a comparable numeric date (YYYYMMDD.HHMMSS).
+     *
      * Returns null if parts cannot be compared (seasons, reduced precision).
      */
     var comparableDate = function(parts) {
@@ -590,15 +594,34 @@ var DataTypeEdtf = (function($) {
             +       '<div class="dialog-contents">'
             +         '<div class="dialog-heading"><h4>' + translate('Assistant for Extended Date/Time Format') + '</h4></div>'
             +         '<div class="dialog-body">'
-            +           '<label class="edtf-assistant-interval-toggle">'
-            +             '<input type="checkbox" class="edtf-assistant-interval"> '
-            +             translate('Interval (two dates)')
-            +           '</label>'
+            +           '<div class="edtf-assistant-top-row">'
+            +             '<label class="edtf-assistant-interval-toggle">'
+            +               '<input type="checkbox" class="edtf-assistant-interval"> '
+            +               translate('Interval (two dates)')
+            +             '</label>'
+            +             '<button type="button" class="edtf-assistant-help-toggle" aria-expanded="false" aria-controls="edtf-assistant-help" title="' + translate('About calendar and year numbering') + '">'
+            +               '<span class="fas fa-question-circle" aria-hidden="true"></span>'
+            +               '<span class="screen-reader-text">' + translate('Help') + '</span>'
+            +             '</button>'
+            +           '</div>'
+            +           '<div id="edtf-assistant-help" class="edtf-assistant-calendar-warning messages" hidden>'
+            +             '<div class="warning">'
+            +               translate('The extended format uses the proleptic Gregorian calendar with astronomical year numbering (year 0 = 1 BCE). Historical dates before the Gregorian reform of 1582 (or later in some countries) are usually recorded in the Julian calendar in sources and must be converted before entry. For instance:')
+            +              '<ul>'
+            +                '<li>' + translate('the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;') + '</li>'
+            +                '<li>' + translate('the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07.') + '</li>'
+            +              '</ul>'
+            +             '</div>'
+            +           '</div>'
             +           '<div class="edtf-assistant-parts">'
             +             datePartHtml(translate)
             +             '<div class="edtf-assistant-interval-tools" style="display:none;">'
-            +               '<button type="button" class="edtf-assistant-copy-to-end edtf-assistant-link" title="' + translate('Copy start to end') + '">' + translate('Copy') + '</button>'
-            +               '<button type="button" class="edtf-assistant-swap edtf-assistant-link" title="' + translate('Swap start and end') + '">' + translate('Swap') + '</button>'
+            +               '<button type="button" class="edtf-assistant-copy-to-end edtf-assistant-link" title="' + translate('Copy start to end') + '"><span class="fas fa-arrow-down" aria-hidden="true"></span> ' + translate('Copy') + '</button>'
+            +               '<button type="button" class="edtf-assistant-swap edtf-assistant-link" title="' + translate('Swap start and end') + '"><span class="fas fa-exchange-alt fa-rotate-90" aria-hidden="true"></span> ' + translate('Swap') + '</button>'
+            +               '<label class="edtf-assistant-empty-unknown-label" style="display:none;" title="' + translate('Checked: the empty side means unknown. Unchecked: it means open, extending indefinitely (..)') + '">'
+            +                 '<input type="checkbox" class="edtf-assistant-empty-unknown"> '
+            +                 translate('Unknown side')
+            +               '</label>'
             +             '</div>'
             +             '<fieldset class="edtf-assistant-part edtf-assistant-end" style="display:none;">'
             +               datePartHtml(translate).replace('<fieldset class="edtf-assistant-part">', '').replace(/<\/fieldset>$/, '')
@@ -659,13 +682,27 @@ var DataTypeEdtf = (function($) {
             var result = first;
             if (isInterval) {
                 var second = readFormPart($parts.eq(1));
-                // EDTF requires at least one side of an interval to be a
-                // normal date; "../.." is not a valid interval.
+                // Toggle the "Unknown side" checkbox visibility: shown only
+                // when exactly one side is empty. When checked, the empty side
+                // is left blank (unknown); otherwise it becomes "..".
+                var $unkLabel = $popup.find('.edtf-assistant-empty-unknown-label');
+                var $unkCb = $popup.find('.edtf-assistant-empty-unknown');
+                var oneEmpty = (!!first) !== (!!second);
+                $unkLabel.toggle(oneEmpty);
+                if (!oneEmpty) {
+                    $unkCb.prop('checked', false);
+                }
+                var unknownSide = $unkCb.prop('checked');
+                var filler = unknownSide ? '' : '..';
+                // EDTF requires at least one side of an interval to be a normal
+                // date; "../.." is not a valid interval.
                 if (first || second) {
-                    result = (first || '..') + '/' + (second || '..');
+                    result = (first || filler) + '/' + (second || filler);
                 } else {
                     result = '';
                 }
+            } else {
+                $popup.find('.edtf-assistant-empty-unknown-label').hide();
             }
             var $result = $popup.find('.edtf-assistant-result');
             var $apply = $popup.find('.edtf-assistant-apply');
@@ -697,6 +734,7 @@ var DataTypeEdtf = (function($) {
                 firstParts: firstRaw,
                 secondParts: secondRaw,
                 isInterval: isInterval,
+                unknownSide: $popup.find('.edtf-assistant-empty-unknown').prop('checked'),
             }) : '';
             $popup.find('.edtf-assistant-humanized').text(humanized);
         };
@@ -739,9 +777,8 @@ var DataTypeEdtf = (function($) {
             updatePreview();
         });
 
-        // When a season/sub-year (21-41) is selected, disable fields
-        // that are not valid in that mode: day, time, precision and
-        // qualifiers (?, ~).
+        // When a season/sub-year (21-41) is selected, disable fields that are
+        // not valid in that mode: day, time, precision and qualifiers (?, ~).
         var updateSeasonState = function($fieldset) {
             var monthVal = parseInt($fieldset.find('.edtf-assistant-month').val(), 10);
             var isSeason = monthVal >= 21 && monthVal <= 41;
@@ -833,6 +870,15 @@ var DataTypeEdtf = (function($) {
         });
 
         // Cancel / close.
+        $popup.on('click', '.edtf-assistant-help-toggle', function(e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var $help = $popup.find('#edtf-assistant-help');
+            var expanded = $btn.attr('aria-expanded') === 'true';
+            $btn.attr('aria-expanded', expanded ? 'false' : 'true');
+            $help.prop('hidden', expanded);
+        });
+
         $popup.on('click', '.edtf-assistant-cancel, .edtf-assistant-close', closeDialog);
 
         // Close on backdrop click.
@@ -923,8 +969,8 @@ var DataTypeEdtf = (function($) {
     };
 
     /**
-     * Auto-uppercase EDTF lettered tokens (X, T, Y, Z, E, S) so the
-     * user can type them in lowercase without worrying about case.
+     * Auto-uppercase EDTF lettered tokens (X, T, Y, Z, E, S) so the user can
+     * type them in lowercase without worrying about case.
      */
     var autoUppercase = function(input) {
         var val = input.value;
