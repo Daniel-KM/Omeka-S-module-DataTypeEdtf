@@ -14,9 +14,6 @@ class EdtfFactory implements FactoryInterface
         $class = interface_exists(\Omeka\DataType\ConversionTargetInterface::class)
             ? EdtfConvertible::class
             : Edtf::class;
-        /** @var Edtf $dataType */
-        $dataType = new $class();
-        $dataType->setSettings($services->get('Omeka\Settings'));
-        return $dataType;
+        return new $class();
     }
 }

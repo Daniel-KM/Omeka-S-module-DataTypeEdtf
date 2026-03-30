@@ -25,6 +25,53 @@ class FrenchUsage
     // Tiret demi-cadratin = "\u{2013}".
     private const DASH = '–';
 
+    /** @var string 'gregorian' or 'julian' */
+    private $calendarMode;
+
+    /** @var bool Whether to append [grég.]/[jul.] before reform */
+    private $showCalendar;
+
+    /**
+     * Gregorian reform date as [year, month, day].
+     * Default: 15 October 1582 (papal bull Inter gravissimas).
+     * @var array{int, int, int}
+     */
+    private $reformDate;
+
+    public function __construct(
+        string $calendarMode = 'gregorian',
+        bool $showCalendar = false,
+        string $reformDate = '1582-10-15'
+    ) {
+        $this->calendarMode = $calendarMode;
+        $this->showCalendar = $showCalendar;
+        $this->reformDate = $this->parseReformDate($reformDate);
+    }
+
+    private function parseReformDate(string $iso): array
+    {
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $iso, $m)) {
+            return [(int) $m[1], (int) $m[2], (int) $m[3]];
+        }
+        return [1582, 10, 15];
+    }
+
+    /**
+     * Is the given date strictly before the reform date?
+     */
+    private function isPreReform(int $year, ?int $month, ?int $day): bool
+    {
+        [$rY, $rM, $rD] = $this->reformDate;
+        if ($year !== $rY) {
+            return $year < $rY;
+        }
+        $m = $month ?? 1;
+        if ($m !== $rM) {
+            return $m < $rM;
+        }
+        return ($day ?? 1) < $rD;
+    }
+
     private const MONTHS = [
         1 => 'janvier',
         'février',
@@ -114,15 +161,29 @@ class FrenchUsage
 
     private function formatYMD(int $year, ?int $month, ?int $day): string
     {
+        // Convert proleptic Gregorian to Julian if requested and before the
+        // reform date.
+        $isPreReform = $this->isPreReform($year, $month, $day);
+        if ($isPreReform && $this->calendarMode === 'julian' && $day !== null && $month !== null) {
+            [$year, $month, $day] = $this->gregorianToJulian($year, $month, $day);
+        }
+
         $yearStr = $this->formatYear($year);
         if ($month === null) {
-            return $yearStr;
+            $result = $yearStr;
+        } elseif ($day === null) {
+            $result = (self::MONTHS[$month] ?? (string) $month) . self::NBSP . $yearStr;
+        } else {
+            $result = $day . self::NBSP . (self::MONTHS[$month] ?? (string) $month) . self::NBSP . $yearStr;
         }
-        $monthLabel = self::MONTHS[$month] ?? (string) $month;
-        if ($day === null) {
-            return $monthLabel . self::NBSP . $yearStr;
+
+        // Append calendar indicator before the reform.
+        if ($isPreReform && $this->showCalendar && $month !== null) {
+            $cal = $this->calendarMode === 'julian' ? 'jul.' : 'grég.';
+            $result .= self::NBSP . '[' . $cal . ']';
         }
-        return $day . self::NBSP . $monthLabel . self::NBSP . $yearStr;
+
+        return $result;
     }
 
     /**
@@ -137,6 +198,65 @@ class FrenchUsage
         }
         $bce = 1 - $year;
         return $bce . self::NBSP . 'av.' . self::NBSP . 'J.-C.';
+    }
+
+    /**
+     * Convert a proleptic Gregorian date to a proleptic Julian date via the
+     * Julian Day Number (JDN), which is calendar-independent.
+     *
+     * @return array{int, int, int} [year, month, day] in Julian
+     */
+    private function gregorianToJulian(int $year, int $month, int $day): array
+    {
+        $jd = $this->gregorianToJD($year, $month, $day);
+        return $this->jdToJulian($jd);
+    }
+
+    /**
+     * Proleptic Gregorian date => Julian Day Number.
+     *
+     * @see Meeus, "Astronomical Algorithms", 2nd ed., ch. 7.
+     */
+    private function gregorianToJD(int $y, int $m, int $d): int
+    {
+        if ($m <= 2) {
+            $y--;
+            $m += 12;
+        }
+        $a = (int) floor($y / 100);
+        $b = 2 - $a + (int) floor($a / 4);
+        return (int) floor(365.25 * ($y + 4716))
+             + (int) floor(30.6001 * ($m + 1))
+             + $d + $b - 1524;
+    }
+
+    /**
+     * Julian Day Number => proleptic Julian calendar date.
+     *
+     * No century correction (difference from the Gregorian inverse).
+     *
+     * @see Meeus, "Astronomical Algorithms", 2nd ed., ch. 7.
+     */
+    private function jdToJulian(int $jd): array
+    {
+        $b = $jd + 1524;
+        $c = (int) floor(($b - 122.1) / 365.25);
+        $d = (int) floor(365.25 * $c);
+        $e = (int) floor(($b - $d) / 30.6001);
+        $day = $b - $d - (int) floor(30.6001 * $e);
+        $month = $e < 14 ? $e - 1 : $e - 13;
+        $year = $month > 2 ? $c - 4716 : $c - 4715;
+        return [$year, $month, $day];
+    }
+
+    /**
+     * Return the French ordinal suffix in Unicode superscript.
+     *
+     * 1 => "ᵉʳ" (1er), 2+ => "ᵉ" (2e, 3e…).
+     */
+    private function ordinalSuffix(int $n): string
+    {
+        return $n === 1 ? 'ᵉʳ' : 'ᵉ';
     }
 
     private function applyQualifiers(ExtDate $d, string $text): string
@@ -247,11 +367,13 @@ class FrenchUsage
             }
             if ($xcount === 2) {
                 $c = (int) $digits + 1;
-                return $c . 'e' . self::NBSP . 'siècle' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
+                $suffix = $this->ordinalSuffix($c);
+                return $c . $suffix . self::NBSP . 'siècle' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
             }
             if ($xcount === 3) {
                 $mi = (int) $digits + 1;
-                return $mi . 'e' . self::NBSP . 'millénaire' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
+                $suffix = $this->ordinalSuffix($mi);
+                return $mi . $suffix . self::NBSP . 'millénaire' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
             }
         }
         return null;
