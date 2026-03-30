@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\View\Helper;
+namespace DataTypeEdtf\View\Helper;
 
-use EdtfDataType\Form\Element\EdtfPropertySelect as Select;
+use DataTypeEdtf\Form\Element\EdtfPropertySelect as Select;
 use Laminas\Form\Factory;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Helper\AbstractHelper;

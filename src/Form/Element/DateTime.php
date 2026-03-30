@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Form\Element;
+namespace DataTypeEdtf\Form\Element;
 
-use EdtfDataType\DataType\Edtf as EdtfDataType;
+use DataTypeEdtf\DataType\Edtf as EdtfDataType;
 use Laminas\Form\Element;
 
 # @todo... i think this is where some of the handling for EDTF needs to come in...

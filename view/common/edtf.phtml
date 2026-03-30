@@ -1,7 +1,7 @@
 <?php
-$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'EdtfDataType'));
-$this->headScript()->appendFile($this->assetUrl('vendor/edtf/edtf.js', 'EdtfDataType'));
-$this->headScript()->appendFile($this->assetUrl('js/edtf-data-type.js', 'EdtfDataType'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'DataTypeEdtf'));
+$this->headScript()->appendFile($this->assetUrl('vendor/edtf/edtf.js', 'DataTypeEdtf'));
+$this->headScript()->appendFile($this->assetUrl('js/edtf-data-type.js', 'DataTypeEdtf'));
 $formText = clone($this->plugin('formText'));
 $formText->addTranslatableAttribute('aria-label');
 ?>
@@ -17,7 +17,7 @@ $formText->addTranslatableAttribute('aria-label');
     </div>
     <script>
         $(document).ready(function(){
-            EdtfDataType.listen();
+            DataTypeEdtf.listen();
         });
     </script>
 </div>

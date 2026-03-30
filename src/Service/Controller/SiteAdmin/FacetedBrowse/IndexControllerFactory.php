@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Service\Controller\SiteAdmin\FacetedBrowse;
+namespace DataTypeEdtf\Service\Controller\SiteAdmin\FacetedBrowse;
 
-use EdtfDataType\Controller\SiteAdmin\FacetedBrowse\IndexController;
+use DataTypeEdtf\Controller\SiteAdmin\FacetedBrowse\IndexController;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerInterface;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\DataType;
+namespace DataTypeEdtf\DataType;
 
 use Doctrine\ORM\QueryBuilder;
 use Laminas\View\Renderer\PhpRenderer;

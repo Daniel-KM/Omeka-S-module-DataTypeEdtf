@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Form\Element;
+namespace DataTypeEdtf\Form\Element;
 
 use Laminas\Form\Element;
 use Laminas\ServiceManager\ServiceLocatorInterface;

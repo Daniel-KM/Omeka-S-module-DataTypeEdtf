@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Service\Form\Element;
+namespace DataTypeEdtf\Service\Form\Element;
 
-use EdtfDataType\Form\Element\ConvertToEdtf;
+use DataTypeEdtf\Form\Element\ConvertToEdtf;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerInterface;
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataTypeTest;
+namespace DataTypeEdtfTest;
 
 use Omeka\Test\AbstractHttpControllerTestCase;
 
@@ -9,7 +9,7 @@ use Omeka\Test\AbstractHttpControllerTestCase;
  */
 class ValueAnnotationTest extends AbstractHttpControllerTestCase
 {
-    use EdtfDataTypeTestTrait;
+    use DataTypeEdtfTestTrait;
 
     protected array $createdItemIds = [];
 

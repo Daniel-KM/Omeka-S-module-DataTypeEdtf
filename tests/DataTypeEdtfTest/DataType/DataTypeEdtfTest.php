@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataTypeTest\DataType;
+namespace DataTypeEdtfTest\DataType;
 
-use EdtfDataType\DataType\Edtf;
+use DataTypeEdtf\DataType\Edtf;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for Edtf data type metadata.
  */
-class EdtfDataTypeTest extends TestCase
+class DataTypeEdtfTest extends TestCase
 {
     protected Edtf $dataType;
 
@@ -30,7 +30,7 @@ class EdtfDataTypeTest extends TestCase
     public function testGetEntityClass(): void
     {
         $this->assertSame(
-            'EdtfDataType\Entity\EdtfDataTypeEdtf',
+            'DataTypeEdtf\Entity\Edtf',
             $this->dataType->getEntityClass()
         );
     }

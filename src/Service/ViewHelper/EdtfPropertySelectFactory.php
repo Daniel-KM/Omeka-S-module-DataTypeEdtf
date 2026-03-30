@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Service\ViewHelper;
+namespace DataTypeEdtf\Service\ViewHelper;
 
-use EdtfDataType\View\Helper\EdtfPropertySelect;
+use DataTypeEdtf\View\Helper\EdtfPropertySelect;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerInterface;
 

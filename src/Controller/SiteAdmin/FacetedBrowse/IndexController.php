@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdtfDataType\Controller\SiteAdmin\FacetedBrowse;
+namespace DataTypeEdtf\Controller\SiteAdmin\FacetedBrowse;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\ServiceManager\ServiceManager;
@@ -26,7 +26,7 @@ class IndexController extends AbstractActionController
             GROUP BY label
             ORDER BY label ASC
             SQL;
-        return $this->getShowAllTable('edtf:date', $dql);
+        return $this->getShowAllTable('edtf', $dql);
     }
 
     protected function getShowAllTable($dataType, $dql)
