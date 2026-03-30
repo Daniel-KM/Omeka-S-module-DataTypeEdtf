@@ -100,7 +100,7 @@ class DateInInterval implements FacetTypeInterface
         $values = $iso8601KeyValues;
 
         $elementValues = $this->formElements->get(LaminasElement\Select::class);
-        $elementValues->setName('date_in_interval');
+        $elementValues->setName('edtf_date_in_interval');
         $elementValues->setAttribute('class', 'date-in-interval-value');
         $elementValues->setAttribute('style', 'width: 90%;');
         $elementValues->setEmptyOption('Select a date…'); // @translate

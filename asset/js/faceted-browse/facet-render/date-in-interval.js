@@ -1,4 +1,4 @@
-FacetedBrowse.registerFacetApplyStateHandler('date_in_interval', function(facet, facetState) {
+FacetedBrowse.registerFacetApplyStateHandler('edtf_date_in_interval', function(facet, facetState) {
     const thisFacet = $(facet);
     thisFacet.find(`select.date-in-interval-value`).val(facetState);
 });
