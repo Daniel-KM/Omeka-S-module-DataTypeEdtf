@@ -359,7 +359,7 @@ class Module extends AbstractModule
     /**
      * Sort EDTF queries.
      *
-     * sort_by=edtf:<type>:<propertyId>
+     * sort_by=edtf:<propertyId>
      *
      * @param Event $event
      */
@@ -373,15 +373,15 @@ class Module extends AbstractModule
             return;
         }
         $sortBy = explode(':', $query['sort_by']);
-        if (3 !== count($sortBy)) {
+        if (2 !== count($sortBy)) {
             return;
         }
-        [$namespace, $type, $propertyId] = $sortBy;
-        if ('edtf' !== $namespace || !is_string($type) || !is_numeric($propertyId)) {
+        [$namespace, $propertyId] = $sortBy;
+        if ('edtf' !== $namespace || !is_numeric($propertyId)) {
             return;
         }
         foreach ($this->getDataTypeEdtfs() as $dataType) {
-            $dataType->sortQuery($adapter, $qb, $query, $type, $propertyId);
+            $dataType->sortQuery($adapter, $qb, $query, 'edtf', $propertyId);
         }
     }
 
@@ -432,7 +432,7 @@ class Module extends AbstractModule
     {
         $dataType = $this->getServiceLocator()->get('Omeka\DataTypeManager');
         return [
-            'edtf:date' => $dataType->get('edtf:date'),
+            'edtf' => $dataType->get('edtf'),
         ];
     }
 

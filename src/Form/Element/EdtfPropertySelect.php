@@ -52,7 +52,7 @@ class EdtfPropertySelect extends Select
                 $edtfDataTypes['edtf:' . $dt] = true;
             }
         } else {
-            $edtfDataTypes['edtf:date'] = true;
+            $edtfDataTypes['edtf'] = true;
         }
 
         $qb = $this->entityManager->createQueryBuilder();

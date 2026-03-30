@@ -1,4 +1,4 @@
-FacetedBrowse.registerFacetApplyStateHandler('edtf_date_after', function(facet, facetState) {
+FacetedBrowse.registerFacetApplyStateHandler('edtf_after', function(facet, facetState) {
     const thisFacet = $(facet);
     thisFacet.find(`select.date-after-value`).val(facetState);
 });

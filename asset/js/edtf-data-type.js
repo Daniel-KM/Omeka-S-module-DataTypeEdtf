@@ -977,7 +977,7 @@ var DataTypeEdtf = (function($) {
         });
 
         $(document).on('o:prepare-value o:prepare-value-annotation', function(e, type, container) {
-            if ('edtf:date' === type) {
+            if ('edtf' === type) {
                 addParserEventListener(container);
                 var input = container.find ? container.find('input.edtf-value')[0] : null;
                 if (input) {
