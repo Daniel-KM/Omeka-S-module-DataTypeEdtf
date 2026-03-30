@@ -1,9 +1,9 @@
-FacetedBrowse.registerFacetAddEditHandler('edtf_date_after', function() {
+FacetedBrowse.registerFacetAddEditHandler('edtf_after', function() {
     $('#date-after-property-id').chosen({
         allow_single_deselect: true,
     });
 });
-FacetedBrowse.registerFacetSetHandler('edtf_date_after', function() {
+FacetedBrowse.registerFacetSetHandler('edtf_after', function() {
     const propertyId = $('#date-after-property-id');
     if (!propertyId.val()) {
         alert(Omeka.jsTranslate('A facet must have a property.'));

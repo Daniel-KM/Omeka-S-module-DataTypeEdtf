@@ -13,12 +13,12 @@ return [
     ],
     'data_types' => [
         'invokables' => [
-            'edtf:date' => interface_exists(\Omeka\DataType\ConversionTargetInterface::class)
+            'edtf' => interface_exists(\Omeka\DataType\ConversionTargetInterface::class)
                 ? DataType\EdtfConvertible::class
                 : DataType\Edtf::class,
         ],
         'value_annotating' => [
-            'edtf:date',
+            'edtf',
         ],
     ],
     'view_manager' => [
@@ -59,10 +59,10 @@ return [
                         'child_routes' => [
                             'slug' => [
                                 'child_routes' => [
-                                    'edtf-data-type-faceted-browse' => [
+                                    'faceted-browse-edtf' => [
                                         'type' => \Laminas\Router\Http\Segment::class,
                                         'options' => [
-                                            'route' => '/edtf-data-type-faceted-browse/:controller/:action',
+                                            'route' => '/faceted-browse-edtf/:controller/:action',
                                             'constraints' => [
                                                 'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                                 'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
@@ -190,22 +190,22 @@ return [
     ],
     'datavis_dataset_types' => [
         'invokables' => [
-            'edtf_count_items_time_series' => Datavis\DatasetType\CountItemsTimeSeries::class,
-            'edtf_count_items_property_values_time_series' => Datavis\DatasetType\CountItemsPropertyValuesTimeSeries::class,
+            'count_items_edtf' => Datavis\DatasetType\CountItemsTimeSeries::class,
+            'count_items_property_values_edtf' => Datavis\DatasetType\CountItemsPropertyValuesTimeSeries::class,
         ],
     ],
     'datavis_diagram_types' => [
         'invokables' => [
-            'edtf_line_chart_time_series' => Datavis\DiagramType\LineChartTimeSeries::class,
-            'edtf_histogram_time_series' => Datavis\DiagramType\HistogramTimeSeries::class,
-            'edtf_line_chart_time_series_grouped' => Datavis\DiagramType\LineChartTimeSeriesGrouped::class,
+            'line_chart_edtf' => Datavis\DiagramType\LineChartTimeSeries::class,
+            'histogram_edtf' => Datavis\DiagramType\HistogramTimeSeries::class,
+            'line_chart_edtf_grouped' => Datavis\DiagramType\LineChartTimeSeriesGrouped::class,
         ],
     ],
     'faceted_browse_facet_types' => [
         'factories' => [
-            'edtf_date_after' => Service\FacetedBrowse\FacetType\DateAfterFactory::class,
-            'edtf_date_before' => Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
-            'edtf_date_in_interval' => Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
+            'edtf_after' => Service\FacetedBrowse\FacetType\DateAfterFactory::class,
+            'edtf_before' => Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
+            'edtf_in_interval' => Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
         ],
     ],
 ];

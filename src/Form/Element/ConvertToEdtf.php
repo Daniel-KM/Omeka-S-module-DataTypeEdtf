@@ -31,7 +31,7 @@ class ConvertToEdtf extends Element
         $this->typeElement = (new Element\Select('edtf_convert[type]'))
             ->setEmptyOption('[No change]') // @translate
             ->setValueOptions([
-                'edtf:date' => 'Convert to EDTF', // @translate
+                'edtf' => 'Convert to EDTF', // @translate
             ]);
     }
 

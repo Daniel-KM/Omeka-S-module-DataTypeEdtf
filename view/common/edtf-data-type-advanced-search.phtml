@@ -9,7 +9,7 @@ $edtfGteSelect = $this->edtfPropertySelect([
         'aria-label' => $this->translate('Property'),
         'id' => 'edtf-on-after-pid',
         'class' => 'chosen-select',
-        'value' => $query['edtf']['date']['gte']['pid'] ?? null,
+        'value' => $query['edtf']['gte']['pid'] ?? null,
     ],
     'options' => [
         'edtf_data_type' => 'date',
@@ -22,7 +22,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
         'aria-label' => $this->translate('Property'),
         'id' => 'edtf-on-before-pid',
         'class' => 'chosen-select',
-        'value' => $query['edtf']['date']['lte']['pid'] ?? null,
+        'value' => $query['edtf']['lte']['pid'] ?? null,
     ],
     'options' => [
         'edtf_data_type' => 'date',
@@ -39,7 +39,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
         <?php
         echo $edtfGteSelect;
         $element = new EdtfElement('edtf[date][gte][val]');
-        $element->setValue($query['edtf']['date']['gte']['val'] ?? null);
+        $element->setValue($query['edtf']['gte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
     </div>
@@ -55,7 +55,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
         <?php
         echo $edtfLteSelect;
         $element = new EdtfElement('edtf[date][lte][val]');
-        $element->setValue($query['edtf']['date']['lte']['val'] ?? null);
+        $element->setValue($query['edtf']['lte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
     </div>

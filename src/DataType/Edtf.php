@@ -17,7 +17,7 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 {
     public function getName()
     {
-        return 'edtf:date';
+        return 'edtf';
     }
 
     public function getLabel()
@@ -173,11 +173,11 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     {
         $ops = ['lt', 'lte', 'gt', 'gte'];
         foreach ($ops as $op) {
-            if (!isset($query['edtf']['date'][$op]['val'])) {
+            if (!isset($query['edtf'][$op]['val'])) {
                 continue;
             }
-            $value = $query['edtf']['date'][$op]['val'];
-            $propertyId = $query['edtf']['date'][$op]['pid'] ?? null;
+            $value = $query['edtf'][$op]['val'];
+            $propertyId = $query['edtf'][$op]['pid'] ?? null;
             if (!$this->isValid(['@value' => $value])) {
                 continue;
             }
@@ -200,7 +200,7 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 
     public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId): void
     {
-        if ('date' === $type) {
+        if ('edtf' === $type) {
             $alias = $adapter->createAlias();
             $qb->addSelect("MIN($alias.valueMin) as HIDDEN edtf_sort");
             $qb->leftJoin(

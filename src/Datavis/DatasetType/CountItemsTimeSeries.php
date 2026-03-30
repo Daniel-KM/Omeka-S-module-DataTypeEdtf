@@ -28,7 +28,7 @@ class CountItemsTimeSeries extends AbstractDatasetType
 
     public function getDiagramTypeNames(): array
     {
-        return ['edtf_line_chart_time_series', 'edtf_histogram_time_series'];
+        return ['line_chart_edtf', 'histogram_edtf'];
     }
 
     public function addElements(SiteRepresentation $site, Fieldset $fieldset): void
