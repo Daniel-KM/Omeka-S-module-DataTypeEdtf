@@ -16,15 +16,16 @@ class IndexController extends AbstractActionController
 
     public function edtfValuesAction()
     {
-        $dql = '
-        SELECT v.value label, COUNT(v.value) has_count
-        FROM Omeka\Entity\Value v
-        WHERE v.type = :type
-        AND v.property = :propertyId
-        AND v.resource IN (:ids)
-        GROUP BY label
-        ORDER BY label ASC';
-        return $this->getShowAllTable('edtf', $dql);
+        $dql = <<<'SQL'
+            SELECT v.value label, COUNT(v.value) has_count
+            FROM Omeka\Entity\Value v
+            WHERE v.type = :type
+            AND v.property = :propertyId
+            AND v.resource IN (:ids)
+            GROUP BY label
+            ORDER BY label ASC
+            SQL;
+        return $this->getShowAllTable('edtf:date', $dql);
     }
 
     protected function getShowAllTable($dataType, $dql)

@@ -11,6 +11,7 @@ use Laminas\Form\Fieldset;
 use Laminas\ServiceManager\ServiceManager;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Form\Element\PropertySelect;
+use Omeka\Job\Exception;
 
 class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
 {
@@ -200,8 +201,8 @@ class CountItemsPropertyValuesTimeSeries extends AbstractDatasetType
             if (!isset($sampleRange[$index + 1])) {
                 continue; // End on the second to the last datetime.
             }
-            $query->setParameter('start', $dateTime->getTimestamp());
-            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
+            $query->setParameter('start', $dateTime->format('Y-m-d\TH:i:s'));
+            $query->setParameter('end', $sampleRange[$index + 1]->format('Y-m-d\TH:i:s'));
             foreach ($values as $value) {
                 $query->setParameter('value', $value);
                 $dataset[] = [

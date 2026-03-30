@@ -114,12 +114,10 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
             $this->toEdtf($value)->getEdtfValue()
         );
 
-        //handles valid dates that do not return a humanized value
-        if ($response == "") {
-            return $value;
-        } else {
-            return $response;
-        }
+        // Handles valid dates that do not return a humanized value.
+        return $response !== ''
+            ? $response
+            : $value->value();
 
     }
 
@@ -143,8 +141,8 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
     }
 
     /**
-     * numeric => [
-     *   ts => [
+     * edtf => [
+     *   date => [
      *     lt/lte => [val => <date>, pid => <propertyID>],
      *     gt/gte => [val => <date>, pid => <propertyID>],
      *   ],
@@ -152,51 +150,39 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
      */
     public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query)
     {
-        if (isset($query['numeric']['ts']['lt']['val'])) {
-            $value = $query['numeric']['ts']['lt']['val'];
-            $propertyId = $query['numeric']['ts']['lt']['pid'] ?? null;
+        if (isset($query['edtf']['date']['lt']['val'])) {
+            $value = $query['edtf']['date']['lt']['val'];
+            $propertyId = $query['edtf']['date']['lt']['pid'] ?? null;
             if ($this->isValid(['@value' => $value])) {
-                $edtfDate = $value;
-                # @todo get a number for less than
-                $number = $edtfDate;
-                $this->addLessThanQuery($adapter, $qb, $propertyId, $number);
+                $this->addLessThanQuery($adapter, $qb, $propertyId, $value);
             }
         }
-        if (isset($query['numeric']['ts']['gt']['val'])) {
-            $value = $query['numeric']['ts']['gt']['val'];
-            $propertyId = $query['numeric']['ts']['gt']['pid'] ?? null;
+        if (isset($query['edtf']['date']['gt']['val'])) {
+            $value = $query['edtf']['date']['gt']['val'];
+            $propertyId = $query['edtf']['date']['gt']['pid'] ?? null;
             if ($this->isValid(['@value' => $value])) {
-                $edtfDate = $value;
-                # @todo get a number for greater than
-                $number = $edtfDate;
-                $this->addGreaterThanQuery($adapter, $qb, $propertyId, $number);
+                $this->addGreaterThanQuery($adapter, $qb, $propertyId, $value);
             }
         }
-        if (isset($query['numeric']['ts']['lte']['val'])) {
-            $value = $query['numeric']['ts']['lte']['val'];
-            $propertyId = $query['numeric']['ts']['lte']['pid'] ?? null;
+        if (isset($query['edtf']['date']['lte']['val'])) {
+            $value = $query['edtf']['date']['lte']['val'];
+            $propertyId = $query['edtf']['date']['lte']['pid'] ?? null;
             if ($this->isValid(['@value' => $value])) {
-                $edtfDate = $value;
-                # @todo get a number for less or equal to
-                $number = $edtfDate;
-                $this->addLessThanOrEqualToQuery($adapter, $qb, $propertyId, $number);
+                $this->addLessThanOrEqualToQuery($adapter, $qb, $propertyId, $value);
             }
         }
-        if (isset($query['numeric']['ts']['gte']['val'])) {
-            $value = $query['numeric']['ts']['gte']['val'];
-            $propertyId = $query['numeric']['ts']['gte']['pid'] ?? null;
+        if (isset($query['edtf']['date']['gte']['val'])) {
+            $value = $query['edtf']['date']['gte']['val'];
+            $propertyId = $query['edtf']['date']['gte']['pid'] ?? null;
             if ($this->isValid(['@value' => $value])) {
-                $edtfDate = $value;
-                # @todo get a number for greater than or equal to
-                $number = $edtfDate;
-                $this->addGreaterThanOrEqualToQuery($adapter, $qb, $propertyId, $number);
+                $this->addGreaterThanOrEqualToQuery($adapter, $qb, $propertyId, $value);
             }
         }
     }
 
     public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId)
     {
-        if ('edtf' === $type) {
+        if ('date' === $type) {
             $alias = $adapter->createAlias();
             $qb->addSelect("MIN($alias.value) as HIDDEN edtf_value");
             $qb->leftJoin(
