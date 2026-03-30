@@ -7,7 +7,7 @@ use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class EdtfPropertySelectFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         $element = new EdtfPropertySelect;
         $element->setEntityManager($services->get('Omeka\EntityManager'));

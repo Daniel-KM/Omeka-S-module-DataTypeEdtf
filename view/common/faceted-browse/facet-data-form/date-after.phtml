@@ -2,7 +2,7 @@
 <?php echo $this->formRow($elementValues); ?>
 <?php echo $this->partial('show-all', [
     'label' => $this->translate('Show all available values.'),
-    'url' => $this->url('admin/site/slug/numeric-data-types-faceted-browse', ['controller' => 'index', 'action' => 'timestamp-values'], true),
+    'url' => $this->url('admin/site/slug/edtf-data-type-faceted-browse', ['controller' => 'index', 'action' => 'timestamp-values'], true),
     'queryParams' => [
         'property_id' => '#date-after-property-id',
     ],

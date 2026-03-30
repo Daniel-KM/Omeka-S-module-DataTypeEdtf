@@ -1,177 +1,63 @@
 <?php
 use EdtfDataType\Form\Element\Edtf as EdtfElement;
 
-$this->headScript()->appendFile($this->assetUrl('js/edtf-data-types.js', 'EdtfDataType'));
-$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-types.css', 'EdtfDataType'));
+$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'EdtfDataType'));
+
+$edtfGteSelect = $this->edtfPropertySelect([
+    'name' => 'edtf[date][gte][pid]',
+    'attributes' => [
+        'aria-label' => $this->translate('Property'),
+        'id' => 'edtf-on-after-pid',
+        'class' => 'chosen-select',
+        'value' => $query['edtf']['date']['gte']['pid'] ?? null,
+    ],
+    'options' => [
+        'edtf_data_type' => 'date',
+    ],
+]);
+
+$edtfLteSelect = $this->edtfPropertySelect([
+    'name' => 'edtf[date][lte][pid]',
+    'attributes' => [
+        'aria-label' => $this->translate('Property'),
+        'id' => 'edtf-on-before-pid',
+        'class' => 'chosen-select',
+        'value' => $query['edtf']['date']['lte']['pid'] ?? null,
+    ],
+    'options' => [
+        'edtf_data_type' => 'date',
+    ],
+]);
 ?>
 
+<?php if ($edtfGteSelect): ?>
 <div class="field" id="edtf-on-after">
     <div class="field-meta">
         <label for=""><?php echo $this->translate('Date comes on or after'); ?></label>
     </div>
     <div class="inputs">
         <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[ts][gte][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'id' => 'edtf-on-after-pid',
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['ts']['gte']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'timestamp',
-            ],
-        ]);
-        $element = new EdtfElement('numeric[ts][gte][val]');
-        $element->setValue($query['numeric']['ts']['gte']['val'] ?? null);
+        echo $edtfGteSelect;
+        $element = new EdtfElement('edtf[date][gte][val]');
+        $element->setValue($query['edtf']['date']['gte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
     </div>
 </div>
+<?php endif; ?>
 
+<?php if ($edtfLteSelect): ?>
 <div class="field" id="edtf-on-before">
     <div class="field-meta">
         <label for=""><?php echo $this->translate('Date comes on or before'); ?></label>
     </div>
     <div class="inputs">
         <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[ts][lte][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'id' => 'edtf-on-before-pid',
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['ts']['lte']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'timestamp',
-            ],
-        ]);
-        $element = new EdtfElement('numeric[ts][lte][val]');
-        $element->setValue($query['numeric']['ts']['lte']['val'] ?? null);
+        echo $edtfLteSelect;
+        $element = new EdtfElement('edtf[date][lte][val]');
+        $element->setValue($query['edtf']['date']['lte']['val'] ?? null);
         echo $this->formElement($element);
         ?>
     </div>
 </div>
-<!-- @todo work out whether any of these are valid for EDTF dates
-<div class="field" id="numeric-duration-gt">
-    <div class="field-meta">
-        <label for=""><?php echo $this->translate('Duration is greater than'); ?></label>
-    </div>
-    <div class="inputs">
-        <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[dur][gt][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['dur']['gt']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'duration',
-            ],
-        ]);
-        $element = new DurationElement('numeric[dur][gt][val]');
-        $element->setValue($query['numeric']['dur']['gt']['val'] ?? null);
-        echo $this->formElement($element);
-        ?>
-    </div>
-</div>
-
-<div class="field" id="numeric-duration-lt">
-    <div class="field-meta">
-        <label for=""><?php echo $this->translate('Duration is less than'); ?></label>
-    </div>
-    <div class="inputs">
-        <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[dur][lt][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['dur']['lt']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'duration',
-            ],
-        ]);
-        $element = new DurationElement('numeric[dur][lt][val]');
-        $element->setValue($query['numeric']['dur']['lt']['val'] ?? null);
-        echo $this->formElement($element);
-        ?>
-    </div>
-</div>
-
-<div class="field" id="numeric-interval">
-    <div class="field-meta">
-        <label for=""><?php echo $this->translate('Date in interval'); ?></label>
-    </div>
-    <div class="inputs">
-        <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[ivl][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'id' => 'interval-pid',
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['ivl']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'interval',
-            ],
-        ]);
-        $element = new TimestampElement('numeric[ivl][val]');
-        $element->setValue($query['numeric']['ivl']['val'] ?? null);
-        echo $this->formElement($element);
-        ?>
-    </div>
-</div>
-
-<div class="field" id="numeric-greater-than">
-    <div class="field-meta">
-        <label for=""><?php echo $this->translate('Value is greater than'); ?></label>
-    </div>
-    <div class="inputs">
-        <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[int][gt][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['int']['gt']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'integer',
-            ],
-        ]);
-        $element = new IntegerElement('numeric[int][gt][val]');
-        $element->setValue($query['numeric']['int']['gt']['val'] ?? null);
-        echo $this->formElement($element);
-        ?>
-    </div>
-</div>
-
-<div class="field" id="numeric-less-than">
-    <div class="field-meta">
-        <label for=""><?php echo $this->translate('Value is less than'); ?></label>
-    </div>
-    <div class="inputs">
-        <?php
-        echo $this->numericPropertySelect([
-            'name' => 'numeric[int][lt][pid]',
-            'attributes' => [
-                'aria-label' => $this->translate('Property'),
-                'class' => 'chosen-select',
-                'value' => $query['numeric']['int']['lt']['pid'] ?? null,
-            ],
-            'options' => [
-                'numeric_data_type' => 'integer',
-            ],
-        ]);
-        $element = new IntegerElement('numeric[int][lt][val]');
-        $element->setValue($query['numeric']['int']['lt']['val'] ?? null);
-        echo $this->formElement($element);
-        ?>
-    </div>
-</div> -->
+<?php endif; ?>

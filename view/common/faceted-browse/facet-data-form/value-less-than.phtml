@@ -4,7 +4,7 @@
 <?php echo $this->formRow($step); ?>
 <?php echo $this->partial('show-all', [
     'label' => $this->translate('Show all available values.'),
-    'url' => $this->url('admin/site/slug/numeric-data-types-faceted-browse', ['controller' => 'index', 'action' => 'integer-values'], true),
+    'url' => $this->url('admin/site/slug/edtf-data-type-faceted-browse', ['controller' => 'index', 'action' => 'integer-values'], true),
     'queryParams' => [
         'property_id' => '#value-less-than-property-id',
     ],

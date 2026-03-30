@@ -11,6 +11,8 @@ class EdtfPropertySelect extends Select
      */
     protected $entityManager;
 
+    protected $valueOptionsCache;
+
     /**
      * @param EntityManager $entityManager
      */
@@ -20,7 +22,7 @@ class EdtfPropertySelect extends Select
     }
 
     /**
-     * @return ApiManager
+     * @return EntityManager
      */
     public function getEntityManager()
     {
@@ -28,19 +30,29 @@ class EdtfPropertySelect extends Select
     }
 
     /**
-     * Get value options for template properties of numeric data types.
+     * Get value options for template properties of EDTF data types.
      *
      * @return array
      */
-    public function getValueOptions() : array
+    public function getValueOptions(): array
     {
-        $DataType = $this->getOption('edtf_data_type');
-        $disambiguate = $this->getOption('numeric_data_type_disambiguate');
+        if (isset($this->valueOptionsCache)) {
+            return $this->valueOptionsCache;
+        }
 
-        // Users don't pass the full numeric data type names using the
-        // numeric_data_type option, so set them here.
+        $dataTypes = $this->getOption('edtf_data_type');
+        $disambiguate = $this->getOption('edtf_data_type_disambiguate');
 
-        $edtfDataType[$DataType] = true;
+        $edtfDataTypes = [];
+        if (is_string($dataTypes)) {
+            $edtfDataTypes['edtf:' . $dataTypes] = true;
+        } elseif (is_array($dataTypes)) {
+            foreach ($dataTypes as $dt) {
+                $edtfDataTypes['edtf:' . $dt] = true;
+            }
+        } else {
+            $edtfDataTypes['edtf:date'] = true;
+        }
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('rtp')
@@ -52,8 +64,8 @@ class EdtfPropertySelect extends Select
             $property = $templateProperty->getProperty();
             $template = $templateProperty->getResourceTemplate();
             foreach ($templateProperty->getDataType() ?? [] as $dataType) {
-                if (!isset($edtfDataType[$dataType])) {
-                    // This is not a requested numeric data type.
+                if (!isset($edtfDataTypes[$dataType])) {
+                    // This is not a requested edtf data type.
                     continue;
                 }
                 $value = $disambiguate
@@ -92,10 +104,11 @@ class EdtfPropertySelect extends Select
             $valueOptions[$value]['attributes']['title'] = implode("\n", $templateLabels);
         }
 
-        // Sort options alphabetically.
         usort($valueOptions, function ($a, $b) {
             return strcasecmp($a['label'], $b['label']);
         });
-        return $valueOptions;
+
+        $this->valueOptionsCache = $valueOptions;
+        return $this->valueOptionsCache;
     }
 }
