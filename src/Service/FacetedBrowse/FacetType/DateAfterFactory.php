@@ -3,8 +3,8 @@
 namespace EdtfDataType\Service\FacetedBrowse\FacetType;
 
 use EdtfDataType\FacetedBrowse\FacetType\DateAfter;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class DateAfterFactory implements FactoryInterface
 {

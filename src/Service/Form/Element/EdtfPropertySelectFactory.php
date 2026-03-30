@@ -3,8 +3,8 @@
 namespace EdtfDataType\Service\Form\Element;
 
 use EdtfDataType\Form\Element\EdtfPropertySelect;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class EdtfPropertySelectFactory implements FactoryInterface
 {

@@ -3,8 +3,8 @@
 namespace EdtfDataType\Service\FacetedBrowse\FacetType;
 
 use EdtfDataType\FacetedBrowse\FacetType\ValueGreaterThan;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class ValueGreaterThanFactory implements FactoryInterface
 {
