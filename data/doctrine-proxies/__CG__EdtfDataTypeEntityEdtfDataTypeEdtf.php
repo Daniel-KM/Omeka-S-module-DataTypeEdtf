@@ -67,10 +67,10 @@ class EdtfDataTypeEdtf extends \EdtfDataType\Entity\EdtfDataTypeEdtf implements 
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'value', 'id', 'resource', 'property'];
+            return ['__isInitialized__', 'id', 'resource', 'property', 'value'];
         }
 
-        return ['__isInitialized__', 'value', 'id', 'resource', 'property'];
+        return ['__isInitialized__', 'id', 'resource', 'property', 'value'];
     }
 
     /**
@@ -180,28 +180,6 @@ class EdtfDataTypeEdtf extends \EdtfDataType\Entity\EdtfDataTypeEdtf implements 
     /**
      * {@inheritDoc}
      */
-    public function setValue($value)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValue', [$value]);
-
-        return parent::setValue($value);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getValue()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValue', []);
-
-        return parent::getValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getId()
     {
         if ($this->__isInitialized__ === false) {
@@ -217,12 +195,12 @@ class EdtfDataTypeEdtf extends \EdtfDataType\Entity\EdtfDataTypeEdtf implements 
     /**
      * {@inheritDoc}
      */
-    public function setResource(\Omeka\Entity\Resource $resource)
+    public function setResource(\Omeka\Entity\Resource $resource): void
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResource', [$resource]);
 
-        return parent::setResource($resource);
+        parent::setResource($resource);
     }
 
     /**
@@ -239,12 +217,12 @@ class EdtfDataTypeEdtf extends \EdtfDataType\Entity\EdtfDataTypeEdtf implements 
     /**
      * {@inheritDoc}
      */
-    public function setProperty(\Omeka\Entity\Property $property)
+    public function setProperty(\Omeka\Entity\Property $property): void
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProperty', [$property]);
 
-        return parent::setProperty($property);
+        parent::setProperty($property);
     }
 
     /**
@@ -256,6 +234,28 @@ class EdtfDataTypeEdtf extends \EdtfDataType\Entity\EdtfDataTypeEdtf implements 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getProperty', []);
 
         return parent::getProperty();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setValue($value): void
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setValue', [$value]);
+
+        parent::setValue($value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getValue()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getValue', []);
+
+        return parent::getValue();
     }
 
     /**
