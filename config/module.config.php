@@ -39,6 +39,10 @@ return [
         ],
     ],
     'form_elements' => [
+        'invokables' => [
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
+        ],
         'factories' => [
             'DataTypeEdtf\Form\Element\EdtfPropertySelect' => Service\Form\Element\EdtfPropertySelectFactory::class,
             'DataTypeEdtf\Form\Element\ConvertToEdtf' => Service\Form\Element\ConvertToEdtfFactory::class,
@@ -204,6 +208,20 @@ return [
             'edtf_after' => Service\FacetedBrowse\FacetType\DateAfterFactory::class,
             'edtf_before' => Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
             'edtf_in_interval' => Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
+        ],
+    ],
+    'datatypeedtf' => [
+        'settings' => [
+            'datatypeedtf_humanizer' => 'library',
+            'datatypeedtf_calendar_mode' => 'gregorian',
+            'datatypeedtf_show_calendar' => false,
+            'datatypeedtf_reform_date' => '1582-10-15',
+        ],
+        'site_settings' => [
+            'datatypeedtf_humanizer' => '',
+            'datatypeedtf_calendar_mode' => '',
+            'datatypeedtf_show_calendar' => '',
+            'datatypeedtf_reform_date' => '',
         ],
     ],
 ];

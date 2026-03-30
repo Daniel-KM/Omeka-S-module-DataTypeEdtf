@@ -158,9 +158,13 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
         if (!$parsingResult->isValid()) {
             return $raw;
         }
-        $style = $this->getHumanizerStyle();
+        // Site setting overrides general setting for each option.
+        $style = $this->resolveEdtfSetting($view, 'datatypeedtf_humanizer', 'library');
         if ($style === 'fr_usage') {
-            $humanizer = new \DataTypeEdtf\Humanizer\FrenchUsage();
+            $calendarMode = $this->resolveEdtfSetting($view, 'datatypeedtf_calendar_mode', 'gregorian');
+            $showCalendar = (bool) $this->resolveEdtfSetting($view, 'datatypeedtf_show_calendar', '0');
+            $reformDate = $this->resolveEdtfSetting($view, 'datatypeedtf_reform_date', '1582-10-15');
+            $humanizer = new \DataTypeEdtf\Humanizer\FrenchUsage($calendarMode, $showCalendar, $reformDate);
             $response = $humanizer->humanize($raw, $parsingResult->getEdtfValue());
         } else {
             $humanizer = EdtfFactory::newHumanizerForLanguage($view->lang() ?? 'en');
@@ -169,36 +173,32 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
         return $response !== '' ? $response : $raw;
     }
 
-    /**
-     * Read the humanizer style from module settings. Defaults to the bundled
-     * library ("library") which uses ProfessionalWiki/EDTF translations loaded
-     * from the vendor json files.
-     */
-    protected function getHumanizerStyle(): string
-    {
-        if ($this->settings === null) {
-            return 'library';
-        }
-        return (string) $this->settings->get('datatypeedtf_humanizer', 'library');
-    }
-
-    /**
-     * Injected by the service factory. Null-safe so existing callers that
-     * instantiate Edtf directly (CLI scripts, tests) keep working.
-     *
-     * @var \Omeka\Settings\Settings|null
-     */
-    protected $settings;
-
-    public function setSettings(?\Omeka\Settings\Settings $settings): void
-    {
-        $this->settings = $settings;
-    }
-
     public function getFulltextText(PhpRenderer $view, ValueRepresentation $value)
     {
 
         return sprintf('%s %s', $value->value(), $this->render($view, $value));
+    }
+
+    /**
+     * Read a module setting with site-level override. Returns the site
+     * setting if set and non-empty, else the general setting.
+     */
+    protected function resolveEdtfSetting(PhpRenderer $view, string $key, string $default): string
+    {
+        $value = null;
+        try {
+            $value = $view->siteSetting($key);
+        } catch (\Throwable $e) {
+            // Not in a site context.
+        }
+        if ($value !== null && $value !== '') {
+            return (string) $value;
+        }
+        try {
+            return (string) $view->setting($key, $default);
+        } catch (\Throwable $e) {
+            return $default;
+        }
     }
 
     public function getEntityClass()

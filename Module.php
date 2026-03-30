@@ -2,6 +2,13 @@
 
 namespace DataTypeEdtf;
 
+if (!class_exists('Common\TraitModule', false)) {
+    require_once file_exists(dirname(__DIR__) . '/Common/src/TraitModule.php')
+        ? dirname(__DIR__) . '/Common/src/TraitModule.php'
+        : dirname(__DIR__) . '/Common/TraitModule.php';
+}
+
+use Common\TraitModule;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Events as DoctrineEvents;
 use DataTypeEdtf\Db\Event\Listener\CascadeDetach;
@@ -13,8 +20,21 @@ use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Omeka\Module\AbstractModule;
 
+
+/**
+ * Data Type Edtf.
+ *
+ * @copyright Omeka Team, 2018-2023
+ * @copyright Steve Ranford, University of Warwick, 2023
+ * @copyright Daniel Berthereau, 2017-2026
+ * @license GPL3.0
+ */
 class Module extends AbstractModule
 {
+    use TraitModule;
+
+    const NAMESPACE = __NAMESPACE__;
+
     public function init(ModuleManager $moduleManager): void
     {
         require_once __DIR__ . '/vendor/autoload.php';
@@ -91,12 +111,9 @@ class Module extends AbstractModule
             }
         }
 
-        $humanizerStyle = (string) $services->get('Omeka\Settings')->get('datatypeedtf_humanizer', 'library');
-
         return $renderer->partial('data-type-edtf/config-form', [
             'legacyActive' => $legacyActive,
             'legacyCount' => $legacyCount,
-            'humanizerStyle' => $humanizerStyle,
         ]);
     }
 
@@ -104,16 +121,6 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $params = $controller->params()->fromPost();
-
-        // Persist the chosen humanizer style on every submit.
-        if (isset($params['humanizer_style'])) {
-            $services->get('Omeka\Settings')->set(
-                'datatypeedtf_humanizer',
-                in_array($params['humanizer_style'], ['library', 'fr_usage'], true)
-                    ? $params['humanizer_style']
-                    : 'library'
-            );
-        }
 
         if (empty($params['migrate_from_legacy'])) {
             return true;
@@ -245,6 +252,18 @@ class Module extends AbstractModule
                 }
             );
         }
+
+        // Add humanizer style select to general settings form.
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_elements',
+            [$this, 'handleSiteSettings']
+        );
 
         // Add JS to FacetedBrowse category form.
         $sharedEventManager->attach(
@@ -558,4 +577,5 @@ class Module extends AbstractModule
             && in_array($data['edtf_convert']['type'], $validTypes)
         );
     }
+
 }
