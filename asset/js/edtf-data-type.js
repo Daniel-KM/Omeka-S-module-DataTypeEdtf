@@ -1,10 +1,11 @@
+'use strict';
+
 /**
- * EDTF Data Type: real-time validation for EDTF input fields.
+ * EDTF Data Type: real-time validation and input assistant.
  *
  * Requires edtf.js (window.edtf.parse) and jQuery.
  */
 var EdtfDataType = (function($) {
-    'use strict';
 
     var parser = function(container) {
         var outputString = '';
@@ -16,8 +17,8 @@ var EdtfDataType = (function($) {
             $(container).closest('.edtf').find('.invalid-value').empty();
             var validString =
                 '<div class="valid-string-container">' +
-                    '<span class="o-icon-edit icon" title="Correct value" aria-label="accepted value"></span>' +
-                    '<span class="valuesuggest-id">' + container.value + '</span>' +
+                    '<span class="fa fa-check icon edtf-valid-icon" title="Correct value" aria-label="accepted value"></span>' +
+                    '<span class="edtf-display-value">' + container.value + '</span>' +
                 '</div>';
             var validStringContainer = $(container).closest('.edtf').find('.valid-string-container');
             if (validStringContainer.length > 0) {
@@ -41,16 +42,612 @@ var EdtfDataType = (function($) {
 
             if (outputString.length > 0) {
                 outputString =
-                    '<div><p class="outputstring">' +
+                    '<span class="fa fa-times icon edtf-invalid-icon" title="Invalid value" aria-label="invalid value"></span>' +
+                    '<p class="outputstring">' +
                     outputString.substring(0, caretLocation) +
                     '<span class="caret">' + outputString.substring(caretLocation, caretLocation + 1) + '</span>' +
                     outputString.substring(caretLocation + 1) +
                     ' [' + shortExplanation + ']' +
-                    '</p></div>';
+                    '</p>';
             }
 
             $(container).closest('.edtf').find('.invalid-value').html(outputString);
             $(container).closest('.edtf').find('.valid-string-container').remove();
+        }
+    };
+
+    /**
+     * Build an EDTF date string from structured parts.
+     *
+     * @param {object} parts  {year, month, day, precision, uncertain, approximate}
+     * @returns {string}
+     */
+    var pad = function(n, width) {
+        return String(n).padStart(width, '0');
+    };
+
+    var qualifierSuffix = function(parts) {
+        if (parts.uncertain && parts.approximate) return '%';
+        if (parts.uncertain) return '?';
+        if (parts.approximate) return '~';
+        return '';
+    };
+
+    var buildEdtfPart = function(parts) {
+        if (!parts.year) {
+            return '';
+        }
+        var year = String(parts.year);
+        // Pad year to at least 4 digits (negative handled).
+        if (year.charAt(0) === '-') {
+            year = '-' + year.substring(1).padStart(4, '0');
+        } else {
+            year = year.padStart(4, '0');
+        }
+        var s = year;
+
+        // Month may be a regular month (1-12) or a season/sub-year
+        // grouping (21-41). Seasons force month-level precision and
+        // do not accept time or qualifiers per the EDTF parser.
+        var monthNum = parts.month ? parseInt(parts.month, 10) : 0;
+        var isSeason = monthNum >= 21 && monthNum <= 41;
+        if (isSeason) {
+            return year + '-' + pad(monthNum, 2);
+        }
+
+        // Resolve empty precision from filled fields (auto mode).
+        var precision = parts.precision;
+        if (!precision) {
+            if (monthNum && parts.day) {
+                precision = 'day';
+            } else if (monthNum) {
+                precision = 'month';
+            } else {
+                precision = 'year';
+            }
+        }
+
+        if (precision === 'decade') {
+            s = year.substring(0, year.length - 1) + 'X';
+        } else if (precision === 'century') {
+            s = year.substring(0, year.length - 2) + 'XX';
+        } else if (precision === 'millennium') {
+            s = year.substring(0, year.length - 3) + 'XXX';
+        } else if (precision === 'month' && parts.month) {
+            s = year + '-' + pad(parts.month, 2);
+        } else if (precision === 'day' && parts.month && parts.day) {
+            s = year + '-' + pad(parts.month, 2) + '-' + pad(parts.day, 2);
+            // Append time if requested.
+            if (parts.withTime && parts.hour !== '' && parts.hour != null) {
+                s += 'T' + pad(parts.hour, 2)
+                    + ':' + pad(parts.minute || 0, 2)
+                    + ':' + pad(parts.second || 0, 2);
+                if (parts.offset) {
+                    s += parts.offset === 'Z' ? 'Z' : parts.offset;
+                }
+            }
+        }
+
+        return s + qualifierSuffix(parts);
+    };
+
+    /**
+     * Read an EDTF date form (fieldset) and build the EDTF part string.
+     */
+    /**
+     * Read raw form fields as an object (no EDTF formatting).
+     */
+    var readPartsRaw = function($fieldset) {
+        return {
+            year: $fieldset.find('.edtf-assistant-year').val(),
+            month: $fieldset.find('.edtf-assistant-month').val(),
+            day: $fieldset.find('.edtf-assistant-day').val(),
+            precision: $fieldset.find('.edtf-assistant-precision').val(),
+            uncertain: $fieldset.find('.edtf-assistant-uncertain').prop('checked'),
+            approximate: $fieldset.find('.edtf-assistant-approximate').prop('checked'),
+            withTime: $fieldset.find('.edtf-assistant-with-time').prop('checked'),
+            hour: $fieldset.find('.edtf-assistant-hour').val(),
+            minute: $fieldset.find('.edtf-assistant-minute').val(),
+            second: $fieldset.find('.edtf-assistant-second').val(),
+            offset: $fieldset.find('.edtf-assistant-offset').val(),
+        };
+    };
+
+    var isLeapYear = function(y) {
+        y = parseInt(y, 10);
+        return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+    };
+
+    var daysInMonth = function(y, m) {
+        y = parseInt(y, 10);
+        m = parseInt(m, 10);
+        if (m === 2) return isLeapYear(y) ? 29 : 28;
+        if ([4, 6, 9, 11].indexOf(m) !== -1) return 30;
+        return 31;
+    };
+
+    /**
+     * Validate a structured EDTF input per the ISO 8601-2:2019 norm.
+     * Returns an empty string if valid, or a human-readable error.
+     */
+    var validateEdtf = function(result, ctx) {
+        var first = ctx.firstParts;
+        var second = ctx.secondParts;
+
+        if (ctx.isInterval) {
+            var firstEmpty = !first.year;
+            var secondEmpty = !second.year;
+            if (firstEmpty && secondEmpty) {
+                return translate('At least one side of the interval must be specified');
+            }
+            if (isSeason(first) || isSeason(second)) {
+                return translate('Seasons and sub-year groupings cannot be used in intervals');
+            }
+            var e1 = validateSinglePart(first);
+            if (e1) return e1;
+            var e2 = validateSinglePart(second);
+            if (e2) return e2;
+            // Check reversed interval.
+            if (!firstEmpty && !secondEmpty) {
+                var start = comparableDate(first);
+                var end = comparableDate(second);
+                if (start !== null && end !== null && start > end) {
+                    return translate('Interval end must be on or after its start');
+                }
+            }
+            return '';
+        }
+
+        return validateSinglePart(first);
+    };
+
+    var isSeason = function(parts) {
+        var m = parts && parts.month ? parseInt(parts.month, 10) : 0;
+        return m >= 21 && m <= 41;
+    };
+
+    /**
+     * Validate a single date (non-interval) per EDTF norm.
+     */
+    var validateSinglePart = function(parts) {
+        if (!parts.year) return '';
+
+        // Qualifiers on seasons are not allowed (norm Level 1/2).
+        if (isSeason(parts) && (parts.uncertain || parts.approximate)) {
+            return translate('Qualifiers (uncertain, approximate) cannot be used with seasons');
+        }
+
+        // Time is only valid with day precision (not with season or
+        // reduced precision).
+        if (parts.withTime && (isSeason(parts) || ['decade', 'century', 'millennium'].indexOf(parts.precision) !== -1)) {
+            return translate('Time is only allowed with day precision');
+        }
+
+        // Calendar validity: check month/day.
+        if (!isSeason(parts) && parts.month) {
+            var m = parseInt(parts.month, 10);
+            if (m < 1 || m > 12) {
+                return translate('Invalid month');
+            }
+            if (parts.day) {
+                var d = parseInt(parts.day, 10);
+                if (d < 1 || d > daysInMonth(parts.year, m)) {
+                    return translate('Invalid day for this month');
+                }
+            }
+        }
+
+        // Time components.
+        if (parts.withTime && parts.hour !== '' && parts.hour != null) {
+            var h = parseInt(parts.hour, 10);
+            var mn = parts.minute !== '' && parts.minute != null ? parseInt(parts.minute, 10) : 0;
+            var sc = parts.second !== '' && parts.second != null ? parseInt(parts.second, 10) : 0;
+            if (h < 0 || h > 23) return translate('Invalid hour');
+            if (mn < 0 || mn > 59) return translate('Invalid minute');
+            if (sc < 0 || sc > 59) return translate('Invalid second');
+        }
+
+        return '';
+    };
+
+    /**
+     * Convert parts to a comparable numeric date (YYYYMMDD.HHMMSS).
+     * Returns null if parts cannot be compared (seasons, reduced precision).
+     */
+    var comparableDate = function(parts) {
+        if (!parts.year) return null;
+        if (isSeason(parts)) return null;
+        if (['decade', 'century', 'millennium'].indexOf(parts.precision) !== -1) return null;
+        var y = parseInt(parts.year, 10);
+        var m = parts.month ? parseInt(parts.month, 10) : 1;
+        var d = parts.day ? parseInt(parts.day, 10) : 1;
+        return y * 10000 + m * 100 + d;
+    };
+
+    var readFormPart = function($fieldset) {
+        return buildEdtfPart({
+            year: $fieldset.find('.edtf-assistant-year').val(),
+            month: $fieldset.find('.edtf-assistant-month').val(),
+            day: $fieldset.find('.edtf-assistant-day').val(),
+            precision: $fieldset.find('.edtf-assistant-precision').val(),
+            uncertain: $fieldset.find('.edtf-assistant-uncertain').prop('checked'),
+            approximate: $fieldset.find('.edtf-assistant-approximate').prop('checked'),
+            withTime: $fieldset.find('.edtf-assistant-with-time').prop('checked'),
+            hour: $fieldset.find('.edtf-assistant-hour').val(),
+            minute: $fieldset.find('.edtf-assistant-minute').val(),
+            second: $fieldset.find('.edtf-assistant-second').val(),
+            offset: $fieldset.find('.edtf-assistant-offset').val(),
+        });
+    };
+
+    /**
+     * UTC offset options (from -12:00 to +14:00).
+     * @see https://en.wikipedia.org/wiki/List_of_UTC_time_offsets
+     */
+    var offsetOptions = function() {
+        var offsets = [
+            '-12:00', '-11:00', '-10:00', '-09:30', '-09:00', '-08:00',
+            '-07:00', '-06:00', '-05:00', '-04:00', '-03:30', '-03:00',
+            '-02:00', '-01:00', '+00:00', '+01:00', '+02:00', '+03:00',
+            '+03:30', '+04:00', '+04:30', '+05:00', '+05:30', '+05:45',
+            '+06:00', '+06:30', '+07:00', '+08:00', '+08:45', '+09:00',
+            '+09:30', '+10:00', '+10:30', '+11:00', '+12:00', '+12:45',
+            '+13:00', '+14:00',
+        ];
+        return offsets.map(function(o) {
+            return '<option value="' + o + '">' + o + '</option>';
+        }).join('');
+    };
+
+    /**
+     * HTML template for a single EDTF date fieldset.
+     */
+    var datePartHtml = function(translate) {
+        return ''
+            + '<fieldset class="edtf-assistant-part">'
+            +   '<div class="edtf-assistant-row edtf-assistant-row-date">'
+            +     '<input type="number" class="edtf-assistant-year" step="1"'
+            +       ' placeholder="' + translate('Year') + '" aria-label="' + translate('Year') + '">'
+            +     '<select class="edtf-assistant-month" aria-label="' + translate('Month') + '">'
+            +       '<option value="">' + translate('Month') + '</option>'
+            +       '<optgroup label="' + translate('Months') + '">'
+            +         '<option value="01">01 — ' + translate('January') + '</option>'
+            +         '<option value="02">02 — ' + translate('February') + '</option>'
+            +         '<option value="03">03 — ' + translate('March') + '</option>'
+            +         '<option value="04">04 — ' + translate('April') + '</option>'
+            +         '<option value="05">05 — ' + translate('May') + '</option>'
+            +         '<option value="06">06 — ' + translate('June') + '</option>'
+            +         '<option value="07">07 — ' + translate('July') + '</option>'
+            +         '<option value="08">08 — ' + translate('August') + '</option>'
+            +         '<option value="09">09 — ' + translate('September') + '</option>'
+            +         '<option value="10">10 — ' + translate('October') + '</option>'
+            +         '<option value="11">11 — ' + translate('November') + '</option>'
+            +         '<option value="12">12 — ' + translate('December') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Seasons') + '">'
+            +         '<option value="21">21 — ' + translate('Spring') + '</option>'
+            +         '<option value="22">22 — ' + translate('Summer') + '</option>'
+            +         '<option value="23">23 — ' + translate('Autumn') + '</option>'
+            +         '<option value="24">24 — ' + translate('Winter') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Seasons (Northern Hemisphere)') + '">'
+            +         '<option value="25">25 — ' + translate('Spring - Northern') + '</option>'
+            +         '<option value="26">26 — ' + translate('Summer - Northern') + '</option>'
+            +         '<option value="27">27 — ' + translate('Autumn - Northern') + '</option>'
+            +         '<option value="28">28 — ' + translate('Winter - Northern') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Seasons (Southern Hemisphere)') + '">'
+            +         '<option value="29">29 — ' + translate('Spring - Southern') + '</option>'
+            +         '<option value="30">30 — ' + translate('Summer - Southern') + '</option>'
+            +         '<option value="31">31 — ' + translate('Autumn - Southern') + '</option>'
+            +         '<option value="32">32 — ' + translate('Winter - Southern') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Quarters') + '">'
+            +         '<option value="33">33 — ' + translate('Q1') + '</option>'
+            +         '<option value="34">34 — ' + translate('Q2') + '</option>'
+            +         '<option value="35">35 — ' + translate('Q3') + '</option>'
+            +         '<option value="36">36 — ' + translate('Q4') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Quadrimesters') + '">'
+            +         '<option value="37">37 — ' + translate('Quadrimester 1') + '</option>'
+            +         '<option value="38">38 — ' + translate('Quadrimester 2') + '</option>'
+            +         '<option value="39">39 — ' + translate('Quadrimester 3') + '</option>'
+            +       '</optgroup>'
+            +       '<optgroup label="' + translate('Semesters') + '">'
+            +         '<option value="40">40 — ' + translate('Semester 1') + '</option>'
+            +         '<option value="41">41 — ' + translate('Semester 2') + '</option>'
+            +       '</optgroup>'
+            +     '</select>'
+            +     '<input type="number" class="edtf-assistant-day" min="1" max="31" step="1"'
+            +       ' placeholder="' + translate('Day') + '" aria-label="' + translate('Day') + '">'
+            +     '<label class="edtf-assistant-with-time-toggle" title="' + translate('Add time') + '">'
+            +       '<span class="edtf-assistant-clock-icon" aria-hidden="true"></span>'
+            +       '<input type="checkbox" class="edtf-assistant-with-time" aria-label="' + translate('Add time') + '">'
+            +     '</label>'
+            +   '</div>'
+            +   '<div class="edtf-assistant-row edtf-assistant-row-time" style="display:none;">'
+            +     '<input type="number" class="edtf-assistant-hour" min="0" max="23" step="1"'
+            +       ' placeholder="' + translate('Hour') + '" aria-label="' + translate('Hour') + '">'
+            +     '<input type="number" class="edtf-assistant-minute" min="0" max="59" step="1"'
+            +       ' placeholder="' + translate('Minute') + '" aria-label="' + translate('Minute') + '">'
+            +     '<input type="number" class="edtf-assistant-second" min="0" max="59" step="1"'
+            +       ' placeholder="' + translate('Second') + '" aria-label="' + translate('Second') + '">'
+            +     '<select class="edtf-assistant-offset" aria-label="' + translate('Offset') + '">'
+            +       '<option value="">' + translate('Offset') + '</option>'
+            +       '<option value="Z">Z</option>'
+            +       offsetOptions()
+            +     '</select>'
+            +   '</div>'
+            +   '<div class="edtf-assistant-row edtf-assistant-row-qualifiers">'
+            +     '<select class="edtf-assistant-precision" aria-label="' + translate('Precision') + '">'
+            +       '<option value="" selected>' + translate('Precision') + '</option>'
+            +       '<option value="day">' + translate('Day') + '</option>'
+            +       '<option value="month">' + translate('Month') + '</option>'
+            +       '<option value="year">' + translate('Year') + '</option>'
+            +       '<option value="decade">' + translate('Decade (198X)') + '</option>'
+            +       '<option value="century">' + translate('Century (19XX)') + '</option>'
+            +       '<option value="millennium">' + translate('Millennium (1XXX)') + '</option>'
+            +     '</select>'
+            +     '<label><input type="checkbox" class="edtf-assistant-uncertain"> ' + translate('Uncertain (?)') + '</label>'
+            +     '<label><input type="checkbox" class="edtf-assistant-approximate"> ' + translate('Approximate (~)') + '</label>'
+            +   '</div>'
+            + '</fieldset>';
+    };
+
+    /**
+     * Build the full assistant dialog HTML, following the Common module
+     * dialog-common structure (dialog-background > dialog-panel > ...).
+     */
+    var assistantHtml = function(translate) {
+        return ''
+            + '<dialog class="dialog-common edtf-assistant-popup">'
+            +   '<div class="dialog-background">'
+            +     '<div class="dialog-panel">'
+            +       '<div class="dialog-header">'
+            +         '<button type="button" class="dialog-header-close-button edtf-assistant-close" title="' + translate('Close') + '" autofocus="autofocus">'
+            +           '<span class="dialog-close">🗙</span>'
+            +           '<span class="dialog-close-label">' + translate('Close') + '</span>'
+            +         '</button>'
+            +       '</div>'
+            +       '<div class="dialog-contents">'
+            +         '<div class="dialog-heading"><h4>' + translate('EDTF Assistant') + '</h4></div>'
+            +         '<div class="dialog-body">'
+            +           '<label class="edtf-assistant-interval-toggle">'
+            +             '<input type="checkbox" class="edtf-assistant-interval"> '
+            +             translate('Interval (two dates)')
+            +           '</label>'
+            +           '<div class="edtf-assistant-parts">'
+            +             datePartHtml(translate)
+            +             '<fieldset class="edtf-assistant-part edtf-assistant-end" style="display:none;">'
+            +               datePartHtml(translate).replace('<fieldset class="edtf-assistant-part">', '').replace(/<\/fieldset>$/, '')
+            +             '</fieldset>'
+            +           '</div>'
+            +           '<div class="edtf-assistant-preview">'
+            +             '<code class="edtf-assistant-result"></code>'
+            +             '<span class="edtf-assistant-error"></span>'
+            +           '</div>'
+            +         '</div>'
+            +       '</div>'
+            +       '<div class="dialog-footer">'
+            +         '<button type="button" class="edtf-assistant-cancel button">' + translate('Cancel') + '</button>'
+            +         '<button type="button" class="edtf-assistant-apply button">' + translate('Apply') + '</button>'
+            +       '</div>'
+            +     '</div>'
+            +   '</div>'
+            + '</dialog>';
+    };
+
+    /**
+     * Open the assistant popup for the given input.
+     */
+    var translate = function(s) {
+        return (typeof Omeka !== 'undefined' && Omeka.jsTranslate) ? Omeka.jsTranslate(s) : s;
+    };
+
+    var openAssistant = function(input) {
+        var $input = $(input);
+
+        // Only one dialog at a time across the page.
+        $('.edtf-assistant-popup').each(function() {
+            if (typeof this.close === 'function') this.close();
+            $(this).remove();
+        });
+
+        var $popup = $(assistantHtml(translate));
+        $('body').append($popup);
+        var dialog = $popup[0];
+        if (typeof dialog.showModal === 'function') {
+            dialog.showModal();
+        } else {
+            $popup.attr('open', 'open');
+        }
+
+        var updatePreview = function() {
+            var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part');
+            var isInterval = $popup.find('.edtf-assistant-interval').prop('checked');
+            var first = readFormPart($parts.eq(0));
+            var result = first;
+            if (isInterval) {
+                var second = readFormPart($parts.eq(1));
+                // EDTF requires at least one side of an interval to be a
+                // normal date; "../.." is not a valid interval.
+                if (first || second) {
+                    result = (first || '..') + '/' + (second || '..');
+                } else {
+                    result = '';
+                }
+            }
+            var $result = $popup.find('.edtf-assistant-result');
+            var $apply = $popup.find('.edtf-assistant-apply');
+            $result.text(result || '—');
+            var errorMsg = '';
+            var isValid = false;
+            if (result && result !== '—' && result !== '..') {
+                errorMsg = validateEdtf(result, {
+                    firstParts: readPartsRaw($parts.eq(0)),
+                    secondParts: isInterval ? readPartsRaw($parts.eq(1)) : null,
+                    isInterval: isInterval,
+                });
+                isValid = !errorMsg;
+            }
+            $result.toggleClass('edtf-assistant-invalid', !!result && !isValid);
+            $apply.prop('disabled', !!result && !isValid);
+            $popup.find('.edtf-assistant-error').text(errorMsg);
+        };
+
+        // Toggle interval end fieldset.
+        $popup.on('change', '.edtf-assistant-interval', function() {
+            $popup.find('.edtf-assistant-end').toggle(this.checked);
+            updatePreview();
+        });
+
+        // Toggle time row within a fieldset.
+        $popup.on('change', '.edtf-assistant-with-time', function() {
+            $(this).closest('.edtf-assistant-part').find('.edtf-assistant-row-time').toggle(this.checked);
+            updatePreview();
+        });
+
+        // When a season/sub-year (21-41) is selected, disable fields
+        // that are not valid in that mode: day, time, precision and
+        // qualifiers (?, ~).
+        var updateSeasonState = function($fieldset) {
+            var monthVal = parseInt($fieldset.find('.edtf-assistant-month').val(), 10);
+            var isSeason = monthVal >= 21 && monthVal <= 41;
+            $fieldset.find('.edtf-assistant-day').prop('disabled', isSeason);
+            var $withTime = $fieldset.find('.edtf-assistant-with-time');
+            $withTime.prop('disabled', isSeason);
+            if (isSeason && $withTime.prop('checked')) {
+                $withTime.prop('checked', false);
+                $fieldset.find('.edtf-assistant-row-time').hide();
+            }
+            $fieldset.find('.edtf-assistant-row-time input, .edtf-assistant-row-time select')
+                .prop('disabled', isSeason);
+            $fieldset.find('.edtf-assistant-with-time-toggle').toggleClass('edtf-assistant-disabled', isSeason);
+            $fieldset.find('.edtf-assistant-precision').prop('disabled', isSeason);
+            var $unc = $fieldset.find('.edtf-assistant-uncertain');
+            var $app = $fieldset.find('.edtf-assistant-approximate');
+            $unc.prop('disabled', isSeason);
+            $app.prop('disabled', isSeason);
+            if (isSeason) {
+                $unc.prop('checked', false);
+                $app.prop('checked', false);
+            }
+        };
+        $popup.on('change', '.edtf-assistant-month', function() {
+            updateSeasonState($(this).closest('.edtf-assistant-part'));
+        });
+
+        // Update preview on any change.
+        $popup.on('input change', 'input, select', updatePreview);
+
+        var closeDialog = function() {
+            if (typeof dialog.close === 'function') dialog.close();
+            $popup.remove();
+        };
+
+        // Apply: set input value and trigger validation.
+        $popup.on('click', '.edtf-assistant-apply', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if ($(this).prop('disabled')) {
+                return;
+            }
+            var value = $popup.find('.edtf-assistant-result').text();
+            if (value && value !== '—') {
+                $input.val(value);
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            closeDialog();
+        });
+
+        // Cancel / close.
+        $popup.on('click', '.edtf-assistant-cancel, .edtf-assistant-close', closeDialog);
+
+        // Close on backdrop click.
+        $popup.on('click', function(e) {
+            if (e.target === dialog) closeDialog();
+        });
+
+        // Prefill form from current input value.
+        var current = ($input.val() || '').trim();
+        if (current) {
+            var parts = current.split('/');
+            prefillPart($popup.find('.edtf-assistant-part').eq(0), parts[0]);
+            if (parts.length === 2) {
+                $popup.find('.edtf-assistant-interval').prop('checked', true).trigger('change');
+                prefillPart($popup.find('.edtf-assistant-part').eq(1), parts[1]);
+            }
+            $popup.find('.edtf-assistant-part').each(function() {
+                updateSeasonState($(this));
+            });
+            updatePreview();
+        }
+    };
+
+    /**
+     * Fill a fieldset from a single EDTF date string.
+     */
+    var prefillPart = function($fieldset, value) {
+        if (!value || value === '..') return;
+
+        // Qualifier suffix (?, ~, %).
+        var qualifier = '';
+        var last = value.slice(-1);
+        if (last === '?' || last === '~' || last === '%') {
+            qualifier = last;
+            value = value.slice(0, -1);
+        }
+        $fieldset.find('.edtf-assistant-uncertain').prop('checked', qualifier === '?' || qualifier === '%');
+        $fieldset.find('.edtf-assistant-approximate').prop('checked', qualifier === '~' || qualifier === '%');
+
+        // Reduced precision: decade / century / millennium (trailing X's).
+        var mReduced = value.match(/^(-?\d+)(X{1,3})$/);
+        if (mReduced) {
+            var base = mReduced[1];
+            var xs = mReduced[2].length;
+            $fieldset.find('.edtf-assistant-year').val(base + '0'.repeat(xs));
+            $fieldset.find('.edtf-assistant-precision').val(
+                xs === 1 ? 'decade' : (xs === 2 ? 'century' : 'millennium')
+            );
+            return;
+        }
+
+        // Datetime: YYYY-MM-DDTHH:MM:SS[Z|±HH:MM]
+        var mDt = value.match(/^(-?\d{4,})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-]\d{2}:\d{2})?$/);
+        if (mDt) {
+            $fieldset.find('.edtf-assistant-year').val(mDt[1]);
+            $fieldset.find('.edtf-assistant-month').val(mDt[2]);
+            $fieldset.find('.edtf-assistant-day').val(parseInt(mDt[3], 10));
+            $fieldset.find('.edtf-assistant-with-time').prop('checked', true).trigger('change');
+            $fieldset.find('.edtf-assistant-hour').val(parseInt(mDt[4], 10));
+            $fieldset.find('.edtf-assistant-minute').val(parseInt(mDt[5], 10));
+            $fieldset.find('.edtf-assistant-second').val(parseInt(mDt[6], 10));
+            if (mDt[7]) $fieldset.find('.edtf-assistant-offset').val(mDt[7]);
+            return;
+        }
+
+        // YYYY-MM-DD
+        var mYmd = value.match(/^(-?\d{4,})-(\d{2})-(\d{2})$/);
+        if (mYmd) {
+            $fieldset.find('.edtf-assistant-year').val(mYmd[1]);
+            $fieldset.find('.edtf-assistant-month').val(mYmd[2]);
+            $fieldset.find('.edtf-assistant-day').val(parseInt(mYmd[3], 10));
+            return;
+        }
+
+        // YYYY-NN (month 01-12 or season/sub-year 21-41).
+        var mYm = value.match(/^(-?\d{4,})-(\d{2})$/);
+        if (mYm) {
+            $fieldset.find('.edtf-assistant-year').val(mYm[1]);
+            $fieldset.find('.edtf-assistant-month').val(mYm[2]);
+            return;
+        }
+
+        // YYYY (plain year).
+        var mY = value.match(/^(-?\d{1,})$/);
+        if (mY) {
+            $fieldset.find('.edtf-assistant-year').val(mY[1]);
         }
     };
 
@@ -60,10 +657,37 @@ var EdtfDataType = (function($) {
         });
     };
 
+    var addAssistantButton = function(input) {
+        var $input = $(input);
+        if ($input.siblings('.edtf-assistant-button').length) {
+            return;
+        }
+        var translate = function(s) {
+            return (typeof Omeka !== 'undefined' && Omeka.jsTranslate) ? Omeka.jsTranslate(s) : s;
+        };
+        var label = translate('EDTF Assistant');
+        var $btn = $('<button type="button" class="edtf-assistant-button" aria-label="' + label + '" title="' + label + '">'
+            + '<span class="o-icon-edit"></span></button>');
+        $input.before($btn);
+    };
+
     var listen = function() {
+        // Delegated click handler for assistant buttons (works for cloned inputs).
+        $(document).off('click.edtfAssistant').on('click.edtfAssistant', '.edtf-assistant-button', function(e) {
+            e.preventDefault();
+            var input = $(this).siblings('input.edtf-value')[0];
+            if (input) {
+                openAssistant(input);
+            }
+        });
+
         $(document).on('o:prepare-value o:prepare-value-annotation', function(e, type, container) {
             if ('edtf:date' === type) {
                 addParserEventListener(container);
+                var input = container.find ? container.find('input.edtf-value')[0] : null;
+                if (input) {
+                    addAssistantButton(input);
+                }
             }
         });
 
@@ -71,6 +695,7 @@ var EdtfDataType = (function($) {
         inputs.forEach(function(input) {
             parser(input);
             addParserEventListener(input);
+            addAssistantButton(input);
         });
     };
 
