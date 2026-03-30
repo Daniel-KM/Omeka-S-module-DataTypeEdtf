@@ -70,13 +70,6 @@ return [
             'date_after' => EdtfDataType\Service\FacetedBrowse\FacetType\DateAfterFactory::class,
             'date_before' => EdtfDataType\Service\FacetedBrowse\FacetType\DateBeforeFactory::class,
             'date_in_interval' => EdtfDataType\Service\FacetedBrowse\FacetType\DateInIntervalFactory::class,
-            // @todo Adapt for EDTF intervals/durations.
-            /*
-            'value_greater_than' => EdtfDataType\Service\FacetedBrowse\FacetType\ValueGreaterThanFactory::class,
-            'value_less_than' => EdtfDataType\Service\FacetedBrowse\FacetType\ValueLessThanFactory::class,
-            'duration_greater_than' => EdtfDataType\Service\FacetedBrowse\FacetType\DurationGreaterThanFactory::class,
-            'duration_less_than' => EdtfDataType\Service\FacetedBrowse\FacetType\DurationLessThanFactory::class,
-            */
         ],
     ],
     'datavis_dataset_types' => [

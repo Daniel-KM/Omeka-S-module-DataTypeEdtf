@@ -13,7 +13,7 @@ use Omeka\Api\Representation\ValueRepresentation;
 use Omeka\DataType\ValueAnnotatingInterface;
 use Omeka\Entity\Value;
 
-class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
+class Edtf extends AbstractDataType implements ValueAnnotatingInterface
 {
     public function getName()
     {
