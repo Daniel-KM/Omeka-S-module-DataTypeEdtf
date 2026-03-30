@@ -21,37 +21,37 @@ class EdtfConvertTest extends TestCase
     public function testConvertAcceptsValidEdtf(): void
     {
         $value = $this->createValueStub('1984');
-        $this->assertTrue($this->dataType->convert($value, 'edtf:date'));
+        $this->assertTrue($this->dataType->convert($value, 'edtf'));
     }
 
     public function testConvertAcceptsInterval(): void
     {
         $value = $this->createValueStub('1900/1999');
-        $this->assertTrue($this->dataType->convert($value, 'edtf:date'));
+        $this->assertTrue($this->dataType->convert($value, 'edtf'));
     }
 
     public function testConvertAcceptsUncertain(): void
     {
         $value = $this->createValueStub('1984?');
-        $this->assertTrue($this->dataType->convert($value, 'edtf:date'));
+        $this->assertTrue($this->dataType->convert($value, 'edtf'));
     }
 
     public function testConvertRejectsInvalid(): void
     {
         $value = $this->createValueStub('not-a-date');
-        $this->assertFalse($this->dataType->convert($value, 'edtf:date'));
+        $this->assertFalse($this->dataType->convert($value, 'edtf'));
     }
 
     public function testConvertRejectsNull(): void
     {
         $value = $this->createValueStub(null);
-        $this->assertFalse($this->dataType->convert($value, 'edtf:date'));
+        $this->assertFalse($this->dataType->convert($value, 'edtf'));
     }
 
     public function testConvertRejectsEmpty(): void
     {
         $value = $this->createValueStub('');
-        $this->assertFalse($this->dataType->convert($value, 'edtf:date'));
+        $this->assertFalse($this->dataType->convert($value, 'edtf'));
     }
 
     public function testEdtfConvertibleExtendsEdtf(): void
@@ -67,16 +67,14 @@ class EdtfConvertTest extends TestCase
         );
     }
 
-    public function testConfigSwapsClassWhenInterfaceExists(): void
+    public function testConfigRegistersEdtfFactory(): void
     {
         $module = new \DataTypeEdtf\Module();
         $config = $module->getConfig();
-        $class = $config['data_types']['invokables']['edtf:date'];
-        if (interface_exists(\Omeka\DataType\ConversionTargetInterface::class)) {
-            $this->assertSame(\DataTypeEdtf\DataType\EdtfConvertible::class, $class);
-        } else {
-            $this->assertSame(Edtf::class, $class);
-        }
+        $this->assertSame(
+            \DataTypeEdtf\Service\DataType\EdtfFactory::class,
+            $config['data_types']['factories']['edtf']
+        );
     }
 
     protected function createValueStub($val): Value
