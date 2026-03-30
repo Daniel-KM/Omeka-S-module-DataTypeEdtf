@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 
 class EdtfPropertySelectFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         return new EdtfPropertySelect($services->get('FormElementManager'));
     }
