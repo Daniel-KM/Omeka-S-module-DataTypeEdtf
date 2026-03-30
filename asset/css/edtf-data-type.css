@@ -30,12 +30,268 @@
     border: 1px solid #dfdfdf;
     background-color: #fff;
     margin: 0;
-    padding: 0 0 0 6px;
+    padding: 0 6px 0 0;
     width: 100%;
     display: flex;
     align-items: center;
+    gap: 6px;
+}
+
+.valid-string-container > .edtf-valid-icon,
+.valid-string-container > .o-icon-edit,
+.invalid-value > .edtf-invalid-icon,
+.invalid-value > .o-icon-edit {
+    flex: 0 0 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+}
+
+.invalid-value > .edtf-invalid-icon {
+    color: #a91919;
 }
 
 .valid-string-container {
     height: 36px;
+}
+
+/* EDTF assistant button left of the input, visually attached. */
+.edtf .edtf-inputs {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+}
+
+.edtf .edtf-inputs input.edtf-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+.edtf-assistant-button {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    margin: 0 !important;
+    padding: 0;
+    border: 1px solid #dfdfdf;
+    border-right: none;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.edtf-assistant-button:hover {
+    background-color: #e5e5e5;
+}
+
+.edtf-assistant-button .o-icon-edit:before {
+    content: "\f783"; /* Font Awesome calendar-alt */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+/* Assistant dialog uses dialog-common structure from Common module. */
+.edtf-assistant-popup {
+    font-size: 1rem;
+}
+
+/* Anchor the dialog near the top of the viewport so expanding rows
+   (toggle time, interval) only push the bottom down instead of
+   re-centering the whole dialog. */
+dialog.edtf-assistant-popup {
+    margin-top: 8vh;
+    margin-bottom: auto;
+}
+
+.edtf-assistant-popup .dialog-panel {
+    width: min(90vw, 640px);
+    max-width: none;
+}
+
+.edtf-assistant-popup .dialog-close {
+    margin-right: 6px;
+}
+
+.edtf-assistant-interval-toggle {
+    display: block;
+    margin: 6px 0;
+}
+
+.edtf-assistant-part {
+    border: 1px solid #e5e5e5;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 3px;
+}
+
+.edtf-assistant-part.edtf-assistant-end {
+    margin-top: 18px;
+}
+
+.edtf-assistant-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.edtf-assistant-row:last-child {
+    margin-bottom: 0;
+}
+
+.edtf-assistant-row-date {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.edtf-assistant-row-date > .edtf-assistant-year {
+    flex: 1 1 6em;
+    min-width: 0;
+    width: auto;
+}
+
+.edtf-assistant-row-date > .edtf-assistant-month {
+    flex: 2 1 10em;
+    min-width: 0;
+    width: auto;
+}
+
+.edtf-assistant-row-date > .edtf-assistant-day {
+    flex: 0 0 5em;
+    min-width: 0;
+    width: auto;
+}
+
+.edtf-assistant-row-qualifiers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.edtf-assistant-row-qualifiers > label,
+.edtf-assistant-row-qualifiers > select {
+    flex: 0 0 auto;
+}
+
+.edtf-assistant-row-time {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e5e5e5;
+}
+
+.edtf-assistant-row-time > input[type="number"],
+.edtf-assistant-row-time > select {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+}
+
+.edtf-assistant-with-time-toggle {
+    flex: 0 0 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #dfdfdf;
+    border-radius: 3px;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+.edtf-assistant-with-time-toggle input[type="checkbox"] {
+    margin: 0;
+}
+
+.edtf-assistant-with-time-toggle:has(.edtf-assistant-with-time:checked) {
+    background: #cfe2f3;
+    border-color: #6fa8dc;
+}
+
+.edtf-assistant-with-time-toggle.edtf-assistant-disabled {
+    opacity: 0.5;
+}
+
+.edtf-assistant-clock-icon:before {
+    content: "\f017"; /* Font Awesome clock */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 400;
+    margin-right: 4px;
+}
+
+.edtf-assistant-row label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.edtf-assistant-row input[type="checkbox"]:disabled {
+    background: #e5e5e5;
+    opacity: 0.5;
+}
+
+.edtf-assistant-row label:has(input[type="checkbox"]:disabled) {
+    color: #888;
+}
+
+.edtf-assistant-row input[type="number"] {
+    width: 6em;
+    padding: 2px 4px;
+}
+
+.edtf-assistant-row input[type="checkbox"] {
+    margin-right: 2px;
+}
+
+.edtf-assistant-invalid {
+    color: #a91919;
+}
+
+.edtf-assistant-error {
+    color: #a91919;
+    font-size: 0.85em;
+    font-family: sans-serif;
+    margin-left: auto;
+}
+
+.edtf-assistant-apply[disabled] {
+    opacity: 0.5;
+}
+
+.edtf-assistant-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px;
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    margin: 8px 0;
+    font-family: monospace;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.edtf-assistant-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 8px;
 }
