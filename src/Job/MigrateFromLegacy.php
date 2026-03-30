@@ -57,7 +57,7 @@ class MigrateFromLegacy extends AbstractJob
                     "UPDATE {$table} SET {$col} = REPLACE({$col}, '\"edtf:date\"', '\"edtf\"') "
                     . "WHERE {$col} LIKE '%\"edtf:date\"%'"
                 );
-                $logger->info(sprintf('DataTypeEdtf migration: %d row(s) updated in %s.%s.', $n, $table, $col)); // @translate
+                $logger->info(sprintf('DataTypeEdtf migration: %1$d row(s) updated in %2$s.%3$s.', $n, $table, $col)); // @translate
             } catch (\Throwable $e) {
                 // Table absent (ART not installed) — ignore silently.
             }
@@ -90,7 +90,7 @@ class MigrateFromLegacy extends AbstractJob
                 } catch (\Throwable $e) {
                     $failed++;
                     $logger->notice(sprintf(
-                        'DataTypeEdtf migration: failed to parse value "%s" (resource %d): %s', // @translate
+                        'DataTypeEdtf migration: failed to parse value "%1$s" (resource %2$d): %3$s', // @translate
                         $row['value'], $row['resource_id'], $e->getMessage()
                     ));
                     continue;
@@ -134,7 +134,7 @@ class MigrateFromLegacy extends AbstractJob
         $conn->executeStatement('DELETE FROM module WHERE id = ?', ['EdtfDataType']);
 
         $logger->info(sprintf(
-            'DataTypeEdtf migration complete: %d row(s) migrated, %d failure(s). The legacy module "EdtfDataType" has been uninstalled.', // @translate
+            'DataTypeEdtf migration complete: %1$d row(s) migrated, %2$d failure(s). The legacy module "EdtfDataType" has been uninstalled.', // @translate
             $migrated, $failed
         ));
     }

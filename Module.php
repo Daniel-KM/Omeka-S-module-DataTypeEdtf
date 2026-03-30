@@ -338,7 +338,7 @@ class Module extends AbstractModule
                 $dataType->hydrate($valueObject, $value, $adapter);
             } else {
                 $message = sprintf(
-                    'DataTypeEdtf - invalid %s value for ID %s - %s', // @translate
+                    'DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s', // @translate
                     $type, $entity->getId(), $value->getValue()
                 );
                 $logger->notice($message);

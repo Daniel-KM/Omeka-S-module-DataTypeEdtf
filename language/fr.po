@@ -72,47 +72,240 @@ msgstr "La valeur doit être une date-heure au format EDTF"
 msgid "Show all available values."
 msgstr "Voir toutes les valeurs possibles."
 
-#: Module.php:257
+#: view/data-type-edtf/config-form.phtml:11
+msgid "Legacy \"EdtfDataType\" module detected."
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:15
 #, php-format
-msgid "EdtfDataType - invalid %s value for ID %s - %s"
-msgstr "EdtfDataType - valeur %s non valide pour l’id %s - %s"
+msgid ""
+"The legacy module \"EdtfDataType\" is still installed alongside "
+"\"DataTypeEdtf\" and contains %d indexed values. Both modules can coexist "
+"temporarily, but users will see two EDTF data types in resource templates "
+"and new items may be split between the old \"edtf:date\" and new \"edtf\" "
+"data type ids. It is strongly recommended to run the migration as soon as "
+"possible to consolidate the data and remove the legacy module."
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:23
+msgid "Migration from legacy \"EdtfDataType\" module"
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:25
+msgid ""
+"The migration keeps all stored EDTF strings intact in the Omeka \"value\" "
+"column (no item is modified). Three things change that API or SPARQL "
+"consumers must be aware of:"
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:28
+msgid ""
+"the data type id stored in the database: \"edtf:date\" becomes \"edtf\";"
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:29
+msgid ""
+"the JSON-LD @type returned by the data type: upgraded from \"xsd:string\" to "
+"precise XSD types (xsd:date, xsd:gYear, xsd:gYearMonth, xsd:dateTime) for "
+"pure dates, and to the Library of Congress EDTF URI for advanced forms;"
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:30
+msgid ""
+"the advanced-search query format: flattened from \"edtf[date][gte][<pid>]=…"
+"\" to \"edtf[gte][<pid>]=…\"."
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:33
+msgid ""
+"Clicking the button below dispatches a background job that migrates the "
+"index table, uninstalls the legacy module and leaves DataTypeEdtf as the "
+"only EDTF data type provider. Progress can be monitored on the Jobs page."
+msgstr ""
+
+#: view/data-type-edtf/config-form.phtml:37
+msgid "Migrate legacy data"
+msgstr "Migrer les anciennes données"
+
+#: Module.php:98
+msgid ""
+"The legacy module \"EdtfDataType\" is not installed; nothing to migrate."
+msgstr ""
+
+#: Module.php:107
+msgid ""
+"Migrating legacy \"EdtfDataType\" data in background (job {link_job}#{job_id}"
+"{link_end}, {link_log}logs{link_end})."
+msgstr ""
+
+#: Module.php:341
+#, php-format
+msgid "DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s"
+msgstr "EdtfDataType - valeur %1$s incorrecte pour l’id %2$s - %3$s"
+
+#: src/Job/MigrateFromLegacy.php:32
+msgid "DataTypeEdtf migration: legacy module not installed, nothing to do."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:38
+#, php-format
+msgid ""
+"DataTypeEdtf migration: %d value(s) updated from \"edtf:date\" to \"edtf\"."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:60
+#, php-format
+msgid "DataTypeEdtf migration: %1$d row(s) updated in %2$s.%3$s."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:93
+#, php-format
+msgid ""
+"DataTypeEdtf migration: failed to parse value \"%1$s\" (resource %2$d): %3$s"
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:124
+#, php-format
+msgid "DataTypeEdtf migration: %d row(s) processed."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:128
+msgid "DataTypeEdtf migration: interrupted; run the job again to finish."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:137
+#, php-format
+msgid ""
+"DataTypeEdtf migration complete: %1$d row(s) migrated, %2$d failure(s). The "
+"legacy module \"EdtfDataType\" has been uninstalled."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:11 src/Form/SiteSettingsFieldset.php:14
+#: src/Form/SettingsFieldset.php:11 src/Form/SettingsFieldset.php:14
+msgid "Extended Date/Time Format"
+msgstr "Format étendu de la date et de l’heure"
+
+#: src/Form/SiteSettingsFieldset.php:28 src/Form/SettingsFieldset.php:28
+msgid "Humanizer style"
+msgstr "Style naturel"
+
+#: src/Form/SiteSettingsFieldset.php:29
+msgid ""
+"Controls how EDTF values are rendered on this site. Leave empty to use the "
+"general setting."
+msgstr ""
+"Détermine comment les valeurs EDTF sont affichées de manière naturelle. "
+"Laisser vide pour utiliser les paramètres généraux."
+
+#: src/Form/SiteSettingsFieldset.php:30 src/Form/SiteSettingsFieldset.php:48
+#: src/Form/SiteSettingsFieldset.php:65
+msgid "Use general setting"
+msgstr "Utiliser le paramètre général"
+
+#: src/Form/SiteSettingsFieldset.php:32 src/Form/SettingsFieldset.php:31
+msgid "Bundled library (ProfessionalWiki/EDTF, multilingual)"
+msgstr "Format intégré (ProfessionalWiki/EDTF, multilingue)"
+
+#: src/Form/SiteSettingsFieldset.php:33 src/Form/SettingsFieldset.php:32
+msgid "Usage courant en français"
+msgstr "Usage courant en français"
+
+#: src/Form/SiteSettingsFieldset.php:45 src/Form/SettingsFieldset.php:44
+msgid "Calendar for pre-reform dates"
+msgstr "Calendrier poru les dates pré-réforme"
+
+#: src/Form/SiteSettingsFieldset.php:46
+msgid "Leave empty to use the general setting."
+msgstr "Laisser vide pour utiliser le paramètre général."
+
+#: src/Form/SiteSettingsFieldset.php:49 src/Form/SettingsFieldset.php:47
+msgid "Proleptic Gregorian (as stored)"
+msgstr "Grégorien proleptique (tel qu’enregistré)"
+
+#: src/Form/SiteSettingsFieldset.php:50 src/Form/SettingsFieldset.php:48
+msgid "Convert to Julian before reform date"
+msgstr "Convertir les dates au calendrier julien avant la date de la réforme"
+
+#: src/Form/SiteSettingsFieldset.php:62 src/Form/SettingsFieldset.php:60
+msgid "Show calendar indicator for pre-reform dates"
+msgstr "Afficher l’indicateur de calendrier pour les dates pré-réforme"
+
+#: src/Form/SiteSettingsFieldset.php:63 src/Form/SettingsFieldset.php:61
+msgid "Appends [grég.] or [jul.] to dates before the reform date."
+msgstr "Ajoute [grég.] ou [jul.] aux dates antérieures à la date de réforme."
+
+#: src/Form/SiteSettingsFieldset.php:79 src/Form/SettingsFieldset.php:72
+msgid "Gregorian reform date"
+msgstr "Date de la réforme grégorienne"
+
+#: src/Form/SiteSettingsFieldset.php:80
+msgid "Leave empty to use the general setting. Default: 1582-10-15."
+msgstr "Laisser vide pour utilise le paramètre général. Défaut : 1582-10-15."
+
+#: src/Form/SettingsFieldset.php:29
+msgid ""
+"Controls how EDTF values are rendered in human-readable form. This is the "
+"default for all sites."
+msgstr ""
+"Détermine comment les valeurs EDTF sont affichées de manière naturelle. "
+"C’est le défaut pour tous les sites."
+
+#: src/Form/SettingsFieldset.php:45
+msgid ""
+"EDTF stores dates in proleptic Gregorian. For display, dates before the "
+"reform date can be converted to Julian, which matches historical sources."
+msgstr ""
+"EDTF enregistre les dates en grégorien proleptique. Pour l’affichage, les "
+"dates antérieures à la date de la réforme peuvent être converties en julien, "
+"ce qui correspond aux sources historiques."
+
+#: src/Form/SettingsFieldset.php:73
+msgid ""
+"Date from which the Gregorian calendar is used (ISO 8601 format). Dates "
+"before this are considered pre-reform. Default: 1582-10-15 (papal reform). "
+"Some countries adopted it later: England 1752-09-14, Russia 1918-02-14."
+msgstr ""
+"Date à partir de laquelle utiliser le calendrier grégorien (format ISO "
+"8601). Les dates antérieures sont considérées comme pré-réforme. Par "
+"défaut : 1582-10-15 (réforme papale). Certains pays l’ont adopté plus tard : "
+"Angleterre 1752-09-14, Russie 1918-02-14."
 
 #: src/Form/Element/ConvertToEdtf.php:23 src/Form/Element/ConvertToEdtf.php:34
 msgid "Convert to EDTF"
 msgstr "Convertir en EDTF"
 
 #: src/Form/Element/DateTime.php:33 src/Form/Element/DateTime.php:34
-#: config/module.config.php:102
+#: config/module.config.php:187
 msgid "Year"
 msgstr "Année"
 
 #: src/Form/Element/DateTime.php:38 src/Form/Element/DateTime.php:39
-#: config/module.config.php:69
+#: config/module.config.php:144
 msgid "Month"
 msgstr "Mois"
 
 #: src/Form/Element/DateTime.php:43 src/Form/Element/DateTime.php:44
-#: config/module.config.php:42
+#: config/module.config.php:123
 msgid "Day"
 msgstr "Jour"
 
 #: src/Form/Element/DateTime.php:48 src/Form/Element/DateTime.php:49
-#: config/module.config.php:47
+#: config/module.config.php:128
 msgid "Hour"
 msgstr "Heure"
 
 #: src/Form/Element/DateTime.php:53 src/Form/Element/DateTime.php:54
-#: config/module.config.php:68
+#: config/module.config.php:143
 msgid "Minute"
 msgstr "Minute"
 
 #: src/Form/Element/DateTime.php:58 src/Form/Element/DateTime.php:59
-#: config/module.config.php:87
+#: config/module.config.php:165
 msgid "Second"
 msgstr "Seconde"
 
 #: src/Form/Element/DateTime.php:63 src/Form/Element/DateTime.php:64
-#: config/module.config.php:73
+#: config/module.config.php:148
 msgid "Offset"
 msgstr "Décalage"
 
@@ -508,326 +701,389 @@ msgstr "Date après"
 msgid "Date before"
 msgstr "Date avant"
 
-#: config/module.config.php:28
+#: config/module.config.php:99
+#, php-format
+msgid "%1$s to %2$s"
+msgstr "%1$s à %2$s"
+
+#: config/module.config.php:100
+#, php-format
+msgid "%s century"
+msgstr "%s siècle"
+
+#: config/module.config.php:101
+#, php-format
+msgid "%s millennium"
+msgstr "%s millénaire"
+
+#: config/module.config.php:102
+#, php-format
+msgid "%ss"
+msgstr "années %s"
+
+#: config/module.config.php:103
+msgid "About calendar and year numbering"
+msgstr "À propos des calendriers et des années"
+
+#: config/module.config.php:104
 msgid "Add time"
 msgstr "Ajouter l’heure"
 
-#: config/module.config.php:29
-msgid "At least one side of the interval must be specified"
-msgstr "Au moins une date de l’intervalle doit être définie"
+#: config/module.config.php:105
+#, php-format
+msgid "After %1$s"
+msgstr "Après %1$s"
 
-#: config/module.config.php:30
-msgid "April"
-msgstr "Avril"
-
-#: config/module.config.php:32
+#: config/module.config.php:107
 msgid "Approximate (~)"
 msgstr "Approximatif (~)"
 
-#: config/module.config.php:33
-msgid "August"
-msgstr "Août"
+#: config/module.config.php:108
+msgid "April"
+msgstr "Avril"
 
-#: config/module.config.php:34
-msgid "Autumn"
-msgstr "Automne"
-
-#: config/module.config.php:35
-msgid "Autumn - Northern"
-msgstr "Automne - Nord"
-
-#: config/module.config.php:36
-msgid "Autumn - Southern"
-msgstr "Automne - Sud"
-
-#: config/module.config.php:38
-msgid "Century (19XX)"
-msgstr "Siècle (19XX)"
-
-#: config/module.config.php:40
-msgid "Copy"
-msgstr "Copier"
-
-#: config/module.config.php:41
-msgid "Copy start to end"
-msgstr "Copier le début vers la fin"
-
-#: config/module.config.php:43
-msgid "December"
-msgstr "Décembre"
-
-#: config/module.config.php:44
-msgid "Decade (198X)"
-msgstr "Décennie (198X)"
-
-#: config/module.config.php:45
+#: config/module.config.php:109
 msgid "Assistant for Extended Date/Time Format"
 msgstr "Assistant pour le format étendu du temps"
 
-#: config/module.config.php:46
+#: config/module.config.php:110
+msgid "At least one side of the interval must be specified"
+msgstr "Au moins une date de l’intervalle doit être définie"
+
+#: config/module.config.php:111
+msgid "August"
+msgstr "Août"
+
+#: config/module.config.php:112
+msgid "Autumn"
+msgstr "Automne"
+
+#: config/module.config.php:113
+msgid "Autumn - Northern"
+msgstr "Automne - Nord"
+
+#: config/module.config.php:114
+msgid "Autumn - Southern"
+msgstr "Automne - Sud"
+
+#: config/module.config.php:115
+msgid "BCE"
+msgstr "AVJC"
+
+#: config/module.config.php:116
+#, php-format
+msgid "Before %1$s"
+msgstr "Avant %1$s"
+
+#: config/module.config.php:118
+msgid "Century (19XX)"
+msgstr "Siècle (19XX)"
+
+#: config/module.config.php:119
+msgid ""
+"Checked: the empty side means unknown. Unchecked: it means open, extending "
+"indefinitely (..)"
+msgstr ""
+"Coché : le côté vide signifie inconnu. Décoché : il signifie ouvert, "
+"s'étendant indéfiniment (..)"
+
+#: config/module.config.php:121
+msgid "Copy"
+msgstr "Copier"
+
+#: config/module.config.php:122
+msgid "Copy start to end"
+msgstr "Copier le début vers la fin"
+
+#: config/module.config.php:124
+msgid "Decade (198X)"
+msgstr "Décennie (198X)"
+
+#: config/module.config.php:125
+msgid "December"
+msgstr "Décembre"
+
+#: config/module.config.php:126
 msgid "February"
 msgstr "Février"
 
-#: config/module.config.php:48
+#: config/module.config.php:127
+msgid "Help"
+msgstr "Aide"
+
+#: config/module.config.php:129
 msgid "Interval (two dates)"
 msgstr "Intervalle (deux dates)"
 
-#: config/module.config.php:49
+#: config/module.config.php:130
 msgid "Interval end must be on or after its start"
-msgstr "L’intervalle de fin doit être après le début"
+msgstr "La fin de l’intervalle doit être après le début"
 
-#: config/module.config.php:50
+#: config/module.config.php:131
 msgid "Invalid date"
 msgstr "Date incorrecte"
 
-#: config/module.config.php:51
+#: config/module.config.php:132
 msgid "Invalid day for this month"
 msgstr "Jour incorrect pour ce mois"
 
-#: config/module.config.php:52
+#: config/module.config.php:133
 msgid "Invalid hour"
 msgstr "Heure incorrecte"
 
-#: config/module.config.php:53
+#: config/module.config.php:134
 msgid "Invalid minute"
 msgstr "Minute incorrecte"
 
-#: config/module.config.php:54
+#: config/module.config.php:135
 msgid "Invalid month"
 msgstr "Mois incorrect"
 
-#: config/module.config.php:55
+#: config/module.config.php:136
 msgid "Invalid second"
 msgstr "Seconde incorrecte"
 
-#: config/module.config.php:56
+#: config/module.config.php:137
+msgid "January"
+msgstr "Janvier"
+
+#: config/module.config.php:138
+msgid "July"
+msgstr "Juillet"
+
+#: config/module.config.php:139
+msgid "June"
+msgstr "Juin"
+
+#: config/module.config.php:140
+msgid "March"
+msgstr "Mars"
+
+#: config/module.config.php:141
+msgid "May"
+msgstr "Mai"
+
+#: config/module.config.php:142
+msgid "Millennium (1XXX)"
+msgstr "Millénaire (1XXX)"
+
+#: config/module.config.php:145
+msgid "Months"
+msgstr "Mois"
+
+#: config/module.config.php:146
+msgid "November"
+msgstr "Novembre"
+
+#: config/module.config.php:147
+msgid "October"
+msgstr "Octobre"
+
+#: config/module.config.php:149
+msgid "Precision"
+msgstr "Précision"
+
+#: config/module.config.php:150
+msgid "Q1"
+msgstr "T1"
+
+#: config/module.config.php:151
+msgid "Q2"
+msgstr "T2"
+
+#: config/module.config.php:152
+msgid "Q3"
+msgstr "T3"
+
+#: config/module.config.php:153
+msgid "Q4"
+msgstr "T4"
+
+#: config/module.config.php:154
+msgid "Quadrimester 1"
+msgstr "Quadrimestre 1"
+
+#: config/module.config.php:155
+msgid "Quadrimester 2"
+msgstr "Quadrimestre 2"
+
+#: config/module.config.php:156
+msgid "Quadrimester 3"
+msgstr "Quadrimestre 3"
+
+#: config/module.config.php:157
+msgid "Quadrimesters"
+msgstr "Quadrimestres"
+
+#: config/module.config.php:158
 msgid ""
 "Qualifiers (uncertain, approximate) cannot be used with reduced precision"
 msgstr ""
 "Les qualificatifs (incertain, approximatif) ne peuvent pas être utilisés "
 "avec une précision réduite"
 
-#: config/module.config.php:57
+#: config/module.config.php:159
 msgid "Qualifiers (uncertain, approximate) cannot be used with seasons"
 msgstr ""
 "Les qualificatifs (incertain, approximatif) ne peuvent pas être utilisés "
 "avec les saisons"
 
-#: config/module.config.php:58
+#: config/module.config.php:160
+msgid "Quarters"
+msgstr "Trimestres"
+
+#: config/module.config.php:161
+msgid "Seasons"
+msgstr "Saisons"
+
+#: config/module.config.php:162
+msgid "Seasons (Northern Hemisphere)"
+msgstr "Saisons (hémisphère nord)"
+
+#: config/module.config.php:163
+msgid "Seasons (Southern Hemisphere)"
+msgstr "Saisons (hémisphère sud)"
+
+#: config/module.config.php:164
 msgid "Seasons and sub-year groupings cannot be used in intervals"
 msgstr ""
 "Les saisons et les groupements de mois ne peuvent pas être utilisés dans les "
 "intervalles"
 
-#: config/module.config.php:59
-msgid "Swap"
-msgstr "Intervertir"
-
-#: config/module.config.php:60
-msgid "Swap start and end"
-msgstr "Intervertir début et fin"
-
-#: config/module.config.php:61
-msgid "Time is only allowed with day precision"
-msgstr "Le temps est autorisé seulement avec une précision par jour"
-
-#: config/module.config.php:62
-msgid "January"
-msgstr "Janvier"
-
-#: config/module.config.php:63
-msgid "July"
-msgstr "Juillet"
-
-#: config/module.config.php:64
-msgid "June"
-msgstr "Juin"
-
-#: config/module.config.php:65
-msgid "March"
-msgstr "Mars"
-
-#: config/module.config.php:66
-msgid "May"
-msgstr "Mai"
-
-#: config/module.config.php:67
-msgid "Millennium (1XXX)"
-msgstr "Millénaire (1XXX)"
-
-#: config/module.config.php:70
-msgid "Months"
-msgstr "Mois"
-
-#: config/module.config.php:71
-msgid "November"
-msgstr "Novembre"
-
-#: config/module.config.php:72
-msgid "October"
-msgstr "Octobre"
-
-#: config/module.config.php:74
-msgid "Precision"
-msgstr "Précision"
-
-#: config/module.config.php:75
-msgid "Q1"
-msgstr "T1"
-
-#: config/module.config.php:76
-msgid "Q2"
-msgstr "T2"
-
-#: config/module.config.php:77
-msgid "Q3"
-msgstr "T3"
-
-#: config/module.config.php:78
-msgid "Q4"
-msgstr "T4"
-
-#: config/module.config.php:79
-msgid "Quadrimester 1"
-msgstr "Quadrimestre 1"
-
-#: config/module.config.php:80
-msgid "Quadrimester 2"
-msgstr "Quadrimestre 2"
-
-#: config/module.config.php:81
-msgid "Quadrimester 3"
-msgstr "Quadrimestre 3"
-
-#: config/module.config.php:82
-msgid "Quadrimesters"
-msgstr "Quadrimestres"
-
-#: config/module.config.php:83
-msgid "Quarters"
-msgstr "Trimestres"
-
-#: config/module.config.php:84
-msgid "Seasons"
-msgstr "Saisons"
-
-#: config/module.config.php:85
-msgid "Seasons (Northern Hemisphere)"
-msgstr "Saisons (hémisphère nord)"
-
-#: config/module.config.php:86
-msgid "Seasons (Southern Hemisphere)"
-msgstr "Saisons (hémisphère sud)"
-
-#: config/module.config.php:88
+#: config/module.config.php:166
 msgid "Semester 1"
 msgstr "Premier semestre"
 
-#: config/module.config.php:89
+#: config/module.config.php:167
 msgid "Semester 2"
 msgstr "Second semestre"
 
-#: config/module.config.php:90
+#: config/module.config.php:168
 msgid "Semesters"
 msgstr "Semestres"
 
-#: config/module.config.php:91
+#: config/module.config.php:169
 msgid "September"
 msgstr "Septembre"
 
-#: config/module.config.php:92
+#: config/module.config.php:170
+#, php-format
+msgid "Since %1$s"
+msgstr "Depuis %1$s"
+
+#: config/module.config.php:171
 msgid "Spring"
 msgstr "Printemps"
 
-#: config/module.config.php:93
+#: config/module.config.php:172
 msgid "Spring - Northern"
 msgstr "Printemps - Nord"
 
-#: config/module.config.php:94
+#: config/module.config.php:173
 msgid "Spring - Southern"
 msgstr "Printemps - Sud"
 
-#: config/module.config.php:95
+#: config/module.config.php:174
 msgid "Summer"
 msgstr "Été"
 
-#: config/module.config.php:96
+#: config/module.config.php:175
 msgid "Summer - Northern"
 msgstr "Été - Nord"
 
-#: config/module.config.php:97
+#: config/module.config.php:176
 msgid "Summer - Southern"
 msgstr "Été - Sud"
 
-#: config/module.config.php:98
+#: config/module.config.php:177
+msgid "Swap"
+msgstr "Intervertir"
+
+#: config/module.config.php:178
+msgid "Swap start and end"
+msgstr "Intervertir début et fin"
+
+#: config/module.config.php:179
+msgid ""
+"The extended format uses the proleptic Gregorian calendar with astronomical "
+"year numbering (year 0 = 1 BCE). Historical dates before the Gregorian "
+"reform of 1582 (or later in some countries) are usually recorded in the "
+"Julian calendar in sources and must be converted before entry. For instance:"
+msgstr ""
+"Le format étendu utilise le calendrier grégorien proleptique avec une "
+"numérotation astronomique des années (année 0 = 1 avant notre ère). Les "
+"dates historiques antérieures à la réforme grégorienne de 1582 (ou "
+"ultérieures dans certains pays) sont généralement enregistrées dans les "
+"sources du calendrier julien et doivent être converties avant d’être "
+"saisies. Par exemple :"
+
+#: config/module.config.php:180
+msgid "Time is only allowed with day precision"
+msgstr "Le temps est autorisé seulement avec une précision par jour"
+
+#: config/module.config.php:181
 msgid "Uncertain (?)"
 msgstr "Incertain (?)"
 
-#: config/module.config.php:99
+#: config/module.config.php:182
+msgid "Unknown side"
+msgstr "Côté inconnu"
+
+#: config/module.config.php:183
+#, php-format
+msgid "Until %1$s"
+msgstr "Jusqu’à %1$s"
+
+#: config/module.config.php:184
 msgid "Winter"
 msgstr "Hiver"
 
-#: config/module.config.php:100
+#: config/module.config.php:185
 msgid "Winter - Northern"
 msgstr "Hiver - Nord"
 
-#: config/module.config.php:101
+#: config/module.config.php:186
 msgid "Winter - Southern"
 msgstr "Hiver - Sud"
 
-#: config/module.config.php:103
+#: config/module.config.php:188
 msgid "approximate"
 msgstr "approximatif"
 
-#: config/module.config.php:104
+#: config/module.config.php:189
 msgid "at"
 msgstr "à"
 
-#: config/module.config.php:105
-msgid "BCE"
-msgstr "AVJC"
+#: config/module.config.php:190
+msgid ""
+"the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;"
+msgstr ""
+"la bataille de Lépante (7 octobre 1571 julien) doit être saisie 1571-10-17 ;"
 
-#: config/module.config.php:106
-#, php-format
-msgid "%s century"
-msgstr "%s siècle"
+#: config/module.config.php:191
+msgid "the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07."
+msgstr ""
+"la bataille de Marathon (12 septembre 490 av. J.-C. julien) doit être saisie "
+"-0489-09-07."
 
-#: config/module.config.php:107
-#, php-format
-msgid "%s millennium"
-msgstr "%s millénaire"
-
-#: config/module.config.php:108
-#, php-format
-msgid "%ss"
-msgstr "années %s"
-
-#: config/module.config.php:109
+#: config/module.config.php:192
 msgid "uncertain"
 msgstr "incertain"
 
-#: config/module.config.php:110
+#: config/module.config.php:193
 msgid "uncertain and approximate"
 msgstr "incertain et approximatif"
 
-#: config/module.config.php:111
-#, php-format
-msgid "Unknown to %s"
-msgstr "Inconnu à %s"
-
-#: config/module.config.php:112
-#, php-format
-msgid "%s to present or unknown"
-msgstr "%s à maintenant ou inconnu"
-
-#: config/module.config.php:113
-#, php-format
-msgid "%s to %s"
-msgstr "%s à %s"
-
-#: config/module.config.php:148
+#: config/module.config.php:198
 msgid "Extended Date Time Format"
 msgstr "Format étendu de la date et de l’heure"
+
+#~ msgid "Français - Usage courant"
+#~ msgstr "Français - Usage courant"
+
+#, php-format
+#~ msgid "%s to present or unknown"
+#~ msgstr "%s à maintenant ou inconnu"
 
 #~ msgid "Duration less than"
 #~ msgstr "Durée plus courte que"
