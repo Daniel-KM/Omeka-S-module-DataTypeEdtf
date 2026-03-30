@@ -9,10 +9,10 @@ use Omeka\Entity\Resource;
 /**
  * @Entity
  * @Table(
- *     name="edtf_data_type_edtf",
+ *     name="data_type_edtf",
  *     indexes={
- *         @Index(name="property_value", columns={"property_id", "value"}),
- *         @Index(name="value", columns={"value"}),
+ *         @Index(name="idx_property_value_min", columns={"property_id", "value_min"}),
+ *         @Index(name="idx_property_value_max", columns={"property_id", "value_max"}),
  *     }
  * )
  */
@@ -38,9 +38,20 @@ class Edtf extends AbstractEntity
     protected $property;
 
     /**
-     * @Column(type="string", length=255)
+     * Earliest possible Unix timestamp for the EDTF value. PHP_INT_MIN
+     * for unknown/open start.
+     *
+     * @Column(type="bigint")
      */
-    protected $value;
+    protected $valueMin;
+
+    /**
+     * Latest possible Unix timestamp for the EDTF value. PHP_INT_MAX
+     * for unknown/open end.
+     *
+     * @Column(type="bigint")
+     */
+    protected $valueMax;
 
     public function getId()
     {
@@ -67,13 +78,23 @@ class Edtf extends AbstractEntity
         return $this->property;
     }
 
-    public function setValue($value): void
+    public function setValueMin(int $valueMin): void
     {
-        $this->value = $value;
+        $this->valueMin = $valueMin;
     }
 
-    public function getValue()
+    public function getValueMin(): ?int
     {
-        return $this->value;
+        return $this->valueMin === null ? null : (int) $this->valueMin;
+    }
+
+    public function setValueMax(int $valueMax): void
+    {
+        $this->valueMax = $valueMax;
+    }
+
+    public function getValueMax(): ?int
+    {
+        return $this->valueMax === null ? null : (int) $this->valueMax;
     }
 }

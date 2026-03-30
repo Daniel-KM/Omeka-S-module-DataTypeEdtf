@@ -67,10 +67,14 @@ class ValueAnnotationTest extends AbstractHttpControllerTestCase
         $this->createdItemIds[] = $item->id();
 
         // Verify the EDTF entity was created for the value annotation.
+        // 1900~ bounds: 1900-01-01 to 1900-12-31.
         $conn = $this->getConnection();
         $count = $conn->fetchOne(
-            'SELECT COUNT(*) FROM edtf_data_type_edtf WHERE value = ?',
-            ['1900~']
+            'SELECT COUNT(*) FROM data_type_edtf WHERE value_min >= ? AND value_max <= ?',
+            [
+                (new \DateTime('1900-01-01'))->getTimestamp(),
+                (new \DateTime('1900-12-31 23:59:59'))->getTimestamp(),
+            ]
         );
         $this->assertGreaterThanOrEqual(
             1,

@@ -21,7 +21,6 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
 
     public function toString(ValueRepresentation $value)
     {
-
         return (string) $value->value();
     }
 
@@ -39,45 +38,19 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
     }
 
     /**
-     * Add a less-than query.
+     * Add a comparison query on a column of the specialized entity.
      *
-     * Use in self::buildQuery() to perform simple < comparisons.
-     *
-     * @param AdapterInterface $adapter
-     * @param QueryBuilder $qb
-     * @param int|null propertyId
-     * @param int $number
+     * @param string $op One of 'lt', 'lte', 'gt', 'gte'.
+     * @param string $column Doctrine field name (default 'valueMin').
      */
-    public function addLessThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
-    {
-        # @todo - probably a bit to do here
-        $alias = $adapter->createAlias();
-        $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
-        if (is_numeric($propertyId)) {
-            $with = $qb->expr()->andX(
-                $qb->expr()->eq("$alias.resource", 'omeka_root.id'),
-                $qb->expr()->eq("$alias.property", (int) $propertyId)
-            );
-        }
-        $qb->leftJoin($this->getEntityClass(), $alias, 'WITH', $with);
-        $qb->andWhere($qb->expr()->lt(
-            "$alias.value",
-            $adapter->createNamedParameter($qb, $number)
-        ));
-    }
-
-    /**
-     * Add a greater-than query.
-     *
-     * Use in self::buildQuery() to perform simple > comparisons.
-     *
-     * @param AdapterInterface $adapter
-     * @param QueryBuilder $qb
-     * @param int|null propertyId
-     * @param int $number
-     */
-    public function addGreaterThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
-    {
+    protected function addComparisonQuery(
+        AdapterInterface $adapter,
+        QueryBuilder $qb,
+        $propertyId,
+        $number,
+        string $op,
+        string $column = 'valueMin'
+    ): void {
         $alias = $adapter->createAlias();
         $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
         if (is_numeric($propertyId)) {
@@ -87,63 +60,29 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
             );
         }
         $qb->leftJoin($this->getEntityClass(), $alias, 'WITH', $with);
-        $qb->andWhere($qb->expr()->gt(
-            "$alias.value",
+        $qb->andWhere($qb->expr()->$op(
+            "$alias.$column",
             $adapter->createNamedParameter($qb, $number)
         ));
     }
 
-    /**
-     * Add a less-than-or-equal-to query.
-     *
-     * Use in self::buildQuery() to perform simple <= comparisons.
-     *
-     * @param AdapterInterface $adapter
-     * @param QueryBuilder $qb
-     * @param int|null propertyId
-     * @param int $number
-     */
-    public function addLessThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
+    public function addLessThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number, string $column = 'valueMin'): void
     {
-        $alias = $adapter->createAlias();
-        $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
-        if (is_numeric($propertyId)) {
-            $with = $qb->expr()->andX(
-                $with,
-                $qb->expr()->eq("$alias.property", (int) $propertyId)
-            );
-        }
-        $qb->leftJoin($this->getEntityClass(), $alias, 'WITH', $with);
-        $qb->andWhere($qb->expr()->lte(
-            "$alias.value",
-            $adapter->createNamedParameter($qb, $number)
-        ));
+        $this->addComparisonQuery($adapter, $qb, $propertyId, $number, 'lt', $column);
     }
 
-    /**
-     * Add a greater-than-or-equal-to query.
-     *
-     * Use in self::buildQuery() to perform simple >= comparisons.
-     *
-     * @param AdapterInterface $adapter
-     * @param QueryBuilder $qb
-     * @param int|null propertyId
-     * @param int $number
-     */
-    public function addGreaterThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
+    public function addGreaterThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number, string $column = 'valueMin'): void
     {
-        $alias = $adapter->createAlias();
-        $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
-        if (is_numeric($propertyId)) {
-            $with = $qb->expr()->andX(
-                $with,
-                $qb->expr()->eq("$alias.property", (int) $propertyId)
-            );
-        }
-        $qb->leftJoin($this->getEntityClass(), $alias, 'WITH', $with);
-        $qb->andWhere($qb->expr()->gte(
-            "$alias.value",
-            $adapter->createNamedParameter($qb, $number)
-        ));
+        $this->addComparisonQuery($adapter, $qb, $propertyId, $number, 'gt', $column);
+    }
+
+    public function addLessThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number, string $column = 'valueMin'): void
+    {
+        $this->addComparisonQuery($adapter, $qb, $propertyId, $number, 'lte', $column);
+    }
+
+    public function addGreaterThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number, string $column = 'valueMin'): void
+    {
+        $this->addComparisonQuery($adapter, $qb, $propertyId, $number, 'gte', $column);
     }
 }

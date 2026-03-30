@@ -128,7 +128,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
 
         $conn = $this->getConnection();
         $count = $conn->fetchOne(
-            'SELECT COUNT(*) FROM edtf_data_type_edtf WHERE resource_id = ?',
+            'SELECT COUNT(*) FROM data_type_edtf WHERE resource_id = ?',
             [$item->id()]
         );
         $this->assertEquals(1, $count);
@@ -153,7 +153,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
 
         $conn = $this->getConnection();
         $count = $conn->fetchOne(
-            'SELECT COUNT(*) FROM edtf_data_type_edtf WHERE resource_id = ?',
+            'SELECT COUNT(*) FROM data_type_edtf WHERE resource_id = ?',
             [$itemId]
         );
         $this->assertEquals(0, $count);
