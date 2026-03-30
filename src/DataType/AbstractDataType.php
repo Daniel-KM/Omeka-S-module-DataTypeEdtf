@@ -1,11 +1,12 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\DataType;
 
 use Doctrine\ORM\QueryBuilder;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Adapter\AdapterInterface;
-use Omeka\DataType\DataTypeWithOptionsInterface;
 use Omeka\Api\Representation\ValueRepresentation;
+use Omeka\DataType\DataTypeWithOptionsInterface;
 
 abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTypeInterface
 {
@@ -14,7 +15,7 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
         return 'Edtf'; // @translate
     }
 
-    public function prepareForm(PhpRenderer $view)
+    public function prepareForm(PhpRenderer $view): void
     {
     }
 
@@ -29,11 +30,11 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
         return $value->value();
     }
 
-    public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query)
+    public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query): void
     {
     }
 
-    public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId)
+    public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId): void
     {
     }
 
@@ -47,7 +48,7 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
      * @param int|null propertyId
      * @param int $number
      */
-    public function addLessThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number)
+    public function addLessThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
     {
         # @todo - probably a bit to do here
         $alias = $adapter->createAlias();
@@ -75,7 +76,7 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
      * @param int|null propertyId
      * @param int $number
      */
-    public function addGreaterThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number)
+    public function addGreaterThanQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
     {
         $alias = $adapter->createAlias();
         $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
@@ -102,7 +103,7 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
      * @param int|null propertyId
      * @param int $number
      */
-    public function addLessThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number)
+    public function addLessThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
     {
         $alias = $adapter->createAlias();
         $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');
@@ -129,7 +130,7 @@ abstract class AbstractDataType implements DataTypeWithOptionsInterface, DataTyp
      * @param int|null propertyId
      * @param int $number
      */
-    public function addGreaterThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number)
+    public function addGreaterThanOrEqualToQuery(AdapterInterface $adapter, QueryBuilder $qb, $propertyId, $number): void
     {
         $alias = $adapter->createAlias();
         $with = $qb->expr()->eq("$alias.resource", 'omeka_root.id');

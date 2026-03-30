@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\View\Helper;
 
 use EdtfDataType\Form\Element\EdtfPropertySelect as Select;
 use Laminas\Form\Factory;
-use Laminas\View\Helper\AbstractHelper;
 use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\View\Helper\AbstractHelper;
 
 class EdtfPropertySelect extends AbstractHelper
 {

@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\View\Helper;
 
-use Laminas\Form\View\Helper\AbstractHelper;
 use Laminas\Form\ElementInterface;
+use Laminas\Form\View\Helper\AbstractHelper;
 
 class Edtf extends AbstractHelper
 {

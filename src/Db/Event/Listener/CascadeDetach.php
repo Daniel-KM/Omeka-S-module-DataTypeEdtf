@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Db\Event\Listener;
 
 use Doctrine\ORM\Event\PreFlushEventArgs;
@@ -15,7 +16,7 @@ class CascadeDetach
      * resource is detached but the EDTF entity remains managed for
      * whatever reason.
      */
-    public function preFlush(PreFlushEventArgs $event)
+    public function preFlush(PreFlushEventArgs $event): void
     {
         $em = $event->getEntityManager();
         $uow = $em->getUnitOfWork();

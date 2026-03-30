@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Form\Element;
 
 use Doctrine\ORM\EntityManager;
@@ -16,7 +17,7 @@ class EdtfPropertySelect extends Select
     /**
      * @param EntityManager $entityManager
      */
-    public function setEntityManager(EntityManager $entityManager)
+    public function setEntityManager(EntityManager $entityManager): void
     {
         $this->entityManager = $entityManager;
     }
@@ -104,9 +105,7 @@ class EdtfPropertySelect extends Select
             $valueOptions[$value]['attributes']['title'] = implode("\n", $templateLabels);
         }
 
-        usort($valueOptions, function ($a, $b) {
-            return strcasecmp($a['label'], $b['label']);
-        });
+        usort($valueOptions, fn ($a, $b) => strcasecmp($a['label'], $b['label']));
 
         $this->valueOptionsCache = $valueOptions;
         return $this->valueOptionsCache;

@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Form\Element;
 
-use Omeka\Form\Element\PropertySelect;
 use Laminas\Form\Element;
 use Laminas\ServiceManager\ServiceLocatorInterface;
+use Omeka\Form\Element\PropertySelect;
 
 class ConvertToEdtf extends Element
 {
@@ -11,12 +12,12 @@ class ConvertToEdtf extends Element
     protected $propertyElement;
     protected $typeElement;
 
-    public function setFormElementManager(ServiceLocatorInterface  $formElements)
+    public function setFormElementManager(ServiceLocatorInterface  $formElements): void
     {
         $this->formElements = $formElements;
     }
 
-    public function init()
+    public function init(): void
     {
         $this->setAttribute('data-collection-action', 'replace');
         $this->setLabel('Convert to EDTF'); // @translate

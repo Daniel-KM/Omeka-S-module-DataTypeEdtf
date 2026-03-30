@@ -1,16 +1,17 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\DataType;
 
 use Doctrine\ORM\QueryBuilder;
+use EDTF\EdtfFactory;
 use EdtfDataType\Entity\EdtfDataTypeEdtf;
 use EdtfDataType\Form\Element\Edtf as EdtfElement;
+use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Adapter\AdapterInterface;
 use Omeka\Api\Representation\ValueRepresentation;
 use Omeka\DataType\ValueAnnotatingInterface;
 use Omeka\Entity\Value;
-use Laminas\View\Renderer\PhpRenderer;
-use \EDTF\EdtfFactory;
 
 class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
 {
@@ -24,7 +25,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         return 'EDTF Date/Time'; // @translate
     }
 
-    public function prepareForm(PhpRenderer $view)
+    public function prepareForm(PhpRenderer $view): void
     {
     }
 
@@ -78,7 +79,6 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         return $parsingResult;
     }
 
-
     public function isValid(array $valueObject)
     {
         if (!isset($valueObject['@value']) || !is_string($valueObject['@value']) || $valueObject['@value'] === '') {
@@ -89,7 +89,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         return $parsingResult->isValid();
     }
 
-    public function hydrate(array $valueObject, Value $value, AbstractEntityAdapter $adapter)
+    public function hydrate(array $valueObject, Value $value, AbstractEntityAdapter $adapter): void
     {
         // Store the datetime as a string
         $edtfDate = $valueObject['@value'];
@@ -130,7 +130,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         return 'EdtfDataType\Entity\EdtfDataTypeEdtf';
     }
 
-    public function setEntityValues(EdtfDataTypeEdtf $entity, Value $value)
+    public function setEntityValues(EdtfDataTypeEdtf $entity, Value $value): void
     {
 
         // Set the datetime as a string
@@ -146,7 +146,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
      *   ],
      * ]
      */
-    public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query)
+    public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query): void
     {
         if (isset($query['edtf']['date']['lt']['val'])) {
             $value = $query['edtf']['date']['lt']['val'];
@@ -178,7 +178,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         }
     }
 
-    public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId)
+    public function sortQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query, $type, $propertyId): void
     {
         if ('date' === $type) {
             $alias = $adapter->createAlias();
@@ -194,7 +194,7 @@ class Edtf extends AbstractDateTimeDataType implements ValueAnnotatingInterface
         }
     }
 
-    public function valueAnnotationPrepareForm(PhpRenderer $view)
+    public function valueAnnotationPrepareForm(PhpRenderer $view): void
     {
     }
 

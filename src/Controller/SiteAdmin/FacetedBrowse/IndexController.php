@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType\Controller\SiteAdmin\FacetedBrowse;
 
 use Laminas\Mvc\Controller\AbstractActionController;

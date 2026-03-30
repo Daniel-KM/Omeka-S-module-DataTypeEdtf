@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace EdtfDataType;
 
-use Composer\Semver\Comparator;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Events as DoctrineEvents;
 use EdtfDataType\Db\Event\Listener\CascadeDetach;
 use EdtfDataType\Form\Element\ConvertToEdtf;
-use Omeka\Module\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
 use Laminas\ServiceManager\ServiceLocatorInterface;
-use Laminas\ModuleManager\ModuleManager;
+use Omeka\Module\AbstractModule;
 
 class Module extends AbstractModule
 {
-
     public function init(ModuleManager $moduleManager): void
     {
         require_once __DIR__ . '/vendor/autoload.php';
@@ -26,7 +25,7 @@ class Module extends AbstractModule
         return include __DIR__ . '/config/module.config.php';
     }
 
-    public function onBootstrap(MvcEvent $event)
+    public function onBootstrap(MvcEvent $event): void
     {
         parent::onBootstrap($event);
 
@@ -37,7 +36,7 @@ class Module extends AbstractModule
         );
     }
 
-    public function install(ServiceLocatorInterface $services)
+    public function install(ServiceLocatorInterface $services): void
     {
         $conn = $services->get('Omeka\Connection');
         $conn->executeStatement('CREATE TABLE edtf_data_type_edtf (id INT AUTO_INCREMENT NOT NULL, resource_id INT NOT NULL, property_id INT NOT NULL, value VARCHAR(255) NOT NULL, INDEX IDX_C0EBD47889329D25 (resource_id), INDEX IDX_C0EBD478549213EC (property_id), INDEX property_value (property_id, value), INDEX value (value), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;');
@@ -45,13 +44,13 @@ class Module extends AbstractModule
         $conn->executeStatement('ALTER TABLE edtf_data_type_edtf ADD CONSTRAINT FK_C0EBD478549213EC FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
     }
 
-    public function uninstall(ServiceLocatorInterface $services)
+    public function uninstall(ServiceLocatorInterface $services): void
     {
         $conn = $services->get('Omeka\Connection');
         $conn->executeStatement('DROP TABLE IF EXISTS edtf_data_type_edtf;');
     }
 
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
         $adapterIds = [
             'Omeka\Api\Adapter\ItemAdapter',
@@ -91,7 +90,7 @@ class Module extends AbstractModule
             $sharedEventManager->attach(
                 $controllerId,
                 'view.sort-selector',
-                function (Event $event) {
+                function (Event $event): void {
                     $sortings = $this->getSortings('Omeka\Entity\Item');
                     $sortConfig = $event->getParam('sortConfig') ?: [];
                     $sortConfig = array_merge($sortConfig, $sortings);
@@ -102,7 +101,7 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\ItemSet',
             'view.sort-selector',
-            function (Event $event) {
+            function (Event $event): void {
                 $sortings = $this->getSortings('Omeka\Entity\ItemSet');
                 $sortConfig = $event->getParam('sortConfig') ?: [];
                 $sortConfig = array_merge($sortConfig, $sortings);
@@ -112,7 +111,7 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\Media',
             'view.sort-selector',
-            function (Event $event) {
+            function (Event $event): void {
                 $sortings = $this->getSortings('Omeka\Entity\Media');
                 $sortConfig = $event->getParam('sortConfig') ?: [];
                 $sortConfig = array_merge($sortConfig, $sortings);
@@ -130,7 +129,7 @@ class Module extends AbstractModule
             $sharedEventManager->attach(
                 $controllerId,
                 'view.advanced_search',
-                function (Event $event) {
+                function (Event $event): void {
                     $partials = $event->getParam('partials');
                     $partials[] = 'common/edtf-data-type-advanced-search';
                     $event->setParam('partials', $partials);
@@ -142,7 +141,7 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'FacetedBrowse\Controller\SiteAdmin\Category',
             'view.faceted_browse.category_form',
-            function (Event $event) {
+            function (Event $event): void {
                 $view = $event->getTarget();
                 $view->headScript()->appendFile($view->assetUrl('js/faceted-browse/category-form.js', 'EdtfDataType'));
             }
@@ -151,7 +150,7 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'Omeka\Form\ResourceBatchUpdateForm',
             'form.add_elements',
-            function (Event $event) {
+            function (Event $event): void {
                 $form = $event->getTarget();
                 $form->add([
                     'type' => ConvertToEdtf::class,
@@ -162,7 +161,7 @@ class Module extends AbstractModule
         $sharedEventManager->attach(
             'Omeka\Api\Adapter\ItemAdapter',
             'api.preprocess_batch_update',
-            function (Event $event) {
+            function (Event $event): void {
                 $data = $event->getParam('data');
                 $rawData = $event->getParam('request')->getContent();
                 if ($this->convertToEdtfDataIsValid($rawData)) {
@@ -180,7 +179,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function convertToEdtf(Event $event)
+    public function convertToEdtf(Event $event): void
     {
         $entity = $event->getParam('entity');
         if ($entity instanceof \Omeka\Entity\Item) {
@@ -247,7 +246,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function saveEdtfData(Event $event)
+    public function saveEdtfData(Event $event): void
     {
         $entity = $event->getParam('entity');
 
@@ -313,7 +312,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function buildQueries(Event $event)
+    public function buildQueries(Event $event): void
     {
         $query = $event->getParam('request')->getContent();
         if (!isset($query['edtf'])) {
@@ -333,7 +332,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function sortQueries(Event $event)
+    public function sortQueries(Event $event): void
     {
         $adapter = $event->getTarget();
         $qb = $event->getParam('queryBuilder');
