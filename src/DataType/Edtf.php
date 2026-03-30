@@ -44,10 +44,10 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     /**
      * Return the most precise JSON-LD @type URI for an EDTF string.
      *
-     * When the string is a "pure" form expressible in XML Schema
-     * (no qualifier, no unspecified digit, no season, no interval,
-     * no set, no long year), returns an xsd:* URI. Otherwise returns
-     * the Library of Congress EDTF generic datatype URI.
+     * When the string is a "pure" form expressible in XML Schema (no qualifier,
+     * no unspecified digit, no season, no interval, no set, no long year),
+     * returns an xsd:* URI. Otherwise returns the Library of Congress EDTF
+     * generic datatype URI.
      *
      * Official URIs and documentation:
      * @link https://id.loc.gov/datatypes/EDTFScheme.html
@@ -60,8 +60,7 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
      * @link https://github.com/ProfessionalWiki/WikibaseEdtf/issues/13
      * @link https://github.com/Islandora/documentation/issues/916
      *
-     * @todo Differentiate EDTF Level 0 / 1 / 2 URIs instead of always
-     *       returning the generic EDTF URI.
+     * @todo Differentiate EDTF Level 0 / 1 / 2 URIs instead of always returning the generic EDTF URI.
      */
     protected function getXsdOrEdtfType(string $edtfString): string
     {
@@ -154,15 +153,46 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
         if (!is_string($raw) || $raw === '') {
             return (string) $raw;
         }
-        // Parse only once: reuse the result for validity check and
-        // humanization.
+        // Parse only once: reuse result for validity check and humanization.
         $parsingResult = EdtfFactory::newParser()->parse($raw);
         if (!$parsingResult->isValid()) {
             return $raw;
         }
-        $humanizer = EdtfFactory::newHumanizerForLanguage($view->lang() ?? 'en');
-        $response = $humanizer->humanize($parsingResult->getEdtfValue());
+        $style = $this->getHumanizerStyle();
+        if ($style === 'fr_usage') {
+            $humanizer = new \DataTypeEdtf\Humanizer\FrenchUsage();
+            $response = $humanizer->humanize($raw, $parsingResult->getEdtfValue());
+        } else {
+            $humanizer = EdtfFactory::newHumanizerForLanguage($view->lang() ?? 'en');
+            $response = $humanizer->humanize($parsingResult->getEdtfValue());
+        }
         return $response !== '' ? $response : $raw;
+    }
+
+    /**
+     * Read the humanizer style from module settings. Defaults to the bundled
+     * library ("library") which uses ProfessionalWiki/EDTF translations loaded
+     * from the vendor json files.
+     */
+    protected function getHumanizerStyle(): string
+    {
+        if ($this->settings === null) {
+            return 'library';
+        }
+        return (string) $this->settings->get('datatypeedtf_humanizer', 'library');
+    }
+
+    /**
+     * Injected by the service factory. Null-safe so existing callers that
+     * instantiate Edtf directly (CLI scripts, tests) keep working.
+     *
+     * @var \Omeka\Settings\Settings|null
+     */
+    protected $settings;
+
+    public function setSettings(?\Omeka\Settings\Settings $settings): void
+    {
+        $this->settings = $settings;
     }
 
     public function getFulltextText(PhpRenderer $view, ValueRepresentation $value)
@@ -177,9 +207,9 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     }
 
     /**
-     * Year offset used so the packed date column is always positive
-     * when year >= -OFFSET. Must be large enough to cover the age of
-     * the universe (≈1.4·10^10) and leave room for sentinels.
+     * Year offset used so the packed date column is always positive when
+     * year  >= -OFFSET. Must be large enough to cover the age of the universe
+     * (≈1.4·10^10) and leave room for sentinels.
      */
     public const YEAR_OFFSET = 100000000000000; // 10^14
 
@@ -198,15 +228,14 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     }
 
     /**
-     * Compute the packed (minDate, minTime, maxDate, maxTime) bounds
-     * of an EDTF string.
+     * Compute packed bounds (minDate, minTime, maxDate, maxTime) of EDTF string.
      *
-     * Date part is encoded as (year + YEAR_OFFSET) * 10000 + month *
-     * 100 + day, giving a natively sortable signed BIGINT. Time part
-     * is encoded as hour * 10000 + minute * 100 + second.
+     * Date part is encoded as (year + YEAR_OFFSET) * 10000 + month * 100 + day,
+     * giving a natively sortable signed BIGINT.
+     * Time part is encoded as hour * 10000 + minute * 100 + second.
      *
-     * For open intervals and invalid strings, DATE_MIN / DATE_MAX are
-     * used as sentinels so range queries work without handling NULL.
+     * For open intervals and invalid strings, DATE_MIN / DATE_MAX are used as
+     * sentinels so range queries work without handling NULL.
      */
     public function getValueBounds(?string $edtfString): array
     {
@@ -239,8 +268,8 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     }
 
     /**
-     * Compute packed bounds for a non-Interval EDTF node (ExtDate,
-     * ExtDateTime, Season, Set).
+     * Compute packed bounds for a non-Interval EDTF node (ExtDate, ExtDateTime,
+     * Season, Set).
      */
     protected function boundsOf($node): array
     {
@@ -339,9 +368,8 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
      *   lt/lte/gt/gte => [val => <edtf string>, pid => <propertyId>],
      * ]
      *
-     * Range queries compare lexicographically on the (date, time)
-     * pair using the composite indexes on value_min_date/time and
-     * value_max_date/time.
+     * Range queries compare lexicographically on the (date, time) pair using
+     * the composite indexes on value_min_date/time and value_max_date/time.
      */
     public function buildQuery(AdapterInterface $adapter, QueryBuilder $qb, array $query): void
     {
@@ -356,10 +384,10 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
                 continue;
             }
             [$minDate, $minTime, $maxDate, $maxTime] = $this->getValueBounds($value);
-            // "less than"  → the item ends before the query value:
-            //                compare on value_max_* with lower bound.
-            // "greater than" → the item starts after the query value:
-            //                  compare on value_min_* with upper bound.
+            // "less than" => the item ends before the query value:
+            // compare on value_max_* with lower bound.
+            // "greater than" => the item starts after the query value:
+            // compare on value_min_* with upper bound.
             if ($op === 'lt') {
                 $this->addCompositeCompare($adapter, $qb, $propertyId, 'valueMax', '<', $minDate, $minTime);
             } elseif ($op === 'lte') {
@@ -373,8 +401,8 @@ class Edtf extends AbstractDataType implements ValueAnnotatingInterface
     }
 
     /**
-     * Add a lexicographic (date, time) comparison against the given
-     * column pair, joined on property.
+     * Add a lexicographic (date, time) comparison against the given column
+     * pair, joined on property.
      *
      * @param string $columnPrefix 'valueMin' or 'valueMax'.
      * @param string $op '<', '<=', '>', '>='.

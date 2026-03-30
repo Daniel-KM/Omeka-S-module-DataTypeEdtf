@@ -12,10 +12,8 @@ return [
         ],
     ],
     'data_types' => [
-        'invokables' => [
-            'edtf' => interface_exists(\Omeka\DataType\ConversionTargetInterface::class)
-                ? DataType\EdtfConvertible::class
-                : DataType\Edtf::class,
+        'factories' => [
+            'edtf' => Service\DataType\EdtfFactory::class,
         ],
         'value_annotating' => [
             'edtf',

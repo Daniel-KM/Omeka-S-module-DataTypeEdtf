@@ -62,6 +62,9 @@ class Module extends AbstractModule
             SQL);
         $conn->executeStatement('ALTER TABLE data_type_edtf ADD CONSTRAINT fk_edtf_resource FOREIGN KEY (resource_id) REFERENCES resource (id) ON DELETE CASCADE;');
         $conn->executeStatement('ALTER TABLE data_type_edtf ADD CONSTRAINT fk_edtf_property FOREIGN KEY (property_id) REFERENCES property (id) ON DELETE CASCADE;');
+
+        // Default humanizer style.
+        $services->get('Omeka\Settings')->set('datatypeedtf_humanizer', 'library');
     }
 
     public function getConfigForm(\Laminas\View\Renderer\PhpRenderer $renderer)
@@ -88,9 +91,12 @@ class Module extends AbstractModule
             }
         }
 
+        $humanizerStyle = (string) $services->get('Omeka\Settings')->get('datatypeedtf_humanizer', 'library');
+
         return $renderer->partial('data-type-edtf/config-form', [
             'legacyActive' => $legacyActive,
             'legacyCount' => $legacyCount,
+            'humanizerStyle' => $humanizerStyle,
         ]);
     }
 
@@ -98,6 +104,16 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $params = $controller->params()->fromPost();
+
+        // Persist the chosen humanizer style on every submit.
+        if (isset($params['humanizer_style'])) {
+            $services->get('Omeka\Settings')->set(
+                'datatypeedtf_humanizer',
+                in_array($params['humanizer_style'], ['library', 'fr_usage'], true)
+                    ? $params['humanizer_style']
+                    : 'library'
+            );
+        }
 
         if (empty($params['migrate_from_legacy'])) {
             return true;
