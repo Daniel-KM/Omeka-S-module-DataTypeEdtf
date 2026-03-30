@@ -39,7 +39,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => '1984',
                 ],
@@ -51,7 +51,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $values = $item->value('dcterms:date', ['all' => true]);
         $this->assertCount(1, $values);
         $this->assertSame('1984', $values[0]->value());
-        $this->assertSame('edtf:date', $values[0]->type());
+        $this->assertSame('edtf', $values[0]->type());
     }
 
     public function testCreateItemWithEdtfInterval(): void
@@ -60,7 +60,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => '1900/1999',
                 ],
@@ -79,7 +79,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => '1984?',
                 ],
@@ -98,7 +98,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => null,
                 ],
@@ -117,7 +117,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => '2024-03-15',
                 ],
@@ -140,7 +140,7 @@ class EdtfItemCrudTest extends AbstractHttpControllerTestCase
         $response = $api->create('items', [
             'dcterms:date' => [
                 [
-                    'type' => 'edtf:date',
+                    'type' => 'edtf',
                     'property_id' => $this->getDatePropertyId(),
                     '@value' => '2024-03-15',
                 ],

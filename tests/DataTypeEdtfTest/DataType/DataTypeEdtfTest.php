@@ -19,7 +19,7 @@ class DataTypeEdtfTest extends TestCase
 
     public function testGetName(): void
     {
-        $this->assertSame('edtf:date', $this->dataType->getName());
+        $this->assertSame('edtf', $this->dataType->getName());
     }
 
     public function testGetLabel(): void

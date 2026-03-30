@@ -43,7 +43,7 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
         $services = $this->getApplication()->getServiceManager();
         $dataTypeManager = $services->get('Omeka\DataTypeManager');
         $this->assertTrue(
-            $dataTypeManager->has('edtf:date'),
+            $dataTypeManager->has('edtf'),
             'Data type edtf:date should be registered'
         );
     }
@@ -67,10 +67,14 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
         $this->assertContains('id', $columnNames);
         $this->assertContains('resource_id', $columnNames);
         $this->assertContains('property_id', $columnNames);
-        $this->assertContains('value_min', $columnNames);
-        $this->assertContains('value_max', $columnNames);
-        $this->assertSame('bigint', $columns['value_min']->getType()->getName());
-        $this->assertSame('bigint', $columns['value_max']->getType()->getName());
+        $this->assertContains('value_min_date', $columnNames);
+        $this->assertContains('value_min_time', $columnNames);
+        $this->assertContains('value_max_date', $columnNames);
+        $this->assertContains('value_max_time', $columnNames);
+        $this->assertSame('bigint', $columns['value_min_date']->getType()->getName());
+        $this->assertSame('integer', $columns['value_min_time']->getType()->getName());
+        $this->assertSame('bigint', $columns['value_max_date']->getType()->getName());
+        $this->assertSame('integer', $columns['value_max_time']->getType()->getName());
     }
 
     public function testViewHelpersRegistered(): void

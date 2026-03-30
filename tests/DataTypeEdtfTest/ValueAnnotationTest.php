@@ -54,7 +54,7 @@ class ValueAnnotationTest extends AbstractHttpControllerTestCase
                     '@annotation' => [
                         'dcterms:date' => [
                             [
-                                'type' => 'edtf:date',
+                                'type' => 'edtf',
                                 'property_id' => $propertyId,
                                 '@value' => '1900~',
                             ],
@@ -67,13 +67,14 @@ class ValueAnnotationTest extends AbstractHttpControllerTestCase
         $this->createdItemIds[] = $item->id();
 
         // Verify the EDTF entity was created for the value annotation.
-        // 1900~ bounds: 1900-01-01 to 1900-12-31.
+        // 1900~ bounds: 1900-01-01 to 1900-12-31 (packed date).
         $conn = $this->getConnection();
+        $edtfType = new \DataTypeEdtf\DataType\Edtf();
         $count = $conn->fetchOne(
-            'SELECT COUNT(*) FROM data_type_edtf WHERE value_min >= ? AND value_max <= ?',
+            'SELECT COUNT(*) FROM data_type_edtf WHERE value_min_date >= ? AND value_max_date <= ?',
             [
-                (new \DateTime('1900-01-01'))->getTimestamp(),
-                (new \DateTime('1900-12-31 23:59:59'))->getTimestamp(),
+                $edtfType->packDate(1900, 1, 1),
+                $edtfType->packDate(1900, 12, 31),
             ]
         );
         $this->assertGreaterThanOrEqual(
