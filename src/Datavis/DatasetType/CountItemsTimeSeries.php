@@ -107,8 +107,15 @@ class CountItemsTimeSeries extends AbstractDatasetType
         $em = $services->get('Omeka\EntityManager');
         $datasetData = $vis->datasetData();
 
-        $start = DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['start']);
-        $end = DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['end']);
+        $start = isset($datasetData['start'])
+            ? DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['start'])
+            : false;
+        $end = isset($datasetData['end'])
+            ? DateTime::createFromFormat('Y-m-d\TH:i:s', $datasetData['end'])
+            : false;
+        if (!$start instanceof DateTime || !$end instanceof DateTime) {
+            return [];
+        }
 
         // Get the sample range according to the sample rate.
         switch ($datasetData['sample_rate']) {
@@ -152,13 +159,15 @@ class CountItemsTimeSeries extends AbstractDatasetType
             $sampleRange[] = $dateTime;
         }
 
+        // Count items whose EDTF range overlaps each time bucket.
+        // valueMin/valueMax are Unix timestamps (BIGINT).
         $dql = '
         SELECT COUNT(DISTINCT t.resource)
         FROM DataTypeEdtf\Entity\Edtf t
         WHERE t.resource IN (:item_ids)
         AND t.property = :property_id
-        AND t.value >= :start
-        AND t.value < :end';
+        AND t.valueMin < :end
+        AND t.valueMax >= :start';
         $query = $em->createQuery($dql);
         $query->setParameter('item_ids', $this->getItemIds($services, $vis));
         $query->setParameter('property_id', $datasetData['property_id']);
@@ -168,8 +177,8 @@ class CountItemsTimeSeries extends AbstractDatasetType
             if (!isset($sampleRange[$index + 1])) {
                 continue; // End on the second to the last datetime.
             }
-            $query->setParameter('start', $dateTime->format('Y-m-d\TH:i:s'));
-            $query->setParameter('end', $sampleRange[$index + 1]->format('Y-m-d\TH:i:s'));
+            $query->setParameter('start', $dateTime->getTimestamp());
+            $query->setParameter('end', $sampleRange[$index + 1]->getTimestamp());
             $dataset[] = [
                 'label' => $dateTime->format('Y-m-d\TH:i:s'),
                 'value' => (int) $query->getSingleScalarResult(),

@@ -11,8 +11,14 @@ container.on('change', '.date-in-interval-value', function(e) {
     const thisSelect = $(this);
     const facet = thisSelect.closest('.facet');
     const facetData = facet.data('facetData');
-    const query = thisSelect.val()
-        ? `numeric[ivl][pid]=${facetData.property_id}&numeric[ivl][val]=${encodeURIComponent(thisSelect.val())}`
+    // "Date in interval X" means the item's EDTF range is contained within the
+    // period X (e.g., contained within the year 1984).
+    // Expressed as: value_min >= X_start AND value_max <= X_end.
+    const val = thisSelect.val();
+    const encoded = encodeURIComponent(val);
+    const pid = facetData.property_id;
+    const query = val
+        ? `edtf[gte][pid]=${pid}&edtf[gte][val]=${encoded}&edtf[lte][pid]=${pid}&edtf[lte][val]=${encoded}`
         : '';
     FacetedBrowse.setFacetState(facet.data('facetId'), thisSelect.val(), query);
     FacetedBrowse.triggerStateChange();
