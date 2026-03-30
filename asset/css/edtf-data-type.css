@@ -13,6 +13,10 @@
     flex-grow: 1;
 }
 
+ .valid-string-container .edtf-display-value {
+    line-height: 1em;
+}
+
 .inputs .input-body .edtf-inputs input[type=text] {
     background-color: white !important;
 }
@@ -190,6 +194,10 @@ dialog.edtf-assistant-popup {
     justify-content: flex-start;
     gap: 16px;
     margin: 8px 0;
+}
+
+.edtf-assistant-empty-unknown-label {
+    margin-left: auto;
 }
 
 .edtf-assistant-link {
@@ -396,4 +404,44 @@ dialog.edtf-assistant-popup {
     justify-content: flex-end;
     gap: 6px;
     margin-top: 8px;
+}
+
+.edtf-assistant-popup .edtf-assistant-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.edtf-assistant-popup .edtf-assistant-help-toggle {
+    box-sizing: content-box;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 4px 8px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.edtf-assistant-popup .edtf-assistant-help-toggle:hover,
+.edtf-assistant-popup .edtf-assistant-help-toggle[aria-expanded="true"] {
+    opacity: 1;
+}
+
+.edtf-assistant-popup .edtf-assistant-calendar-warning {
+    margin-bottom: 10px;
+}
+
+.edtf-assistant-popup .edtf-assistant-calendar-warning ul {
+    margin: 4px 0 0;
+    padding-left: 20px;
+}
+
+.edtf-assistant-popup .edtf-assistant-calendar-warning li {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
 }
