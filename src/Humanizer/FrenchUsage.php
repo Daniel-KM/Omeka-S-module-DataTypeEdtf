@@ -259,6 +259,11 @@ class FrenchUsage
         return $n === 1 ? 'ᵉʳ' : 'ᵉ';
     }
 
+    private function ordinalSuffixFem(int $n): string
+    {
+        return $n === 1 ? 'ʳᵉ' : 'ᵉ';
+    }
+
     private function applyQualifiers(ExtDate $d, string $text): string
     {
         $uncertain = $d->uncertain();
@@ -295,13 +300,41 @@ class FrenchUsage
         $rightOpen = $right === '..';
         $rightUnknown = $right === '';
 
+        // Handle "début/fin du Xe siècle" for unspecified digits with open
+        // intervals (19XX/.., ../19XX).
+        $leftUnspec = strpos($left, 'X') !== false
+            ? $this->humanizeUnspecified($left)
+            : null;
+        $rightUnspec = strpos($right, 'X') !== false
+            ? $this->humanizeUnspecified($right)
+            : null;
+        if ($leftUnspec !== null && ($rightOpen || $rightUnknown)) {
+            return 'début'
+                . self::NBSP . $this->prepositionDu($leftUnspec)
+                . self::NBSP . $leftUnspec;
+        }
+        if ($rightUnspec !== null && ($leftOpen || $leftUnknown)) {
+            return 'fin'
+                . self::NBSP . $this->prepositionDu($rightUnspec)
+                . self::NBSP . $rightUnspec;
+        }
+
+        // Detect century subdivisions (thirds, halves) from year intervals like
+        // 1900/1933, 1934/1966, 1900/1949.
+        $centuryPart = $this->humanizeCenturyPart($left, $right);
+        if ($centuryPart !== null) {
+            return $centuryPart;
+        }
+
         $leftStr = null;
         if (!$leftOpen && !$leftUnknown && $i->hasStartDate()) {
-            $leftStr = $this->humanizeNode($i->getStartDate(), $left);
+            $leftStr = $leftUnspec
+                ?? $this->humanizeNode($i->getStartDate(), $left);
         }
         $rightStr = null;
         if (!$rightOpen && !$rightUnknown && $i->hasEndDate()) {
-            $rightStr = $this->humanizeNode($i->getEndDate(), $right);
+            $rightStr = $rightUnspec
+                ?? $this->humanizeNode($i->getEndDate(), $right);
         }
 
         // /1985 : unknown start.
@@ -397,5 +430,114 @@ class FrenchUsage
         $last = array_pop($parts);
         $sep = $allMembers ? ' et ' : ' ou ';
         return implode(', ', $parts) . $sep . $last;
+    }
+
+    /**
+     * Detect century subdivisions: thirds, quarters, halves.
+     *
+     * Base-0 convention (Joconde, p. 24):
+     * - century: 1700–1799 = 18e siècle (= 17XX)
+     * - thirds:  1700/1733, 1734/1766, 1767/1799
+     * - quarters: 1700/1724, 1725/1749, 1750/1774, 1775/1799
+     * - halves:  1700/1749, 1750/1799
+     *
+     * @see https://www.culture.gouv.fr/content/download/197593/file/methode.pdf
+     */
+    private function humanizeCenturyPart(
+        string $left,
+        string $right
+    ): ?string {
+        if (!preg_match('/^-?\d{4}$/', $left)
+            || !preg_match('/^-?\d{4}$/', $right)
+        ) {
+            return null;
+        }
+        $y1 = (int) $left;
+        $y2 = (int) $right;
+        if ($y1 >= $y2 || $y1 < 0) {
+            return null;
+        }
+        // Base-0: 1900–1999 = 20e siècle.
+        $centuryStart = (int) (floor($y1 / 100) * 100);
+        $centuryEnd = $centuryStart + 99;
+        $c = (int) ($centuryStart / 100) + 1;
+        $suffix = $this->ordinalSuffix($c);
+        $century = $c . $suffix . self::NBSP . 'siècle';
+
+        // Thirds: 34/33/33 years.
+        $t1End = $centuryStart + 33;
+        $t2Start = $t1End + 1;
+        $t2End = $t2Start + 32;
+        $t3Start = $t2End + 1;
+
+        if ($y1 === $centuryStart && $y2 === $t1End) {
+            return 'début du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $t2Start && $y2 === $t2End) {
+            return 'milieu du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $t3Start && $y2 === $centuryEnd) {
+            return 'fin du'
+                . self::NBSP . $century;
+        }
+
+        // Quarters: 25 years each.
+        $q1End = $centuryStart + 24;
+        $q2Start = $q1End + 1;
+        $q2End = $q2Start + 24;
+        $q3Start = $q2End + 1;
+        $q3End = $q3Start + 24;
+        $q4Start = $q3End + 1;
+
+        if ($y1 === $centuryStart && $y2 === $q1End) {
+            return '1' . $this->ordinalSuffix(1)
+                . self::NBSP . 'quart du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $q2Start && $y2 === $q2End) {
+            return '2' . $this->ordinalSuffix(2)
+                . self::NBSP . 'quart du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $q3Start && $y2 === $q3End) {
+            return '3' . $this->ordinalSuffix(3)
+                . self::NBSP . 'quart du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $q4Start && $y2 === $centuryEnd) {
+            return '4' . $this->ordinalSuffix(4)
+                . self::NBSP . 'quart du'
+                . self::NBSP . $century;
+        }
+
+        // Halves: 50 years each.
+        $halfEnd = $centuryStart + 49;
+        $half2Start = $halfEnd + 1;
+
+        if ($y1 === $centuryStart && $y2 === $halfEnd) {
+            return '1ʳᵉ'
+                . self::NBSP . 'moitié du'
+                . self::NBSP . $century;
+        }
+        if ($y1 === $half2Start && $y2 === $centuryEnd) {
+            return '2ᵈᵉ'
+                . self::NBSP . 'moitié du'
+                . self::NBSP . $century;
+        }
+
+        return null;
+    }
+
+    /**
+     * Return "du", "des" or "de la" depending on the label.
+     */
+    private function prepositionDu(string $label): string
+    {
+        if (strpos($label, 'années') === 0) {
+            return 'des';
+        }
+        return 'du';
     }
 }
