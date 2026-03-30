@@ -40,6 +40,7 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
+            Form\ConfigForm::class => Form\ConfigForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
             Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
@@ -220,6 +221,8 @@ return [
         ],
     ],
     'datatypeedtf' => [
+        'config' => [
+        ],
         'settings' => [
             'datatypeedtf_humanizer' => 'library',
             'datatypeedtf_calendar_mode' => 'gregorian',
