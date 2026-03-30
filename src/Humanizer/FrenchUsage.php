@@ -1,0 +1,279 @@
+<?php declare(strict_types=1);
+
+namespace DataTypeEdtf\Humanizer;
+
+use EDTF\Model\ExtDate;
+use EDTF\Model\ExtDateTime;
+use EDTF\Model\Interval;
+use EDTF\Model\Season;
+use EDTF\Model\Set;
+
+/**
+ * Humanize an EDTF value using current French usage conventions.
+ *
+ * Follows AFNOR Z 44-050 within its scope (uncertainty brackets, approximate
+ * "vers"/"ca."), typographic conventions from the French "Lexique de l'Imprimerie nationale"
+ * (abbreviated months, en-dash for ranges, non-breaking spaces) and common
+ * editorial usage for the rest (arabic ordinal centuries, BCE years with
+ * astronomical numbering, seasons, decades).
+ */
+class FrenchUsage
+{
+    // No-break space = "\u{00A0}".
+    private const NBSP = ' ';
+
+    // Tiret demi-cadratin = "\u{2013}".
+    private const DASH = '–';
+
+    private const MONTHS = [
+        1 => 'janvier',
+        'février',
+        'mars',
+        'avril',
+        'mai',
+        'juin',
+        'juillet',
+        'août',
+        'septembre',
+        'octobre',
+        'novembre',
+        'décembre',
+    ];
+
+    private const SEASONS = [
+        21 => 'printemps',
+        22 => 'été',
+        23 => 'automne',
+        24 => 'hiver',
+        25 => 'printemps (hémisphère nord)',
+        26 => 'été (hémisphère nord)',
+        27 => 'automne (hémisphère nord)',
+        28 => 'hiver (hémisphère nord)',
+        29 => 'printemps (hémisphère sud)',
+        30 => 'été (hémisphère sud)',
+        31 => 'automne (hémisphère sud)',
+        32 => 'hiver (hémisphère sud)',
+        33 => 'premier trimestre',
+        34 => 'deuxième trimestre',
+        35 => 'troisième trimestre',
+        36 => 'quatrième trimestre',
+        37 => 'premier quadrimestre',
+        38 => 'deuxième quadrimestre',
+        39 => 'troisième quadrimestre',
+        40 => 'premier semestre',
+        41 => 'second semestre',
+    ];
+
+    public function humanize(string $raw, $parsed): string
+    {
+        // Unspecified digits (X) are flattened by the parser; handle them from
+        // the raw string first.
+        if (strpos($raw, 'X') !== false && strpos($raw, '/') === false) {
+            $r = $this->humanizeUnspecified($raw);
+            if ($r !== null) {
+                return $r;
+            }
+        }
+        if ($parsed instanceof Interval) {
+            return $this->humanizeInterval($parsed, $raw);
+        }
+        if ($parsed instanceof Season) {
+            return $this->humanizeSeason($parsed);
+        }
+        if ($parsed instanceof Set) {
+            return $this->humanizeSet($parsed, $raw);
+        }
+        if ($parsed instanceof ExtDateTime) {
+            return $this->humanizeDateTime($parsed);
+        }
+        if ($parsed instanceof ExtDate) {
+            return $this->humanizeDate($parsed);
+        }
+        return $raw;
+    }
+
+    private function humanizeDate(ExtDate $d): string
+    {
+        $year = $d->getYear();
+        if ($year === null) {
+            return '';
+        }
+        $core = $this->formatYMD($year, $d->getMonth(), $d->getDay());
+        return $this->applyQualifiers($d, $core);
+    }
+
+    private function humanizeDateTime(ExtDateTime $dt): string
+    {
+        $date = $this->formatYMD($dt->getYear(), $dt->getMonth(), $dt->getDay());
+        $time = sprintf('%d%sh%s%02d', $dt->getHour(), self::NBSP, self::NBSP, $dt->getMinute());
+        if ($dt->getSecond() > 0) {
+            $time .= sprintf('%s%02d', self::NBSP, $dt->getSecond()) . self::NBSP . 's';
+        }
+        return $this->applyQualifiers($dt->getDate(), $date . ',' . self::NBSP . $time);
+    }
+
+    private function formatYMD(int $year, ?int $month, ?int $day): string
+    {
+        $yearStr = $this->formatYear($year);
+        if ($month === null) {
+            return $yearStr;
+        }
+        $monthLabel = self::MONTHS[$month] ?? (string) $month;
+        if ($day === null) {
+            return $monthLabel . self::NBSP . $yearStr;
+        }
+        return $day . self::NBSP . $monthLabel . self::NBSP . $yearStr;
+    }
+
+    /**
+     * Format an astronomical year into usage-style French.
+     *
+     * Year 0 = 1 BCE, -1 = 2 BCE, etc.
+     */
+    private function formatYear(int $year): string
+    {
+        if ($year > 0) {
+            return (string) $year;
+        }
+        $bce = 1 - $year;
+        return $bce . self::NBSP . 'av.' . self::NBSP . 'J.-C.';
+    }
+
+    private function applyQualifiers(ExtDate $d, string $text): string
+    {
+        $uncertain = $d->uncertain();
+        $approximate = $d->approximate();
+        if ($approximate && !$uncertain) {
+            return 'vers' . self::NBSP . $text;
+        }
+        if ($uncertain && !$approximate) {
+            return '[' . $text . self::NBSP . '?]';
+        }
+        if ($uncertain && $approximate) {
+            return 'vers' . self::NBSP . '[' . $text . self::NBSP . '?]';
+        }
+        return $text;
+    }
+
+    private function humanizeSeason(Season $s): string
+    {
+        $label = self::SEASONS[$s->getSeason()] ?? null;
+        if ($label === null) {
+            return '';
+        }
+        return $label . self::NBSP . $this->formatYear($s->getYear());
+    }
+
+    private function humanizeInterval(Interval $i, string $raw): string
+    {
+        $parts = explode('/', $raw, 2);
+        $left = $parts[0] ?? '';
+        $right = $parts[1] ?? '';
+
+        $leftOpen = $left === '..';
+        $leftUnknown = $left === '';
+        $rightOpen = $right === '..';
+        $rightUnknown = $right === '';
+
+        $leftStr = null;
+        if (!$leftOpen && !$leftUnknown && $i->hasStartDate()) {
+            $leftStr = $this->humanizeNode($i->getStartDate(), $left);
+        }
+        $rightStr = null;
+        if (!$rightOpen && !$rightUnknown && $i->hasEndDate()) {
+            $rightStr = $this->humanizeNode($i->getEndDate(), $right);
+        }
+
+        // /1985 : unknown start.
+        if ($leftUnknown && $rightStr !== null) {
+            return 'avant' . self::NBSP . $rightStr;
+        }
+        // 1985/ : unknown end.
+        if ($rightUnknown && $leftStr !== null) {
+            return 'après' . self::NBSP . $leftStr;
+        }
+        // ../1985 : open start.
+        if ($leftOpen && $rightStr !== null) {
+            return 'jusqu’en' . self::NBSP . $rightStr;
+        }
+        // 1985/.. : open end.
+        if ($rightOpen && $leftStr !== null) {
+            return 'depuis' . self::NBSP . $leftStr;
+        }
+        if ($leftStr !== null && $rightStr !== null) {
+            return $leftStr . self::NBSP . self::DASH . self::NBSP . $rightStr;
+        }
+        return $raw;
+    }
+
+    private function humanizeNode($node, string $raw): string
+    {
+        if ($node instanceof Season) {
+            return $this->humanizeSeason($node);
+        }
+        if ($node instanceof ExtDateTime) {
+            return $this->humanizeDateTime($node);
+        }
+        if ($node instanceof ExtDate) {
+            return $this->humanizeDate($node);
+        }
+        return $raw;
+    }
+
+    /**
+     * Handle EDTF "unspecified digits" patterns (X) that the parser flattens to
+     * NULL components.
+     */
+    private function humanizeUnspecified(string $raw): ?string
+    {
+        // NNNN-MM-XX : unknown day.
+        if (preg_match('/^(-?\d{4})-(\d{2})-XX$/', $raw, $m)) {
+            $year = (int) $m[1];
+            $month = (int) $m[2];
+            return (self::MONTHS[$month] ?? $m[2]) . self::NBSP . $this->formatYear($year);
+        }
+        // NNNN-XX : unknown month.
+        if (preg_match('/^(-?\d{4})-XX$/', $raw, $m)) {
+            return $this->formatYear((int) $m[1]);
+        }
+        // NNNX / NNXX / NXXX: decade, century, millennium.
+        if (preg_match('/^(-?)(\d+)(X+)$/', $raw, $m)) {
+            $sign = $m[1];
+            $digits = $m[2];
+            $xcount = strlen($m[3]);
+            if ($xcount === 1) {
+                $base = (int) $digits * 10;
+                return 'années' . self::NBSP . $base . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
+            }
+            if ($xcount === 2) {
+                $c = (int) $digits + 1;
+                return $c . 'e' . self::NBSP . 'siècle' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
+            }
+            if ($xcount === 3) {
+                $mi = (int) $digits + 1;
+                return $mi . 'e' . self::NBSP . 'millénaire' . ($sign === '-' ? self::NBSP . 'av.' . self::NBSP . 'J.-C.' : '');
+            }
+        }
+        return null;
+    }
+
+    private function humanizeSet(Set $s, string $raw): string
+    {
+        $allMembers = strpos($raw, '{') === 0;
+        $parts = [];
+        foreach ($s->getElements() as $el) {
+            $node = method_exists($el, 'getDate') ? $el->getDate() : $el;
+            $parts[] = $this->humanizeNode($node, '');
+        }
+        $parts = array_filter($parts, 'strlen');
+        if (empty($parts)) {
+            return $raw;
+        }
+        if (count($parts) === 1) {
+            return reset($parts);
+        }
+        $last = array_pop($parts);
+        $sep = $allMembers ? ' et ' : ' ou ';
+        return implode(', ', $parts) . $sep . $last;
+    }
+}
