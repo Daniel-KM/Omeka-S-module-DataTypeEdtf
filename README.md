@@ -5,7 +5,7 @@ Data Type Extended Date Time (module for Omeka S)
 for the [Extended Date/Time Format] (EDTF, ISO 8601-2:2019), allowing to
 describe dates and times with precision, uncertainty, and approximation.
 
-![dialog-assist](data/images/edtf-assistant.png)
+![dialog-assist](data/images/edtf-assistant-en.png)
 
 
 About EDTF
