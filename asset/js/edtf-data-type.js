@@ -494,9 +494,6 @@ var DataTypeEdtf = (function($) {
             +   '<div class="edtf-assistant-row edtf-assistant-row-date">'
             +     '<input type="number" inputmode="numeric" class="edtf-assistant-year" step="1"'
             +       ' placeholder="' + translate('Year') + '" aria-label="' + translate('Year') + '">'
-            +     '<span class="edtf-assistant-pre-reform-warning" title="' + translate('Date before the Gregorian reform (4th/15th October 1582). Enter the value in proleptic Gregorian.') + '" hidden>'
-            +       '<span class="fas fa-info-circle" aria-hidden="true"></span>'
-            +     '</span>'
             +     '<select class="edtf-assistant-month" aria-label="' + translate('Month') + '">'
             +       '<option value="">' + translate('Month') + '</option>'
             +       '<optgroup label="' + translate('Months') + '">'
@@ -577,8 +574,8 @@ var DataTypeEdtf = (function($) {
             +       '<option value="century">' + translate('Century (19XX)') + '</option>'
             +       '<option value="millennium">' + translate('Millennium (1XXX)') + '</option>'
             +     '</select>'
+            +     '<label class="edtf-assistant-approximate-label"><input type="checkbox" class="edtf-assistant-approximate"> ' + translate('Approximate (~)') + '</label>'
             +     '<label><input type="checkbox" class="edtf-assistant-uncertain"> ' + translate('Uncertain (?)') + '</label>'
-            +     '<label><input type="checkbox" class="edtf-assistant-approximate"> ' + translate('Approximate (~)') + '</label>'
             +   '</div>'
             + '</fieldset>';
     };
@@ -606,6 +603,9 @@ var DataTypeEdtf = (function($) {
             +               '<input type="checkbox" class="edtf-assistant-interval"> '
             +               translate('Interval (two dates)')
             +             '</label>'
+            +             '<span class="edtf-assistant-pre-reform-warning" title="' + translate('Date before the Gregorian reform (4th/15th October 1582). Enter the value in proleptic Gregorian.') + '" hidden>'
+            +               '<span class="fas fa-history" aria-hidden="true"></span>'
+            +             '</span>'
             +             '<button type="button" class="edtf-assistant-help-toggle" aria-expanded="false" aria-controls="edtf-assistant-help" title="' + translate('About calendar and year numbering') + '">'
             +               '<span class="fas fa-question-circle" aria-hidden="true"></span>'
             +               '<span class="screen-reader-text">' + translate('Help') + '</span>'
@@ -682,17 +682,21 @@ var DataTypeEdtf = (function($) {
             $popup.find('.edtf-assistant-year').eq(0).trigger('focus').select();
         }, 0);
 
-        var updatePreview = function() {
-            var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part');
-            // Toggle pre-reform warning per part: visible when the entered date
-            // is strictly before 1582-10-15. For year only the comparison is on
-            // year alone; with month it is (year, month); with day it is (year,
-            // month, day).
+        // Toggle global pre-reform warning: visible when any Gregorian part is
+        // strictly before 1582-10-15. Computed only on blur/change to avoid
+        // flashing while the user is still typing the year (e.g. "1" before
+        // "1980").
+        var updatePreReformWarning = function() {
+            var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part:visible');
+            var anyPre = false;
             $parts.each(function() {
                 var $fs = $(this);
+                var cal = $fs.find('.edtf-assistant-calendar').val();
+                if (cal) {
+                    return;
+                }
                 var y = parseInt($fs.find('.edtf-assistant-year').val(), 10);
                 if (isNaN(y)) {
-                    $fs.find('.edtf-assistant-pre-reform-warning').prop('hidden', true);
                     return;
                 }
                 var m = parseInt($fs.find('.edtf-assistant-month').val(), 10);
@@ -707,8 +711,13 @@ var DataTypeEdtf = (function($) {
                         || (y === 1582 && m < 10)
                         || (y === 1582 && m === 10 && d < 15);
                 }
-                $fs.find('.edtf-assistant-pre-reform-warning').prop('hidden', !pre);
+                if (pre) anyPre = true;
             });
+            $popup.find('.edtf-assistant-top-row .edtf-assistant-pre-reform-warning').prop('hidden', !anyPre);
+        };
+
+        var updatePreview = function() {
+            var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part');
             var isInterval = $popup.find('.edtf-assistant-interval').prop('checked');
             var first = readFormPart($parts.eq(0));
             var result = first;
@@ -775,6 +784,7 @@ var DataTypeEdtf = (function($) {
         $popup.on('change', '.edtf-assistant-interval', function() {
             $popup.find('.edtf-assistant-end, .edtf-assistant-interval-tools').toggle(this.checked);
             updatePreview();
+            updatePreReformWarning();
         });
 
         // Copy start fieldset to end fieldset.
@@ -865,6 +875,10 @@ var DataTypeEdtf = (function($) {
         };
         $popup.on('input', 'input', debouncedPreview);
         $popup.on('change', 'input, select', updatePreview);
+        // Pre-reform warning: only on blur or value commit, not on each
+        // keystroke (avoid flashing while typing the year).
+        $popup.on('blur', '.edtf-assistant-year, .edtf-assistant-month, .edtf-assistant-day, .edtf-assistant-calendar', updatePreReformWarning);
+        $popup.on('change', '.edtf-assistant-month, .edtf-assistant-day, .edtf-assistant-calendar', updatePreReformWarning);
 
         var closeDialog = function() {
             if (typeof dialog.close === 'function') dialog.close();
@@ -931,6 +945,7 @@ var DataTypeEdtf = (function($) {
                 updateSeasonState($(this));
             });
             updatePreview();
+            updatePreReformWarning();
         }
     };
 
