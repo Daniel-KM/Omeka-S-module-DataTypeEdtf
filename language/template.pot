@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-30 00:00+0000\n"
+"POT-Creation-Date: 2026-04-20 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,19 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: data/scripts/upgrade.php:21
+#, php-format
+msgid "The module %1$s should be upgraded to version %2$s or later."
+msgstr ""
+
+#: data/scripts/upgrade.php:25
+msgid "Missing requirement. Unable to upgrade."
+msgstr ""
+
+#: data/scripts/upgrade.php:74
+msgid "The indexes on database table were updated for faster lookups."
+msgstr ""
 
 #: vendor/nesbot/carbon/src/Carbon/CarbonInterval.php:1787
 msgid "_mode"
@@ -53,34 +66,34 @@ msgstr ""
 msgid "alt_numbers.9"
 msgstr ""
 
-#: view/common/edtf-data-type-advanced-search.phtml:36
+#: view/common/data-type-edtf-advanced-search.phtml:47
 msgid "Date comes on or after"
 msgstr ""
 
-#: view/common/edtf-data-type-advanced-search.phtml:52
+#: view/common/data-type-edtf-advanced-search.phtml:63
 msgid "Date comes on or before"
 msgstr ""
 
-#: view/common/edtf.phtml:10
+#: view/common/edtf.phtml:24
 #, php-format
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/edtf.phtml:11
+#: view/common/edtf.phtml:25
 msgid "Value must be an EDTF datetime"
 msgstr ""
 
-#: view/common/faceted-browse/facet-data-form/date-after.phtml:4
-#: view/common/faceted-browse/facet-data-form/date-before.phtml:4
-#: view/common/faceted-browse/facet-data-form/date-in-interval.phtml:4
+#: view/common/faceted-browse/facet-data-form/date-after.phtml:10
+#: view/common/faceted-browse/facet-data-form/date-before.phtml:10
+#: view/common/faceted-browse/facet-data-form/date-in-interval.phtml:10
 msgid "Show all available values."
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:11
+#: view/data-type-edtf/config-form.phtml:17
 msgid "Legacy \"EdtfDataType\" module detected."
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:15
+#: view/data-type-edtf/config-form.phtml:21
 #, php-format
 msgid ""
 "The legacy module \"EdtfDataType\" is still installed alongside "
@@ -91,43 +104,43 @@ msgid ""
 "possible to consolidate the data and remove the legacy module."
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:23
+#: view/data-type-edtf/config-form.phtml:29
 msgid "Migration from legacy \"EdtfDataType\" module"
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:25
+#: view/data-type-edtf/config-form.phtml:31
 msgid ""
 "The migration keeps all stored EDTF strings intact in the Omeka \"value\" "
 "column (no item is modified). Three things change that API or SPARQL "
 "consumers must be aware of:"
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:28
+#: view/data-type-edtf/config-form.phtml:34
 msgid ""
 "the data type id stored in the database: \"edtf:date\" becomes \"edtf\";"
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:29
+#: view/data-type-edtf/config-form.phtml:35
 msgid ""
 "the JSON-LD @type returned by the data type: upgraded from \"xsd:string\" to "
 "precise XSD types (xsd:date, xsd:gYear, xsd:gYearMonth, xsd:dateTime) for "
 "pure dates, and to the Library of Congress EDTF URI for advanced forms;"
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:30
+#: view/data-type-edtf/config-form.phtml:36
 msgid ""
 "the advanced-search query format: flattened from \"edtf[date][gte][<pid>]=…"
 "\" to \"edtf[gte][<pid>]=…\"."
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:33
+#: view/data-type-edtf/config-form.phtml:39
 msgid ""
 "Clicking the button below dispatches a background job that migrates the "
 "index table, uninstalls the legacy module and leaves DataTypeEdtf as the "
 "only EDTF data type provider. Progress can be monitored on the Jobs page."
 msgstr ""
 
-#: view/data-type-edtf/config-form.phtml:37
+#: view/data-type-edtf/config-form.phtml:43
 msgid "Migrate legacy data"
 msgstr ""
 
@@ -142,7 +155,7 @@ msgid ""
 "{link_end}, {link_log}logs{link_end})."
 msgstr ""
 
-#: Module.php:341
+#: Module.php:353
 #, php-format
 msgid "DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s"
 msgstr ""
@@ -268,37 +281,37 @@ msgid "Convert to EDTF"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:33 src/Form/Element/DateTime.php:34
-#: config/module.config.php:187
+#: config/module.config.php:189
 msgid "Year"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:38 src/Form/Element/DateTime.php:39
-#: config/module.config.php:144
+#: config/module.config.php:145
 msgid "Month"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:43 src/Form/Element/DateTime.php:44
-#: config/module.config.php:123
+#: config/module.config.php:124
 msgid "Day"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:48 src/Form/Element/DateTime.php:49
-#: config/module.config.php:128
+#: config/module.config.php:129
 msgid "Hour"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:53 src/Form/Element/DateTime.php:54
-#: config/module.config.php:143
+#: config/module.config.php:144
 msgid "Minute"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:58 src/Form/Element/DateTime.php:59
-#: config/module.config.php:165
+#: config/module.config.php:166
 msgid "Second"
 msgstr ""
 
 #: src/Form/Element/DateTime.php:63 src/Form/Element/DateTime.php:64
-#: config/module.config.php:148
+#: config/module.config.php:149
 msgid "Offset"
 msgstr ""
 
@@ -764,226 +777,232 @@ msgid "Before %1$s"
 msgstr ""
 
 #: config/module.config.php:118
-msgid "Century (19XX)"
+msgid ""
+"Date before the Gregorian reform (4th/15th October 1582). Enter the value in "
+"proleptic Gregorian."
 msgstr ""
 
 #: config/module.config.php:119
+msgid "Century (19XX)"
+msgstr ""
+
+#: config/module.config.php:120
 msgid ""
 "Checked: the empty side means unknown. Unchecked: it means open, extending "
 "indefinitely (..)"
 msgstr ""
 
-#: config/module.config.php:121
+#: config/module.config.php:122
 msgid "Copy"
 msgstr ""
 
-#: config/module.config.php:122
+#: config/module.config.php:123
 msgid "Copy start to end"
 msgstr ""
 
-#: config/module.config.php:124
+#: config/module.config.php:125
 msgid "Decade (198X)"
 msgstr ""
 
-#: config/module.config.php:125
+#: config/module.config.php:126
 msgid "December"
 msgstr ""
 
-#: config/module.config.php:126
+#: config/module.config.php:127
 msgid "February"
 msgstr ""
 
-#: config/module.config.php:127
+#: config/module.config.php:128
 msgid "Help"
 msgstr ""
 
-#: config/module.config.php:129
+#: config/module.config.php:130
 msgid "Interval (two dates)"
 msgstr ""
 
-#: config/module.config.php:130
+#: config/module.config.php:131
 msgid "Interval end must be on or after its start"
 msgstr ""
 
-#: config/module.config.php:131
+#: config/module.config.php:132
 msgid "Invalid date"
 msgstr ""
 
-#: config/module.config.php:132
+#: config/module.config.php:133
 msgid "Invalid day for this month"
 msgstr ""
 
-#: config/module.config.php:133
+#: config/module.config.php:134
 msgid "Invalid hour"
 msgstr ""
 
-#: config/module.config.php:134
+#: config/module.config.php:135
 msgid "Invalid minute"
 msgstr ""
 
-#: config/module.config.php:135
+#: config/module.config.php:136
 msgid "Invalid month"
 msgstr ""
 
-#: config/module.config.php:136
+#: config/module.config.php:137
 msgid "Invalid second"
 msgstr ""
 
-#: config/module.config.php:137
+#: config/module.config.php:138
 msgid "January"
 msgstr ""
 
-#: config/module.config.php:138
+#: config/module.config.php:139
 msgid "July"
 msgstr ""
 
-#: config/module.config.php:139
+#: config/module.config.php:140
 msgid "June"
 msgstr ""
 
-#: config/module.config.php:140
+#: config/module.config.php:141
 msgid "March"
 msgstr ""
 
-#: config/module.config.php:141
+#: config/module.config.php:142
 msgid "May"
 msgstr ""
 
-#: config/module.config.php:142
+#: config/module.config.php:143
 msgid "Millennium (1XXX)"
 msgstr ""
 
-#: config/module.config.php:145
+#: config/module.config.php:146
 msgid "Months"
 msgstr ""
 
-#: config/module.config.php:146
+#: config/module.config.php:147
 msgid "November"
 msgstr ""
 
-#: config/module.config.php:147
+#: config/module.config.php:148
 msgid "October"
 msgstr ""
 
-#: config/module.config.php:149
+#: config/module.config.php:150
 msgid "Precision"
 msgstr ""
 
-#: config/module.config.php:150
+#: config/module.config.php:151
 msgid "Q1"
 msgstr ""
 
-#: config/module.config.php:151
+#: config/module.config.php:152
 msgid "Q2"
 msgstr ""
 
-#: config/module.config.php:152
+#: config/module.config.php:153
 msgid "Q3"
 msgstr ""
 
-#: config/module.config.php:153
+#: config/module.config.php:154
 msgid "Q4"
 msgstr ""
 
-#: config/module.config.php:154
+#: config/module.config.php:155
 msgid "Quadrimester 1"
 msgstr ""
 
-#: config/module.config.php:155
+#: config/module.config.php:156
 msgid "Quadrimester 2"
 msgstr ""
 
-#: config/module.config.php:156
+#: config/module.config.php:157
 msgid "Quadrimester 3"
 msgstr ""
 
-#: config/module.config.php:157
+#: config/module.config.php:158
 msgid "Quadrimesters"
 msgstr ""
 
-#: config/module.config.php:158
+#: config/module.config.php:159
 msgid ""
 "Qualifiers (uncertain, approximate) cannot be used with reduced precision"
 msgstr ""
 
-#: config/module.config.php:159
+#: config/module.config.php:160
 msgid "Qualifiers (uncertain, approximate) cannot be used with seasons"
 msgstr ""
 
-#: config/module.config.php:160
+#: config/module.config.php:161
 msgid "Quarters"
 msgstr ""
 
-#: config/module.config.php:161
+#: config/module.config.php:162
 msgid "Seasons"
 msgstr ""
 
-#: config/module.config.php:162
+#: config/module.config.php:163
 msgid "Seasons (Northern Hemisphere)"
 msgstr ""
 
-#: config/module.config.php:163
+#: config/module.config.php:164
 msgid "Seasons (Southern Hemisphere)"
 msgstr ""
 
-#: config/module.config.php:164
+#: config/module.config.php:165
 msgid "Seasons and sub-year groupings cannot be used in intervals"
 msgstr ""
 
-#: config/module.config.php:166
+#: config/module.config.php:167
 msgid "Semester 1"
 msgstr ""
 
-#: config/module.config.php:167
+#: config/module.config.php:168
 msgid "Semester 2"
 msgstr ""
 
-#: config/module.config.php:168
+#: config/module.config.php:169
 msgid "Semesters"
 msgstr ""
 
-#: config/module.config.php:169
+#: config/module.config.php:170
 msgid "September"
 msgstr ""
 
-#: config/module.config.php:170
+#: config/module.config.php:171
 #, php-format
 msgid "Since %1$s"
 msgstr ""
 
-#: config/module.config.php:171
+#: config/module.config.php:172
 msgid "Spring"
 msgstr ""
 
-#: config/module.config.php:172
+#: config/module.config.php:173
 msgid "Spring - Northern"
 msgstr ""
 
-#: config/module.config.php:173
+#: config/module.config.php:174
 msgid "Spring - Southern"
 msgstr ""
 
-#: config/module.config.php:174
+#: config/module.config.php:175
 msgid "Summer"
 msgstr ""
 
-#: config/module.config.php:175
+#: config/module.config.php:176
 msgid "Summer - Northern"
 msgstr ""
 
-#: config/module.config.php:176
+#: config/module.config.php:177
 msgid "Summer - Southern"
 msgstr ""
 
-#: config/module.config.php:177
+#: config/module.config.php:178
 msgid "Swap"
 msgstr ""
 
-#: config/module.config.php:178
+#: config/module.config.php:179
 msgid "Swap start and end"
 msgstr ""
 
-#: config/module.config.php:179
+#: config/module.config.php:180
 msgid ""
 "The extended format uses the proleptic Gregorian calendar with astronomical "
 "year numbering (year 0 = 1 BCE). Historical dates before the Gregorian "
@@ -991,60 +1010,64 @@ msgid ""
 "Julian calendar in sources and must be converted before entry. For instance:"
 msgstr ""
 
-#: config/module.config.php:180
+#: config/module.config.php:181
 msgid "Time is only allowed with day precision"
 msgstr ""
 
-#: config/module.config.php:181
-msgid "Uncertain (?)"
-msgstr ""
-
 #: config/module.config.php:182
-msgid "Unknown side"
+msgid "Toggle humanized view"
 msgstr ""
 
 #: config/module.config.php:183
+msgid "Uncertain (?)"
+msgstr ""
+
+#: config/module.config.php:184
+msgid "Unknown side"
+msgstr ""
+
+#: config/module.config.php:185
 #, php-format
 msgid "Until %1$s"
 msgstr ""
 
-#: config/module.config.php:184
+#: config/module.config.php:186
 msgid "Winter"
 msgstr ""
 
-#: config/module.config.php:185
+#: config/module.config.php:187
 msgid "Winter - Northern"
 msgstr ""
 
-#: config/module.config.php:186
+#: config/module.config.php:188
 msgid "Winter - Southern"
 msgstr ""
 
-#: config/module.config.php:188
+#: config/module.config.php:190
 msgid "approximate"
 msgstr ""
 
-#: config/module.config.php:189
+#: config/module.config.php:191
 msgid "at"
 msgstr ""
 
-#: config/module.config.php:190
+#: config/module.config.php:192
 msgid ""
 "the Battle of Lepanto (7 October 1571 Julian) must be entered as 1571-10-17;"
 msgstr ""
 
-#: config/module.config.php:191
+#: config/module.config.php:193
 msgid "the Battle of Marathon (12 September 490 BCE Julian) as -0489-09-07."
 msgstr ""
 
-#: config/module.config.php:192
+#: config/module.config.php:194
 msgid "uncertain"
 msgstr ""
 
-#: config/module.config.php:193
+#: config/module.config.php:195
 msgid "uncertain and approximate"
 msgstr ""
 
-#: config/module.config.php:198
+#: config/module.config.php:200
 msgid "Extended Date Time Format"
 msgstr ""
