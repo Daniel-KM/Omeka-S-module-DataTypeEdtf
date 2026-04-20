@@ -194,6 +194,18 @@ class Module extends AbstractModule
             }
         );
 
+        $resourceAdapterIds = [
+            'Omeka\Api\Adapter\ItemAdapter',
+            'Omeka\Api\Adapter\ItemSetAdapter',
+            'Omeka\Api\Adapter\MediaAdapter',
+            'Annotate\Api\Adapter\AnnotationAdapter',
+        ];
+        foreach ($resourceAdapterIds as $adapterId) {
+            foreach (['api.create.post', 'api.update.post', 'api.delete.post'] as $eventName) {
+                $sharedEventManager->attach($adapterId, $eventName, [$this, 'invalidateSortingsCache']);
+            }
+        }
+
         $searchControllerIds = [
             'Omeka\Controller\Admin\Item',
             'Omeka\Controller\Admin\ItemSet',
@@ -478,7 +490,29 @@ class Module extends AbstractModule
      */
     public function getSortings($instanceOf)
     {
+        static $memo = [];
+        if (isset($memo[$instanceOf])) {
+            return $memo[$instanceOf];
+        }
+
         $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+        $shortNames = [
+            'Omeka\Entity\Item' => 'items',
+            'Omeka\Entity\ItemSet' => 'item_sets',
+            'Omeka\Entity\Media' => 'media',
+            'Annotate\Entity\Annotation' => 'annotations',
+        ];
+        $short = $shortNames[$instanceOf] ?? null;
+        if (!$short) {
+            return $memo[$instanceOf] = [];
+        }
+        $cacheKey = 'datatypeedtf_sortings_' . $short;
+        $cached = $settings->get($cacheKey);
+        if (is_array($cached)) {
+            return $memo[$instanceOf] = $cached;
+        }
+
         $entityManager = $services->get('Omeka\EntityManager');
         $translator = $services->get('MvcTranslator');
 
@@ -503,9 +537,22 @@ class Module extends AbstractModule
                 $sortings[$sortingKey] = $sortingValue;
             }
         }
-        // Sort options alphabetically.
         asort($sortings);
-        return $sortings;
+
+        $settings->set($cacheKey, $sortings);
+        return $memo[$instanceOf] = $sortings;
+    }
+
+    /**
+     * Invalidate the sortings cache when a resource is created, updated or
+     * deleted. The cache is rebuilt lazily on next access.
+     */
+    public function invalidateSortingsCache(Event $event): void
+    {
+        $settings = $this->getServiceLocator()->get('Omeka\Settings');
+        foreach (['items', 'item_sets', 'media', 'annotations'] as $short) {
+            $settings->delete('datatypeedtf_sortings_' . $short);
+        }
     }
 
     /**
