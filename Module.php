@@ -218,7 +218,7 @@ class Module extends AbstractModule
                 'view.advanced_search',
                 function (Event $event): void {
                     $partials = $event->getParam('partials');
-                    $partials[] = 'common/edtf-data-type-advanced-search';
+                    $partials[] = 'common/data-type-edtf-advanced-search';
                     $event->setParam('partials', $partials);
                 }
             );

@@ -1,9 +1,15 @@
 <?php
-/** @var bool $legacyActive */
-/** @var int $legacyCount */
-$escape = $this->plugin('escapeHtml');
-$translate = $this->plugin('translate');
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var bool $legacyActive
+ * @var int $legacyCount
+ */
+
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$escape = $plugins->get('escapeHtml');
 ?>
+
 <?php if ($legacyActive): ?>
     <div class="messages">
         <div class="warning">
