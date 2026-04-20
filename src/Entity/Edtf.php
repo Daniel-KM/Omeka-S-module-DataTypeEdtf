@@ -11,6 +11,7 @@ use Omeka\Entity\Resource;
  * @Table(
  *     name="data_type_edtf",
  *     indexes={
+ *         @Index(name="idx_prop_res", columns={"property_id", "resource_id"}),
  *         @Index(name="idx_property_value_min", columns={"property_id", "value_min_date", "value_min_time"}),
  *         @Index(name="idx_property_value_max", columns={"property_id", "value_max_date", "value_max_time"}),
  *     }
