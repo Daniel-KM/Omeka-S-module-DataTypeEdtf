@@ -13,6 +13,10 @@ var DataTypeEdtf = (function($) {
     };
     var escapeAttr = escapeHtml;
 
+    var translate = function(s) {
+        return (typeof Omeka !== 'undefined' && Omeka.jsTranslate) ? Omeka.jsTranslate(s) : s;
+    };
+
     /**
      * Parse a raw EDTF string into a parts object (best effort, same subset as
      * the dialog prefill).
@@ -88,7 +92,7 @@ var DataTypeEdtf = (function($) {
         var btnAttrs = isValid ? '' : ' disabled="disabled"';
         var html =
             '<div class="valid-string-container" data-raw="' + escapeAttr(rawValue) + '" data-human="' + escapeAttr(humanValue) + '" data-view="raw">' +
-                '<button type="button" class="edtf-toggle-view fa ' + iconClass + ' icon"' + btnAttrs + ' title="Toggle humanized view" aria-label="toggle humanized view"></button>' +
+                '<button type="button" class="edtf-toggle-view fa ' + iconClass + ' icon"' + btnAttrs + ' title="' + escapeAttr(translate('Toggle humanized view')) + '" aria-label="' + escapeAttr(translate('Toggle humanized view')) + '"></button>' +
                 '<span class="edtf-display-value">' + escapeHtml(rawValue) + '</span>' +
             '</div>';
         var existing = $(container).closest('.edtf').find('.valid-string-container');
@@ -490,6 +494,9 @@ var DataTypeEdtf = (function($) {
             +   '<div class="edtf-assistant-row edtf-assistant-row-date">'
             +     '<input type="number" inputmode="numeric" class="edtf-assistant-year" step="1"'
             +       ' placeholder="' + translate('Year') + '" aria-label="' + translate('Year') + '">'
+            +     '<span class="edtf-assistant-pre-reform-warning" title="' + translate('Date before the Gregorian reform (4th/15th October 1582). Enter the value in proleptic Gregorian.') + '" hidden>'
+            +       '<span class="fas fa-info-circle" aria-hidden="true"></span>'
+            +     '</span>'
             +     '<select class="edtf-assistant-month" aria-label="' + translate('Month') + '">'
             +       '<option value="">' + translate('Month') + '</option>'
             +       '<optgroup label="' + translate('Months') + '">'
@@ -677,6 +684,31 @@ var DataTypeEdtf = (function($) {
 
         var updatePreview = function() {
             var $parts = $popup.find('.edtf-assistant-parts .edtf-assistant-part');
+            // Toggle pre-reform warning per part: visible when the entered date
+            // is strictly before 1582-10-15. For year only the comparison is on
+            // year alone; with month it is (year, month); with day it is (year,
+            // month, day).
+            $parts.each(function() {
+                var $fs = $(this);
+                var y = parseInt($fs.find('.edtf-assistant-year').val(), 10);
+                if (isNaN(y)) {
+                    $fs.find('.edtf-assistant-pre-reform-warning').prop('hidden', true);
+                    return;
+                }
+                var m = parseInt($fs.find('.edtf-assistant-month').val(), 10);
+                var d = parseInt($fs.find('.edtf-assistant-day').val(), 10);
+                var pre = false;
+                if (isNaN(m)) {
+                    pre = y < 1582;
+                } else if (isNaN(d)) {
+                    pre = (y < 1582) || (y === 1582 && m < 10);
+                } else {
+                    pre = (y < 1582)
+                        || (y === 1582 && m < 10)
+                        || (y === 1582 && m === 10 && d < 15);
+                }
+                $fs.find('.edtf-assistant-pre-reform-warning').prop('hidden', !pre);
+            });
             var isInterval = $popup.find('.edtf-assistant-interval').prop('checked');
             var first = readFormPart($parts.eq(0));
             var result = first;
