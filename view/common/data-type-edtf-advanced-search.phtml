@@ -1,7 +1,18 @@
 <?php
+
 use DataTypeEdtf\Form\Element\Edtf as EdtfElement;
 
-$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'DataTypeEdtf'));
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var array $query
+ */
+
+$plugins = $this->getHelperPluginManager();
+$assetUrl = $plugins->get('assetUrl');
+$translate = $plugins->get('translate');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/data-type-edtf.css', 'DataTypeEdtf'));
 
 $edtfGteSelect = $this->edtfPropertySelect([
     'name' => 'edtf[gte][pid]',
@@ -33,7 +44,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
 <?php if ($edtfGteSelect): ?>
 <div class="field" id="edtf-on-after">
     <div class="field-meta">
-        <label for=""><?php echo $this->translate('Date comes on or after'); ?></label>
+        <label for=""><?= $translate('Date comes on or after') ?></label>
     </div>
     <div class="inputs">
         <?php
@@ -49,7 +60,7 @@ $edtfLteSelect = $this->edtfPropertySelect([
 <?php if ($edtfLteSelect): ?>
 <div class="field" id="edtf-on-before">
     <div class="field-meta">
-        <label for=""><?php echo $this->translate('Date comes on or before'); ?></label>
+        <label for=""><?= $translate('Date comes on or before') ?></label>
     </div>
     <div class="inputs">
         <?php

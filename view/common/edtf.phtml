@@ -1,18 +1,32 @@
 <?php
-$this->headLink()->appendStylesheet($this->assetUrl('css/edtf-data-type.css', 'DataTypeEdtf'));
-$this->headScript()->appendFile($this->assetUrl('vendor/edtf/edtf.js', 'DataTypeEdtf'));
-$this->headScript()->appendFile($this->assetUrl('js/edtf-data-type.js', 'DataTypeEdtf'));
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Laminas\Form\ElementInterface $element
+ */
+
+$plugins = $this->getHelperPluginManager();
+$assetUrl = $plugins->get('assetUrl');
+$translate = $plugins->get('translate');
+$escapeAttr = $plugins->get('escapeHtmlAttr');
+
 $formText = clone($this->plugin('formText'));
 $formText->addTranslatableAttribute('aria-label');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/data-type-edtf.css', 'DataTypeEdtf'));
+$this->headScript()
+    ->appendFile($assetUrl('vendor/edtf/edtf.js', 'DataTypeEdtf'))
+    ->appendFile($assetUrl('js/data-type-edtf.js', 'DataTypeEdtf'));
 ?>
+
 <div class="edtf">
     <div class="error invalid-value"
-        data-invalid-message="<?php echo $this->escapeHtml($this->translate('Invalid value: %s')); ?>"
-        data-custom-validity="<?php echo $this->escapeHtml($this->translate('Value must be an EDTF datetime')); ?>">
+        data-invalid-message="<?= $escapeAttr($translate('Invalid value: %s')) ?>"
+        data-custom-validity="<?= $escapeAttr($translate('Value must be an EDTF datetime')) ?>">
     </div>
     <div class="edtf-datetime-inputs">
         <div class="edtf-inputs">
-            <?php echo $formText($element->getValueElement()); ?>
+            <?= $formText($element->getValueElement()) ?>
         </div>
     </div>
     <script>
