@@ -447,3 +447,21 @@
         line-height: 1.4;
     }
 }
+
+.edtf-assistant-pre-reform-warning {
+    display: inline-flex;
+    align-items: center;
+    color: #b8860b;
+    opacity: 0.7;
+    cursor: help;
+    margin: 0 4px;
+    font-size: 14px;
+}
+
+.edtf-assistant-pre-reform-warning[hidden] {
+    display: none;
+}
+
+.edtf-assistant-pre-reform-warning:hover {
+    opacity: 1;
+}

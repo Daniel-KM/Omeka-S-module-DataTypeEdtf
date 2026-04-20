@@ -115,6 +115,7 @@ return [
         'BCE', // @translate
         'Before %1$s', // @translate
         'Cancel', // @translate
+        'Date before the Gregorian reform (4th/15th October 1582). Enter the value in proleptic Gregorian.', // @translate
         'Century (19XX)', // @translate
         'Checked: the empty side means unknown. Unchecked: it means open, extending indefinitely (..)', // @translate
         'Close', // @translate
@@ -178,6 +179,7 @@ return [
         'Swap start and end', // @translate
         'The extended format uses the proleptic Gregorian calendar with astronomical year numbering (year 0 = 1 BCE). Historical dates before the Gregorian reform of 1582 (or later in some countries) are usually recorded in the Julian calendar in sources and must be converted before entry. For instance:', // @translate
         'Time is only allowed with day precision', // @translate
+        'Toggle humanized view', // @translate
         'Uncertain (?)', // @translate
         'Unknown side', // @translate
         'Until %1$s', // @translate
