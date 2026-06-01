@@ -131,6 +131,8 @@ class Module extends AbstractModule
             'Omeka\Api\Adapter\ValueAnnotationAdapter',
             // Optional: Annotate module.
             'Annotate\Api\Adapter\AnnotationAdapter',
+            // Optional: DigitalObject module.
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
         ];
         foreach ($adapterIds as $adapterId) {
             $sharedEventManager->attach(
@@ -193,12 +195,23 @@ class Module extends AbstractModule
                 $event->setParam('sortConfig', $sortConfig);
             }
         );
+        $sharedEventManager->attach(
+            'DigitalObject\Controller\Admin\DigitalObject',
+            'view.sort-selector',
+            function (Event $event): void {
+                $sortings = $this->getSortings('DigitalObject\Entity\DigitalObject');
+                $sortConfig = $event->getParam('sortConfig') ?: [];
+                $sortConfig = array_merge($sortConfig, $sortings);
+                $event->setParam('sortConfig', $sortConfig);
+            }
+        );
 
         $resourceAdapterIds = [
             'Omeka\Api\Adapter\ItemAdapter',
             'Omeka\Api\Adapter\ItemSetAdapter',
             'Omeka\Api\Adapter\MediaAdapter',
             'Annotate\Api\Adapter\AnnotationAdapter',
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
         ];
         foreach ($resourceAdapterIds as $adapterId) {
             foreach (['api.create.post', 'api.update.post', 'api.delete.post'] as $eventName) {
@@ -210,6 +223,7 @@ class Module extends AbstractModule
             'Omeka\Controller\Admin\Item',
             'Omeka\Controller\Admin\ItemSet',
             'Omeka\Controller\Admin\Media',
+            'DigitalObject\Controller\Admin\DigitalObject',
             'Omeka\Controller\Site\Item',
         ];
         foreach ($searchControllerIds as $controllerId) {
@@ -261,6 +275,7 @@ class Module extends AbstractModule
             'Omeka\Api\Adapter\ItemAdapter',
             'Omeka\Api\Adapter\ItemSetAdapter',
             'Omeka\Api\Adapter\MediaAdapter',
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
         ];
         foreach ($batchAdapterIds as $batchAdapterId) {
             $sharedEventManager->attach(
@@ -281,7 +296,7 @@ class Module extends AbstractModule
     /**
      * Convert property values to the specified EDTF data type.
      *
-     * This will work for Item, ItemSet, and Media resources.
+     * This will work for Item, ItemSet, Media and DigitalObject resources.
      *
      * @param Event $event
      */
@@ -294,6 +309,10 @@ class Module extends AbstractModule
             $resource = 'item_sets';
         } elseif ($entity instanceof \Omeka\Entity\Media) {
             $resource = 'media';
+        } elseif (class_exists('DigitalObject\Entity\DigitalObject', false)
+            && $entity instanceof \DigitalObject\Entity\DigitalObject
+        ) {
+            $resource = 'digital_objects';
         } else {
             // This is not a resource entity.
             return;
@@ -502,6 +521,7 @@ class Module extends AbstractModule
             'Omeka\Entity\ItemSet' => 'item_sets',
             'Omeka\Entity\Media' => 'media',
             'Annotate\Entity\Annotation' => 'annotations',
+            'DigitalObject\Entity\DigitalObject' => 'digital_objects',
         ];
         $short = $shortNames[$instanceOf] ?? null;
         if (!$short) {
@@ -550,7 +570,7 @@ class Module extends AbstractModule
     public function invalidateSortingsCache(Event $event): void
     {
         $settings = $this->getServiceLocator()->get('Omeka\Settings');
-        foreach (['items', 'item_sets', 'media', 'annotations'] as $short) {
+        foreach (['items', 'item_sets', 'media', 'annotations', 'digital_objects'] as $short) {
             $settings->delete('datatypeedtf_sortings_' . $short);
         }
     }
