@@ -477,6 +477,7 @@ This module is based on module [Numeric Data Types] of the Omeka Team and on the
 for the [Musee de Bretagne], currently under a proprietary software (application).
 
 
+[Data Type Extended Date Time]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf
 [Data Type EDTF]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf
 [Omeka S]: https://omeka.org/s
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
