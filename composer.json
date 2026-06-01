@@ -29,7 +29,7 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "professional-wiki/edtf": "^3.0",
-        "sempia/external-assets": "^1.0"
+        "sempia/external-assets": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6.33"
