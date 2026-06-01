@@ -354,6 +354,20 @@ class FrenchUsage
             return 'depuis' . self::NBSP . $leftStr;
         }
         if ($leftStr !== null && $rightStr !== null) {
+            // Factor out shared "vers" prefix when both endpoints are
+            // approximate-only (no uncertainty brackets), so an interval like
+            // "vers 1890 – vers 1900" reads "vers 1890–1900".
+            $versPrefix = 'vers' . self::NBSP;
+            if (strpos($leftStr, $versPrefix) === 0
+                && strpos($rightStr, $versPrefix) === 0
+                && strpos($leftStr, '[') === false
+                && strpos($rightStr, '[') === false
+            ) {
+                return $versPrefix
+                    . substr($leftStr, strlen($versPrefix))
+                    . self::DASH
+                    . substr($rightStr, strlen($versPrefix));
+            }
             return $leftStr . self::NBSP . self::DASH . self::NBSP . $rightStr;
         }
         return $raw;
