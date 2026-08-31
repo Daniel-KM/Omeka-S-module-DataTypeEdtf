@@ -339,7 +339,7 @@ class Module extends AbstractModule
             $resource = 'item_sets';
         } elseif ($entity instanceof \Omeka\Entity\Media) {
             $resource = 'media';
-        } elseif (class_exists('DigitalObject\Entity\DigitalObject', false)
+        } elseif (class_exists('DigitalObject\Module', false)
             && $entity instanceof \DigitalObject\Entity\DigitalObject
         ) {
             $resource = 'digital_objects';
