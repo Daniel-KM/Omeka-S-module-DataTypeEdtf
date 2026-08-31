@@ -15,7 +15,7 @@
     ],
     "homepage": "https://warwick.ac.uk/digitalhumanities",
     "support": {
-        "issues": "https://github.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/issues",
+        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/issues",
         "forum": "https://forum.omeka.org/"
     },
     "keywords": [
@@ -55,7 +55,7 @@
     "extra": {
         "installer-name": "DataTypeEdtf",
         "external-assets": {
-            "asset/vendor/edtf/edtf.js": "https://github.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/releases/download/3.4.4/edtf.js"
+            "asset/vendor/edtf/edtf.js": "https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/releases/3.4.7/downloads/edtf.js"
         }
     }
 }
