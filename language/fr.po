@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 00:00+0000\n"
-"PO-Revision-Date: 2026-04-20 00:00+0000\n"
+"POT-Creation-Date: 2026-09-03 10:10+0200\n"
+"PO-Revision-Date: 2026-09-03 10:14+0200\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
 
-#: data/scripts/upgrade.php:21
+#: data/scripts/upgrade.php:21 Module.php:67
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
@@ -140,18 +140,18 @@ msgstr ""
 msgid "Migrate legacy data"
 msgstr "Migrer les anciennes données"
 
-#: Module.php:98
+#: Module.php:128
 msgid ""
 "The legacy module \"EdtfDataType\" is not installed; nothing to migrate."
 msgstr ""
 
-#: Module.php:107
+#: Module.php:137
 msgid ""
 "Migrating legacy \"EdtfDataType\" data in background (job {link_job}#{job_id}"
 "{link_end}, {link_log}logs{link_end})."
 msgstr ""
 
-#: Module.php:353
+#: Module.php:402
 #, php-format
 msgid "DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s"
 msgstr "EdtfDataType - valeur %1$s incorrecte pour l’id %2$s - %3$s"
