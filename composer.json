@@ -15,7 +15,7 @@
     ],
     "homepage": "https://warwick.ac.uk/digitalhumanities",
     "support": {
-        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/issues",
+        "issues": "https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/work_items",
         "forum": "https://forum.omeka.org/"
     },
     "keywords": [
@@ -29,7 +29,7 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "professional-wiki/edtf": "^3.0",
-        "sempia/external-assets": "^1.1"
+        "sempia/external-assets": "^1.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6.33"
