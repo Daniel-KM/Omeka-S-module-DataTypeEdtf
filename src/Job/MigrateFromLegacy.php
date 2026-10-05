@@ -35,7 +35,10 @@ class MigrateFromLegacy extends AbstractJob
 
         // Update stored data type id in the value table.
         $updated = $conn->executeStatement("UPDATE value SET type = 'edtf' WHERE type = 'edtf:date'");
-        $logger->info(sprintf('DataTypeEdtf migration: %d value(s) updated from "edtf:date" to "edtf".', $updated)); // @translate
+        $logger->info(
+            'DataTypeEdtf migration: {count} value(s) updated from "edtf:date" to "edtf".', // @translate
+            ['count' => $updated]
+        );
 
         // Update the data type id referenced by resource templates.
         // resource_template_property.data_type stores a JSON array of
@@ -57,7 +60,10 @@ class MigrateFromLegacy extends AbstractJob
                     "UPDATE {$table} SET {$col} = REPLACE({$col}, '\"edtf:date\"', '\"edtf\"') "
                     . "WHERE {$col} LIKE '%\"edtf:date\"%'"
                 );
-                $logger->info(sprintf('DataTypeEdtf migration: %1$d row(s) updated in %2$s.%3$s.', $n, $table, $col)); // @translate
+                $logger->info(
+                    'DataTypeEdtf migration: {count} row(s) updated in {table}.{column}.', // @translate
+                    ['count' => $n, 'table' => $table, 'column' => $col]
+                );
             } catch (\Throwable $e) {
                 // Table absent (ART not installed) — ignore silently.
             }
@@ -89,10 +95,10 @@ class MigrateFromLegacy extends AbstractJob
                     [$minDate, $minTime, $maxDate, $maxTime] = $dataType->getValueBounds($row['value']);
                 } catch (\Throwable $e) {
                     $failed++;
-                    $logger->notice(sprintf(
-                        'DataTypeEdtf migration: failed to parse value "%1$s" (resource %2$d): %3$s', // @translate
-                        $row['value'], $row['resource_id'], $e->getMessage()
-                    ));
+                    $logger->notice(
+                        'DataTypeEdtf migration: failed to parse value "{value}" (resource {resource_id}): {message}', // @translate
+                        ['value' => $row['value'], 'resource_id' => $row['resource_id'], 'message' => $e->getMessage()]
+                    );
                     continue;
                 }
                 $insertRows[] = [
@@ -121,7 +127,10 @@ class MigrateFromLegacy extends AbstractJob
                 $migrated += count($insertRows);
             }
             $offset += $batchSize;
-            $logger->info(sprintf('DataTypeEdtf migration: %d row(s) processed.', $migrated)); // @translate
+            $logger->info(
+                'DataTypeEdtf migration: {count} row(s) processed.', // @translate
+                ['count' => $migrated]
+            );
         }
 
         if ($this->shouldStop()) {
@@ -133,9 +142,9 @@ class MigrateFromLegacy extends AbstractJob
         $conn->executeStatement('DROP TABLE IF EXISTS edtf_data_type_edtf');
         $conn->executeStatement('DELETE FROM module WHERE id = ?', ['EdtfDataType']);
 
-        $logger->info(sprintf(
-            'DataTypeEdtf migration complete: %1$d row(s) migrated, %2$d failure(s). The legacy module "EdtfDataType" has been uninstalled.', // @translate
-            $migrated, $failed
-        ));
+        $logger->info(
+            'DataTypeEdtf migration complete: {count} row(s) migrated, {count_failed} failure(s). The legacy module "EdtfDataType" has been uninstalled.', // @translate
+            ['count' => $migrated, 'count_failed' => $failed]
+        );
     }
 }

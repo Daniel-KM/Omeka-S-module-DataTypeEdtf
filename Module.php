@@ -398,11 +398,10 @@ class Module extends AbstractModule
                 $value->setType($type);
                 $dataType->hydrate($valueObject, $value, $adapter);
             } else {
-                $message = sprintf(
-                    'DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s', // @translate
-                    $type, $entity->getId(), $value->getValue()
+                $logger->notice(
+                    'DataTypeEdtf - invalid {type} value for ID {resource_id} - {value}', // @translate
+                    ['type' => $type, 'resource_id' => $entity->getId(), 'value' => $value->getValue()]
                 );
-                $logger->notice($message);
             }
             // Recurse into the value annotation, if any.
             $valueAnnotation = $value->getValueAnnotation();
