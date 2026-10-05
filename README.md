@@ -141,6 +141,30 @@ of the French Ministère de la Culture, where century subdivisions are encoded a
 year intervals. See [Joconde, Portail des collections des musées de France],
 p. 24, for the full specification.
 
+When the same qualifier is set on both bounds of a century subdivision, or on a
+value with unspecified digits, it applies to the whole period:
+
+| EDTF          | French rendering                | Qualifier               |
+|---------------|---------------------------------|-------------------------|
+| `1867~/1899~` | vers la fin du 19ᵉ siècle       | Approximate             |
+| `1700~/1733~` | vers le début du 18ᵉ siècle     | Approximate             |
+| `1767?/1799?` | [fin du 18ᵉ siècle ?]           | Uncertain               |
+| `1767%/1799%` | vers [fin du 18ᵉ siècle ?]      | Approximate & uncertain |
+| `18XX~`       | vers le 19ᵉ siècle              | Approximate             |
+| `188X?`       | [années 1880 ?]                 | Uncertain               |
+| `18XX%`       | vers [19ᵉ siècle ?]             | Approximate & uncertain |
+
+With different qualifiers on each bound, each bound is rendered separately.
+
+For a single year, the French humanizer renders the quadrimesters (codes 37–39)
+with the common words for the start, the middle and the end of the year:
+
+| EDTF      | French rendering | Period covered             |
+|-----------|------------------|----------------------------|
+| `1850-37` | début 1850       | 1st quadrimester (Jan–Apr) |
+| `1850-38` | milieu 1850      | 2nd quadrimester (May–Aug) |
+| `1850-39` | fin 1850         | 3rd quadrimester (Sep–Dec) |
+
 ### Open vs unknown interval sides
 
 ISO 8601-2:2019 distinguishes two kinds of missing interval bounds:
@@ -478,7 +502,6 @@ for the [Musee de Bretagne], currently under a proprietary software (application
 
 
 [Data Type Extended Date Time]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf
-[Data Type EDTF]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf
 [Omeka S]: https://omeka.org/s
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Extended Date/Time Format]: https://www.loc.gov/standards/datetime/
