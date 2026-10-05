@@ -104,9 +104,9 @@ class FrenchUsage
         34 => 'deuxième trimestre',
         35 => 'troisième trimestre',
         36 => 'quatrième trimestre',
-        37 => 'premier quadrimestre',
-        38 => 'deuxième quadrimestre',
-        39 => 'troisième quadrimestre',
+        37 => 'début',
+        38 => 'milieu',
+        39 => 'fin',
         40 => 'premier semestre',
         41 => 'second semestre',
     ];
@@ -326,6 +326,25 @@ class FrenchUsage
             return $centuryPart;
         }
 
+        // Same qualifier on both bounds (1867~/1899~): qualified subdivision,
+        // "vers la fin du 19e siècle".
+        if (preg_match('/^(-?\d{4})([~?%])$/', $left, $ql)
+            && preg_match('/^(-?\d{4})([~?%])$/', $right, $qr)
+            && $ql[2] === $qr[2]
+            && ($part = $this->humanizeCenturyPart($ql[1], $qr[1])) !== null
+        ) {
+            $article = preg_match('/^(fin|\d\S*\s?moitié)/u', $part) ? 'la' : 'le';
+            $vers = 'vers' . self::NBSP . $article . self::NBSP . $part;
+            switch ($ql[2]) {
+                case '~':
+                    return $vers;
+                case '?':
+                    return '[' . $part . self::NBSP . '?]';
+                default:
+                    return 'vers' . self::NBSP . '[' . $part . self::NBSP . '?]';
+            }
+        }
+
         $leftStr = null;
         if (!$leftOpen && !$leftUnknown && $i->hasStartDate()) {
             $leftStr = $leftUnspec
@@ -393,6 +412,24 @@ class FrenchUsage
      */
     private function humanizeUnspecified(string $raw): ?string
     {
+        // Qualified unspecified digits (18XX~, 188X?, 18XX%): the parser keeps
+        // only the year, so the qualifier is applied to the label here.
+        if (preg_match('/^(.*X)([~?%])$/', $raw, $q)) {
+            $label = $this->humanizeUnspecified($q[1]);
+            if ($label === null) {
+                return null;
+            }
+            $vers = 'vers' . self::NBSP . (strpos($label, 'années') === 0 ? 'les' : 'le')
+                . self::NBSP . $label;
+            switch ($q[2]) {
+                case '~':
+                    return $vers;
+                case '?':
+                    return '[' . $label . self::NBSP . '?]';
+                default:
+                    return 'vers' . self::NBSP . '[' . $label . self::NBSP . '?]';
+            }
+        }
         // NNNN-MM-XX : unknown day.
         if (preg_match('/^(-?\d{4})-(\d{2})-XX$/', $raw, $m)) {
             $year = (int) $m[1];
