@@ -591,7 +591,7 @@ var DataTypeEdtf = (function($) {
             +     '<div class="dialog-panel">'
             +       '<div class="dialog-header">'
             +         '<button type="button" class="dialog-header-close-button edtf-assistant-close">'
-            +           '<span class="dialog-close" aria-hidden="true">🗙</span>'
+            +           '<span class="dialog-close" aria-hidden="true">🗙</span> '
             +           '<span class="dialog-close-label">' + translate('Close') + '</span>'
             +         '</button>'
             +       '</div>'

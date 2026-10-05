@@ -12,7 +12,9 @@ $escapeAttr = $plugins->get('escapeHtmlAttr');
 $formText = clone($this->plugin('formText'));
 $formText->addTranslatableAttribute('aria-label');
 
+// The assistant is a dialog of Common, styled by its stylesheet.
 $this->headLink()
+    ->appendStylesheet($assetUrl($this->status()->isAdminRequest() ? 'css/common-dialog-admin.css' : 'css/common-dialog.css', 'Common'))
     ->appendStylesheet($assetUrl('css/data-type-edtf.css', 'DataTypeEdtf'));
 $this->headScript()
     ->appendFile($assetUrl('vendor/edtf/edtf.js', 'DataTypeEdtf'))
