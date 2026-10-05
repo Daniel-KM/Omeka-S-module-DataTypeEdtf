@@ -515,7 +515,7 @@ for the [Musee de Bretagne], currently under a proprietary software (application
 [Faceted Browse]: https://omeka.org/s/modules/FacetedBrowse/
 [Numeric Data Types]: https://omeka.org/s/modules/NumericDataTypes/
 [Edtf Data Type]: https://github.com/digihum/omeka-s-module-edtf-data-type
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-DataTypeEdtf/-/work_items
 [EDTF.js]: https://github.com/inukshuk/edtf.js
 [Corporation for Digital Scholarship]: http://digitalscholar.org
 [University of Warwick]: https://warwick.ac.uk/digitalhumanities
