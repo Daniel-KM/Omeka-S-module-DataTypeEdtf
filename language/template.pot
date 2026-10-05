@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 10:10+0200\n"
+"POT-Creation-Date: 2026-10-05 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,42 +30,6 @@ msgstr ""
 msgid "The indexes on database table were updated for faster lookups."
 msgstr ""
 
-#: vendor/nesbot/carbon/src/Carbon/CarbonInterval.php:1787
-msgid "_mode"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1528
-msgid "period_recurrences"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1531
-msgid "period_interval"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1535
-msgid "period_start_date"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1538
-msgid "period_end_date"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2103
-msgid "ordinal"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2135
-msgid "meridiem"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:281
-msgid "alt_numbers.99"
-msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:301
-msgid "alt_numbers.9"
-msgstr ""
-
 #: view/common/data-type-edtf-advanced-search.phtml:47
 msgid "Date comes on or after"
 msgstr ""
@@ -74,12 +38,12 @@ msgstr ""
 msgid "Date comes on or before"
 msgstr ""
 
-#: view/common/edtf.phtml:24
+#: view/common/edtf.phtml:26
 #, php-format
 msgid "Invalid value: %s"
 msgstr ""
 
-#: view/common/edtf.phtml:25
+#: view/common/edtf.phtml:27
 msgid "Value must be an EDTF datetime"
 msgstr ""
 
@@ -156,45 +120,41 @@ msgid ""
 msgstr ""
 
 #: Module.php:402
-#, php-format
-msgid "DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s"
+msgid "DataTypeEdtf - invalid {type} value for ID {resource_id} - {value}"
 msgstr ""
 
 #: src/Job/MigrateFromLegacy.php:32
 msgid "DataTypeEdtf migration: legacy module not installed, nothing to do."
 msgstr ""
 
-#: src/Job/MigrateFromLegacy.php:38
-#, php-format
+#: src/Job/MigrateFromLegacy.php:39
 msgid ""
-"DataTypeEdtf migration: %d value(s) updated from \"edtf:date\" to \"edtf\"."
+"DataTypeEdtf migration: {count} value(s) updated from \"edtf:date\" to "
+"\"edtf\"."
 msgstr ""
 
-#: src/Job/MigrateFromLegacy.php:60
-#, php-format
-msgid "DataTypeEdtf migration: %1$d row(s) updated in %2$s.%3$s."
+#: src/Job/MigrateFromLegacy.php:64
+msgid "DataTypeEdtf migration: {count} row(s) updated in {table}.{column}."
 msgstr ""
 
-#: src/Job/MigrateFromLegacy.php:93
-#, php-format
+#: src/Job/MigrateFromLegacy.php:99
 msgid ""
-"DataTypeEdtf migration: failed to parse value \"%1$s\" (resource %2$d): %3$s"
+"DataTypeEdtf migration: failed to parse value \"{value}\" (resource "
+"{resource_id}): {message}"
 msgstr ""
 
-#: src/Job/MigrateFromLegacy.php:124
-#, php-format
-msgid "DataTypeEdtf migration: %d row(s) processed."
-msgstr ""
-
-#: src/Job/MigrateFromLegacy.php:128
-msgid "DataTypeEdtf migration: interrupted; run the job again to finish."
+#: src/Job/MigrateFromLegacy.php:131
+msgid "DataTypeEdtf migration: {count} row(s) processed."
 msgstr ""
 
 #: src/Job/MigrateFromLegacy.php:137
-#, php-format
+msgid "DataTypeEdtf migration: interrupted; run the job again to finish."
+msgstr ""
+
+#: src/Job/MigrateFromLegacy.php:146
 msgid ""
-"DataTypeEdtf migration complete: %1$d row(s) migrated, %2$d failure(s). The "
-"legacy module \"EdtfDataType\" has been uninstalled."
+"DataTypeEdtf migration complete: {count} row(s) migrated, {count_failed} "
+"failure(s). The legacy module \"EdtfDataType\" has been uninstalled."
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:11 src/Form/SiteSettingsFieldset.php:14

@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 10:10+0200\n"
-"PO-Revision-Date: 2026-09-03 10:14+0200\n"
+"POT-Creation-Date: 2026-10-05 00:00+0000\n"
+"PO-Revision-Date: 2026-10-05 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -25,42 +25,8 @@ msgstr "Pré-requis absent. Impossible de mettre à jour."
 #: data/scripts/upgrade.php:74
 msgid "The indexes on database table were updated for faster lookups."
 msgstr ""
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonInterval.php:1787
-msgid "_mode"
-msgstr "_mode"
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1528
-msgid "period_recurrences"
-msgstr "period_recurrences"
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1531
-msgid "period_interval"
-msgstr "period_interval"
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1535
-msgid "period_start_date"
-msgstr "period_start_date"
-
-#: vendor/nesbot/carbon/src/Carbon/CarbonPeriod.php:1538
-msgid "period_end_date"
-msgstr "period_end_date"
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2103
-msgid "ordinal"
-msgstr "ordinal"
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Date.php:2135
-msgid "meridiem"
-msgstr "midi"
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:281
-msgid "alt_numbers.99"
-msgstr "alt_numbers.99"
-
-#: vendor/nesbot/carbon/src/Carbon/Traits/Localization.php:301
-msgid "alt_numbers.9"
-msgstr "alt_numbers.9"
+"Les index de la table de la base de données ont été mis à jour afin "
+"d'accélérer les recherches."
 
 #: view/common/data-type-edtf-advanced-search.phtml:47
 msgid "Date comes on or after"
@@ -70,12 +36,12 @@ msgstr "Date à partir de"
 msgid "Date comes on or before"
 msgstr "Date au plus tard le"
 
-#: view/common/edtf.phtml:24
+#: view/common/edtf.phtml:26
 #, php-format
 msgid "Invalid value: %s"
 msgstr "Valeur invalide : %s"
 
-#: view/common/edtf.phtml:25
+#: view/common/edtf.phtml:27
 msgid "Value must be an EDTF datetime"
 msgstr "La valeur doit être une date-heure au format EDTF"
 
@@ -87,7 +53,7 @@ msgstr "Voir toutes les valeurs possibles."
 
 #: view/data-type-edtf/config-form.phtml:17
 msgid "Legacy \"EdtfDataType\" module detected."
-msgstr ""
+msgstr "Détection d'un module « EdtfDataType » obsolète."
 
 #: view/data-type-edtf/config-form.phtml:21
 #, php-format
@@ -99,10 +65,18 @@ msgid ""
 "data type ids. It is strongly recommended to run the migration as soon as "
 "possible to consolidate the data and remove the legacy module."
 msgstr ""
+"L'ancein module « EdtfDataType » est toujours installé parallèlement à "
+"« DataTypeEdtf » et contient %d valeurs indexées. Les deux modules peuvent "
+"coexister temporairement, mais les utilisateurs verront deux types de "
+"données EDTF dans les modèles de ressources et les nouveaux éléments "
+"risquent d’être répartis entre l’ancien identifiant de type de données "
+"« edtf:date » et le nouvel identifiant « edtf ». Il est vivement recommandé "
+"d’effectuer la migration dès que possible afin de consolider les données et "
+"de supprimer l'ancien module."
 
 #: view/data-type-edtf/config-form.phtml:29
 msgid "Migration from legacy \"EdtfDataType\" module"
-msgstr ""
+msgstr "Migration depuis l'ancien module « EdtfDataType »"
 
 #: view/data-type-edtf/config-form.phtml:31
 msgid ""
@@ -110,11 +84,16 @@ msgid ""
 "column (no item is modified). Three things change that API or SPARQL "
 "consumers must be aware of:"
 msgstr ""
+"La migration conserve intactes toutes les chaînes EDTF stockées dans la "
+"colonne « value » d'Omeka (aucun élément n'est modifié). Trois changements "
+"doivent être pris en compte par les utilisateurs de l'API ou de SPARQL :"
 
 #: view/data-type-edtf/config-form.phtml:34
 msgid ""
 "the data type id stored in the database: \"edtf:date\" becomes \"edtf\";"
 msgstr ""
+"le type de données « id » stocké dans la base de données : « edtf:date » "
+"devient « edtf » ;"
 
 #: view/data-type-edtf/config-form.phtml:35
 msgid ""
@@ -122,12 +101,18 @@ msgid ""
 "precise XSD types (xsd:date, xsd:gYear, xsd:gYearMonth, xsd:dateTime) for "
 "pure dates, and to the Library of Congress EDTF URI for advanced forms;"
 msgstr ""
+"le @type JSON-LD renvoyé par le type de données : il a été mis à jour, "
+"passant de « xsd:string » à des types XSD précis (xsd:date, xsd:gYear, "
+"xsd:gYearMonth, xsd:dateTime) pour les dates simples, et à l'URI EDTF de la "
+"Bibliothèque du Congrès pour les formats avancés ;"
 
 #: view/data-type-edtf/config-form.phtml:36
 msgid ""
 "the advanced-search query format: flattened from \"edtf[date][gte][<pid>]=…"
 "\" to \"edtf[gte][<pid>]=…\"."
 msgstr ""
+"le format de requête de recherche avancée : simplifié, passant de "
+"« edtf[date][gte][<pid>]=… » à « edtf[gte][<pid>]=… »."
 
 #: view/data-type-edtf/config-form.phtml:39
 msgid ""
@@ -135,6 +120,10 @@ msgid ""
 "index table, uninstalls the legacy module and leaves DataTypeEdtf as the "
 "only EDTF data type provider. Progress can be monitored on the Jobs page."
 msgstr ""
+"En cliquant sur le bouton ci-dessous, vous lancez une tâche en arrière-plan "
+"qui migre la table d'index, désinstalle l'ancien module et ne laisse que "
+"DataTypeEdtf comme seul fournisseur de types de données EDTF. Vous pouvez en "
+"suivre la progression sur la page des Tâches."
 
 #: view/data-type-edtf/config-form.phtml:43
 msgid "Migrate legacy data"
@@ -144,54 +133,66 @@ msgstr "Migrer les anciennes données"
 msgid ""
 "The legacy module \"EdtfDataType\" is not installed; nothing to migrate."
 msgstr ""
+"L'ancien module « EdtfDataType » n'est pas installé ; il n'y a donc rien à "
+"migrer."
 
 #: Module.php:137
 msgid ""
 "Migrating legacy \"EdtfDataType\" data in background (job {link_job}#{job_id}"
 "{link_end}, {link_log}logs{link_end})."
 msgstr ""
+"Migration en arrière-plan des données héritées de type « EdtfDataType » "
+"(tâche {link_job}#{job_id}{link_end}, journaux {link_log}logs{link_end})."
 
 #: Module.php:402
-#, php-format
-msgid "DataTypeEdtf - invalid %1$s value for ID %2$s - %3$s"
-msgstr "EdtfDataType - valeur %1$s incorrecte pour l’id %2$s - %3$s"
+msgid "DataTypeEdtf - invalid {type} value for ID {resource_id} - {value}"
+msgstr ""
+"DataTypeEdtf - valeur {type} incorrecte pour l’id {resource_id} - {value}"
 
 #: src/Job/MigrateFromLegacy.php:32
 msgid "DataTypeEdtf migration: legacy module not installed, nothing to do."
 msgstr ""
+"Migration DataTypeEdtf : module obsolète non installé, aucune action requise."
 
-#: src/Job/MigrateFromLegacy.php:38
-#, php-format
+#: src/Job/MigrateFromLegacy.php:39
 msgid ""
-"DataTypeEdtf migration: %d value(s) updated from \"edtf:date\" to \"edtf\"."
+"DataTypeEdtf migration: {count} value(s) updated from \"edtf:date\" to \"edtf"
+"\"."
 msgstr ""
+"Migration DataTypeEdtf : {count} valeur(s) mise(s) à jour de « edtf:date » "
+"vers « edtf »."
 
-#: src/Job/MigrateFromLegacy.php:60
-#, php-format
-msgid "DataTypeEdtf migration: %1$d row(s) updated in %2$s.%3$s."
+#: src/Job/MigrateFromLegacy.php:64
+msgid "DataTypeEdtf migration: {count} row(s) updated in {table}.{column}."
 msgstr ""
+"Migration DataTypeEdtf : {count} ligne(s) mise(s) à jour dans {table}."
+"{column}."
 
-#: src/Job/MigrateFromLegacy.php:93
-#, php-format
+#: src/Job/MigrateFromLegacy.php:97
 msgid ""
-"DataTypeEdtf migration: failed to parse value \"%1$s\" (resource %2$d): %3$s"
+"DataTypeEdtf migration: failed to parse value \"{value}\" (resource "
+"{resource_id}): {message}"
 msgstr ""
+"Migration DataTypeEdtf : échec de l’analyse de la valeur « {value} » "
+"(ressource {resource_id}) : {message}"
 
-#: src/Job/MigrateFromLegacy.php:124
-#, php-format
-msgid "DataTypeEdtf migration: %d row(s) processed."
-msgstr ""
+#: src/Job/MigrateFromLegacy.php:129
+msgid "DataTypeEdtf migration: {count} row(s) processed."
+msgstr "Migration DataTypeEdtf : {count} ligne(s) traitée(s)."
 
-#: src/Job/MigrateFromLegacy.php:128
+#: src/Job/MigrateFromLegacy.php:135
 msgid "DataTypeEdtf migration: interrupted; run the job again to finish."
 msgstr ""
+"Migration DataTypeEdtf : interrompue ; relancez la tâche pour la terminer."
 
-#: src/Job/MigrateFromLegacy.php:137
-#, php-format
+#: src/Job/MigrateFromLegacy.php:145
 msgid ""
-"DataTypeEdtf migration complete: %1$d row(s) migrated, %2$d failure(s). The "
-"legacy module \"EdtfDataType\" has been uninstalled."
+"DataTypeEdtf migration complete: {count} row(s) migrated, {count_failed} "
+"failure(s). The legacy module \"EdtfDataType\" has been uninstalled."
 msgstr ""
+"Migration de DataTypeEdtf terminée : {count} ligne(s) migrée(s), "
+"{count_failed} échec(s). Le module obsolète « EdtfDataType » a été "
+"désinstallé."
 
 #: src/Form/SiteSettingsFieldset.php:11 src/Form/SiteSettingsFieldset.php:14
 #: src/Form/SettingsFieldset.php:11 src/Form/SettingsFieldset.php:14
@@ -1102,6 +1103,33 @@ msgstr "incertain et approximatif"
 #: config/module.config.php:200
 msgid "Extended Date Time Format"
 msgstr "Format étendu de la date et de l’heure"
+
+#~ msgid "_mode"
+#~ msgstr "_mode"
+
+#~ msgid "period_recurrences"
+#~ msgstr "period_recurrences"
+
+#~ msgid "period_interval"
+#~ msgstr "period_interval"
+
+#~ msgid "period_start_date"
+#~ msgstr "period_start_date"
+
+#~ msgid "period_end_date"
+#~ msgstr "period_end_date"
+
+#~ msgid "ordinal"
+#~ msgstr "ordinal"
+
+#~ msgid "meridiem"
+#~ msgstr "midi"
+
+#~ msgid "alt_numbers.99"
+#~ msgstr "alt_numbers.99"
+
+#~ msgid "alt_numbers.9"
+#~ msgstr "alt_numbers.9"
 
 #~ msgid "Français - Usage courant"
 #~ msgstr "Français - Usage courant"
