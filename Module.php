@@ -298,7 +298,13 @@ class Module extends AbstractModule
                 $form->add([
                     'type' => ConvertToEdtf::class,
                     'name' => 'edtf_convert',
+                    'options' => [
+                        'element_group' => 'edtf',
+                    ],
                 ]);
+                $groups = $form->getOption('element_groups');
+                $groups['edtf'] = 'EDTF'; // @translate
+                $form->setOption('element_groups', $groups);
             }
         );
         $batchAdapterIds = [

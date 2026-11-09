@@ -236,6 +236,10 @@ msgid ""
 "Some countries adopted it later: England 1752-09-14, Russia 1918-02-14."
 msgstr ""
 
+#: Module.php:306
+msgid "EDTF"
+msgstr ""
+
 #: src/Form/Element/ConvertToEdtf.php:23
 msgid "Convert to EDTF"
 msgstr ""
