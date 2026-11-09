@@ -15,10 +15,12 @@ class ConvertToEdtf extends AbstractHelper
     public function render(ElementInterface $element)
     {
         $view = $this->getView();
+        $typeElement = $element->getTypeElement();
         return sprintf(
-            '%s%s',
-            $view->formText($element->getPropertyElement()),
-            $view->formText($element->getTypeElement())
+            '%s<label>%s %s</label>',
+            $view->formSelect($element->getPropertyElement()),
+            $view->formCheckbox($typeElement),
+            $view->escapeHtml($view->translate($typeElement->getLabel()))
         );
     }
 }

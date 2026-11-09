@@ -284,9 +284,13 @@ msgstr ""
 "défaut : 1582-10-15 (réforme papale). Certains pays l’ont adopté plus tard : "
 "Angleterre 1752-09-14, Russie 1918-02-14."
 
-#: src/Form/Element/ConvertToEdtf.php:23 src/Form/Element/ConvertToEdtf.php:34
+#: src/Form/Element/ConvertToEdtf.php:23
 msgid "Convert to EDTF"
 msgstr "Convertir en EDTF"
+
+#: src/Form/Element/ConvertToEdtf.php:32
+msgid "Run the conversion process"
+msgstr "Lancer le traitement de conversion"
 
 #: src/Form/Element/DateTime.php:33 src/Form/Element/DateTime.php:34
 #: config/module.config.php:189

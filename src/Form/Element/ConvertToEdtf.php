@@ -28,11 +28,10 @@ class ConvertToEdtf extends Element
                 'class' => 'chosen-select',
                 'data-placeholder' => 'Select property', // @translate
             ]);
-        $this->typeElement = (new Element\Select('edtf_convert[type]'))
-            ->setEmptyOption('[No change]') // @translate
-            ->setValueOptions([
-                'edtf' => 'Convert to EDTF', // @translate
-            ]);
+        $this->typeElement = (new Element\Checkbox('edtf_convert[type]'))
+            ->setLabel('Run the conversion process') // @translate
+            ->setUseHiddenElement(false)
+            ->setCheckedValue('edtf');
     }
 
     public function getPropertyElement()
