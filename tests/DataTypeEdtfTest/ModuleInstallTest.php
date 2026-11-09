@@ -85,4 +85,17 @@ class ModuleInstallTest extends AbstractHttpControllerTestCase
         $this->assertTrue($viewHelpers->has('formConvertToEdtf'));
         $this->assertTrue($viewHelpers->has('edtfPropertySelect'));
     }
+
+    public function testBatchUpdateFormHasEdtfGroup(): void
+    {
+        $services = $this->getApplication()->getServiceManager();
+        $form = $services->get('FormElementManager')
+            ->get(\Omeka\Form\ResourceBatchUpdateForm::class, ['resource_type' => 'item']);
+
+        $this->assertSame('EDTF', $form->getOption('element_groups')['edtf'] ?? null);
+        $this->assertSame('edtf', $form->get('edtf_convert')->getOption('element_group'));
+
+        $html = $services->get('ViewHelperManager')->get('formCollectionElementGroups')($form, false);
+        $this->assertStringContainsString('<fieldset id="edtf"><legend><h2 class="fieldsets-heading">EDTF</h2></legend>', $html);
+    }
 }
